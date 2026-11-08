@@ -1,4 +1,5 @@
 import { junctionConditions, jq } from './junction';
+import { SILICON } from './materials';
 export interface DiodeInput {
   bias: number;
   temperature: number;
@@ -52,11 +53,11 @@ export function diodeParameters(c: DiodeInput) {
       na: c.na,
       nd: c.nd,
       temperature: c.temperature,
-      relativePermittivity: 11.7,
+      relativePermittivity: SILICON.epsr,
       voltage: 0,
     }),
-    dn = 0.135 * b.vt,
-    dp = 0.048 * b.vt,
+    dn = SILICON.muN * b.vt,
+    dp = SILICON.muP * b.vt,
     ln = Math.sqrt(dn * c.tauN),
     lp = Math.sqrt(dp * c.tauP),
     n0 = (b.ni * b.ni) / c.na,

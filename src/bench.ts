@@ -1,5 +1,6 @@
 /** Virtual measurement kernels: SI, explicit circuit KCL and reproducible instrument errors. */
 import { jq as q, eps0 } from './junction';
+import { SILICON, SIO2 } from './materials';
 import { opticalDefault, optical, solar } from './photonics';
 export interface BenchSettings {
   topology: 'nmos' | 'cmos';
@@ -124,7 +125,7 @@ export function bisect(fn: (v: number) => number, lo: number, hi: number, tol = 
   throw Error('Circuit root failed to converge');
 }
 export function cox(c: BenchSettings) {
-  return (3.9 * eps0) / c.tox;
+  return (SIO2.epsr * eps0) / c.tox;
 }
 export function intrinsicFet(vg: number, vd: number, beta: number, threshold: number, lambda = 0) {
   if (vd <= 0 || vg <= threshold) return 0;
@@ -618,7 +619,7 @@ export function opticalBench(c: BenchSettings) {
 export function receiver(c: BenchSettings, refine = 1) {
   const o = { ...opticalDefault, area: 1e-6, irradiance: c.irradiance, reflection: c.reflection },
     a = optical(o),
-    cap = (11.7 * eps0 * o.area) / o.thickness + c.scopeC,
+    cap = (SILICON.epsr * eps0 * o.area) / o.thickness + c.scopeC,
     R = c.receiverR,
     tau = R * cap,
     half = 5 * tau,

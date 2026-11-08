@@ -329,8 +329,8 @@ export default function PhotonicsLab() {
               ))}
             </div>
             <p className="pn-note">
-              Fixed reference gaps: Si 1.12 eV; GaAs 1.424 eV. Absorption and lifetime presets are
-              illustrative, not calibrated material datasets.
+              Fixed reference gaps (Neamen Table B.4): Si 1.12 eV; GaAs 1.42 eV. Absorption and
+              lifetime presets are illustrative, not calibrated material datasets.
             </p>
             {part !== 3 ? (
               <>
@@ -1319,9 +1319,10 @@ export default function PhotonicsLab() {
             pp. 624–628 (PDF 649–653), illuminated diode, VOC, MPP, FF and efficiency;
             §14.3.2–14.3.3 pp. 635–641 (PDF 660–666), photodiodes/PIN collection; §14.4.2 p.
             645–646, radiative efficiency; §14.5 pp. 648–654, LEDs/extraction; §14.6 pp. 654–660,
-            stimulated emission and cavity feedback. Si gap is the course’s 1.12 eV; GaAs 1.424 eV
-            follows Eq. 14.52 at zero Al fraction. Permittivity uses the same reference Si/GaAs
-            values as the electronic labs.
+            stimulated emission and cavity feedback. Si and GaAs gaps (1.12 eV, 1.42 eV) are the
+            shared Appendix B Table B.4 values used by every module; Eq. 14.52 at zero Al fraction
+            gives 1.424 eV, a difference below the precision this lab claims. Permittivity uses the
+            same reference Si/GaAs values as the electronic labs.
           </p>
           <p>
             <b>Topic 4 — Absorption and Nonequilibrium:</b> PDF slides 3–4, 8–9, 19–22 and 25–27

@@ -1,5 +1,6 @@
 /** SI kernels. Voltages are electrostatic volts; band plot conversion is explicit. */
 import { jq as q, jk as kb, eps0 } from './junction';
+import { SILICON, SIO2, effectiveDensities } from './materials';
 import { defaults, Recipe, simulateRecipe, inspect, width, height } from './fabrication';
 export interface MosInput {
   kind: 'n' | 'p';
@@ -66,16 +67,16 @@ export function mosParams(c: MosInput) {
     throw Error('Outside documented long-channel teaching ranges.');
   const s = c.kind === 'n' ? 1 : -1,
     vt = (kb * c.temperature) / q,
-    eps = 11.7 * eps0,
-    cox = (3.9 * eps0) / c.tox,
-    nc = 2.8e25 * (c.temperature / 300) ** 1.5,
-    nv = 1.04e25 * (c.temperature / 300) ** 1.5,
-    ni = Math.sqrt(nc * nv) * Math.exp(-1.12 / (2 * vt)),
+    eps = SILICON.epsr * eps0,
+    cox = (SIO2.epsr * eps0) / c.tox,
+    { nc, nv } = effectiveDensities(SILICON, c.temperature),
+    halfGap = SILICON.gapEv / 2,
+    ni = Math.sqrt(nc * nv) * Math.exp(-SILICON.gapEv / (2 * vt)),
     major = (c.doping + Math.sqrt(c.doping * c.doping + 4 * ni * ni)) / 2,
     minor = (ni * ni) / major,
     phi = vt * Math.log(major / ni),
     offset = (vt / 2) * Math.log(nv / nc),
-    semWork = 4.05 + 0.56 - offset + s * phi,
+    semWork = SILICON.affinityEv + halfGap - offset + s * phi,
     vfb = c.work - semWork - (q * c.fixed) / cox,
     gamma = Math.sqrt(2 * q * eps * c.doping) / cox,
     theta0 = s * vfb + 2 * phi + gamma * Math.sqrt(2 * phi),
@@ -85,6 +86,7 @@ export function mosParams(c: MosInput) {
     vt,
     eps,
     cox,
+    halfGap,
     nc,
     nv,
     ni,
@@ -184,7 +186,14 @@ export function capacitorBands(c: MosInput, N = 400) {
   let x = 0;
   const add = (v: number) => {
     const ei = a.s * a.phi - v;
-    rows.push({ x, psi: v, ei, ec: ei + 0.56 - a.offset, ev: ei - 0.56 - a.offset, ef: 0 });
+    rows.push({
+      x,
+      psi: v,
+      ei,
+      ec: ei + a.halfGap - a.offset,
+      ev: ei - a.halfGap - a.offset,
+      ef: 0,
+    });
   };
   add(a.psi);
   if (Math.abs(a.psi) < 1e-10) {

@@ -1011,8 +1011,9 @@ export default function MosLab() {
             capacitances here are per area (F/m²). εs = 11.7ε0, εox = 3.9ε0; tox, W, L, x and Wd are
             lengths (m). q is positive elementary charge, kB Boltzmann’s constant, T temperature in
             kelvin. Φm,Φs and χ are work functions/electron affinity expressed numerically in volts
-            (input eV per electron); χ = 4.05 eV, Eg = 1.12 eV. Nc,Nv are effective densities of
-            states and ni is intrinsic density. EF,Ec,Ev,Ei are electron energies shown in eV.
+            (input eV per electron); χ = 4.01 eV (Neamen Table 9.2 / Table B.4), Eg = 1.12 eV. Nc,Nv
+            are effective densities of states and ni is intrinsic density. EF,Ec,Ev,Ei are electron
+            energies shown in eV.
           </p>
           <p>
             VGB is gate minus body voltage; VGS and VDS are gate/drain minus source. Source is

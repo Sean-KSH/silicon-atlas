@@ -1,30 +1,30 @@
 /** SI calculation layer: energies J, concentrations m^-3, mobility m²/(V s). */
-export const Q = 1.602176634e-19,
-  KB = 1.380649e-23;
+import { Q, KB, SILICON, GAAS } from './materials';
+export { Q, KB };
 export const materials = {
   Si: {
     name: 'Silicon',
-    gap: 1.12 * Q,
-    nc300: 2.8e25,
-    nv300: 1.04e25,
+    gap: SILICON.gapEv * Q,
+    nc300: SILICON.nc300,
+    nv300: SILICON.nv300,
     donor: 'Phosphorus',
     acceptor: 'Boron',
     donorBinding: 0.045 * Q,
     acceptorBinding: 0.045 * Q,
-    muN: 0.135,
-    muP: 0.048,
+    muN: SILICON.muN,
+    muP: SILICON.muP,
   },
   GaAs: {
     name: 'Gallium arsenide',
-    gap: 1.42 * Q,
-    nc300: 4.7e23,
-    nv300: 7e24,
+    gap: GAAS.gapEv * Q,
+    nc300: GAAS.nc300,
+    nv300: GAAS.nv300,
     donor: 'Tellurium',
     acceptor: 'Zinc',
     donorBinding: 0.0058 * Q,
     acceptorBinding: 0.0307 * Q,
-    muN: 0.85,
-    muP: 0.04,
+    muN: GAAS.muN,
+    muP: GAAS.muP,
   },
 } as const;
 export type EquilibriumInput = {

@@ -1,10 +1,11 @@
 /** Independent SI optical/device kernels. Empirical parameters are explicit inputs. */
 import { jq as q, jk as kb, eps0 } from './junction';
-export const h = 6.62607015e-34,
-  lightSpeed = 299792458;
+import { H, C_LIGHT, SILICON, GAAS } from './materials';
+export const h = H,
+  lightSpeed = C_LIGHT;
 export const opticalMaterials = {
-  Si: { name: 'Silicon', gap: 1.12, direct: false, epsr: 11.7 },
-  GaAs: { name: 'Gallium arsenide', gap: 1.424, direct: true, epsr: 13.1 },
+  Si: { name: SILICON.name, gap: SILICON.gapEv, direct: SILICON.direct, epsr: SILICON.epsr },
+  GaAs: { name: GAAS.name, gap: GAAS.gapEv, direct: GAAS.direct, epsr: GAAS.epsr },
 };
 export interface OpticalInput {
   material: keyof typeof opticalMaterials;

@@ -1,7 +1,9 @@
 /** Silicon abrupt-junction electrostatics. SI throughout, including energies in joules. */
-export const jq = 1.602176634e-19,
-  jk = 1.380649e-23,
-  eps0 = 8.8541878128e-12;
+import { Q, KB, EPS0, SILICON, effectiveDensities } from './materials';
+/** Re-exported shared constants (historical names used by dependent modules). */
+export const jq = Q,
+  jk = KB,
+  eps0 = EPS0;
 export type JunctionInput = {
   na: number;
   nd: number;
@@ -13,7 +15,7 @@ export const junctionDefault: JunctionInput = {
   na: 1e22,
   nd: 1e21,
   temperature: 300,
-  relativePermittivity: 11.7,
+  relativePermittivity: SILICON.epsr,
   voltage: 0,
 };
 export function junctionConditions(c: JunctionInput) {
@@ -32,9 +34,8 @@ export function junctionConditions(c: JunctionInput) {
   )
     throw Error('Supported inputs: 10¹⁴–10¹⁷ cm⁻³, 280–400 K, εr 8–16, −5 to +0.5 V.');
   const vt = (jk * c.temperature) / jq,
-    eg = 1.12 * jq,
-    nc = 2.8e25 * (c.temperature / 300) ** 1.5,
-    nv = 1.04e25 * (c.temperature / 300) ** 1.5,
+    eg = SILICON.gapEv * jq,
+    { nc, nv } = effectiveDensities(SILICON, c.temperature),
     ni = Math.sqrt(nc * nv) * Math.exp(-eg / (2 * jk * c.temperature)),
     epsilon = eps0 * c.relativePermittivity;
   return { vt, eg, nc, nv, ni, epsilon };
