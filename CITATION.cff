@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using these metadata."
+title: "Silicon Atlas: interactive simulations for semiconductor materials and devices"
+type: software
+authors:
+  - family-names: Kim
+    given-names: Sean
+    affiliation: "Princeton University, Department of Electrical and Computer Engineering"
+version: 0.9.0
+abstract: >-
+  Ten interactive, model-backed teaching modules covering silicon purification and crystal growth,
+  crystal structure and bands, equilibrium carrier statistics, carrier transport, a metal-gate nMOS
+  fabrication flow, p-n junction electrostatics, diode current, MOS capacitors and MOSFETs,
+  photonic devices, and a virtual measurement bench.
+keywords:
+  - semiconductor devices
+  - physics education
+  - simulation
