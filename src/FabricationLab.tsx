@@ -498,7 +498,7 @@ export default function FabricationLab() {
         <a href="#fabrication" className="brand">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Process integration / 06</span>
+            SILICON ATLAS<span className="brand-sub">Process integration / 05</span>
           </span>
         </a>
         <button onClick={reset}>Restore tested defaults</button>

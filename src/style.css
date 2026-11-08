@@ -1127,3 +1127,49 @@ button:disabled {
     height: 340px;
   }
 }
+
+.module-loading {
+  margin: 4rem auto;
+  max-width: 40rem;
+  padding: 0 16px;
+  color: #9fb0bd;
+  font:
+    500 0.95rem/1.5 system-ui,
+    sans-serif;
+}
+
+/* Module navigation: the current module is marked by weight and an underline, not colour alone. */
+.module-nav a {
+  padding: 2px 0;
+  border-bottom: 1px solid transparent;
+  white-space: nowrap;
+}
+.module-nav a[aria-current] {
+  font-weight: 600;
+  border-bottom-color: currentColor;
+}
+.module-nav a:hover {
+  color: #c4e2ff;
+}
+.module-nav a:focus-visible {
+  outline: 2px solid #8cc8ff;
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+/* Phones: one scrollable row instead of four wrapped rows above every module. */
+@media (max-width: 720px) {
+  .module-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 18px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .module-nav::-webkit-scrollbar {
+    display: none;
+  }
+  .module-nav a {
+    font-size: 12px;
+    padding: 6px 0;
+  }
+}
