@@ -1,13 +1,299 @@
-import{junctionConditions,jq}from'./junction';
-export interface DiodeInput{bias:number;temperature:number;area:number;na:number;nd:number;tauN:number;tauP:number;wp:number;wn:number;series:boolean;resistance:number;recombination:boolean;recombDensity:number}
-export const diodeDefault:DiodeInput={bias:.4,temperature:300,area:1e-8,na:1e22,nd:1e21,tauN:1e-6,tauP:1e-6,wp:200e-6,wn:200e-6,series:false,resistance:1000,recombination:false,recombDensity:1e-4};
-export function diodeParameters(c:DiodeInput){if(!Object.values(c).every(v=>typeof v==='boolean'||Number.isFinite(v))||c.area<1e-12||c.area>1e-5||c.tauN<1e-9||c.tauN>1e-4||c.tauP<1e-9||c.tauP>1e-4||c.wp<1e-7||c.wp>2e-3||c.wn<1e-7||c.wn>2e-3||c.resistance<0||c.recombDensity<0||c.bias< -1||c.bias>1)throw Error('Unsupported diode input.');const b=junctionConditions({na:c.na,nd:c.nd,temperature:c.temperature,relativePermittivity:11.7,voltage:0}),dn=.135*b.vt,dp=.048*b.vt,ln=Math.sqrt(dn*c.tauN),lp=Math.sqrt(dp*c.tauP),n0=b.ni*b.ni/c.na,p0=b.ni*b.ni/c.nd,isn=jq*c.area*dn/ln*n0/Math.tanh(c.wp/ln),isp=jq*c.area*dp/lp*p0/Math.tanh(c.wn/lp),qn0=jq*c.area*n0*ln*Math.tanh(c.wp/(2*ln)),qp0=jq*c.area*p0*lp*Math.tanh(c.wn/(2*lp)),vbi=b.vt*Math.log(c.na*c.nd/(b.ni*b.ni)),maxBias=Math.min(vbi-6*b.vt,b.vt*Math.log1p(.01/Math.max(n0/c.na,p0/c.nd)));return{...b,dn,dp,ln,lp,n0,p0,isn,isp,is:isn+isp,qn0,qp0,tauCharge:(qn0+qp0)/(isn+isp),vbi,maxBias}}
-export type DiodeParameters=ReturnType<typeof diodeParameters>;
-export function injectionCurrent(v:number,c:DiodeInput,p=diodeParameters(c)){const factor=Math.expm1(v/p.vt),electron=p.isn*factor,hole=p.isp*factor,recombination=c.recombination?c.area*c.recombDensity*Math.expm1(v/(2*p.vt)):0;return{electron,hole,diffusion:electron+hole,recombination,total:electron+hole+recombination,factor}}
-export function solveDiode(c:DiodeInput){const p=diodeParameters(c),R=c.series?c.resistance:0;let vj=c.bias,iterations=0;if(R>0&&c.bias!==0){let lo=Math.min(0,c.bias),hi=Math.max(0,c.bias);for(;iterations<100;iterations++){vj=(lo+hi)/2;const residual=vj+R*injectionCurrent(vj,c,p).total-c.bias;if(residual>0)hi=vj;else lo=vj;if(hi-lo<1e-12)break}if(iterations===100)throw Error('Series-resistance solve did not converge.')}if(vj>p.maxBias)throw Error('Low-injection/depletion limit exceeded: reduce junction bias (barrier ≥ 6VT, injection ≤ 1%).');const current=injectionCurrent(vj,c,p),barrier=p.vbi-vj,w=Math.sqrt(2*p.epsilon*barrier/jq*(1/c.na+1/c.nd)),xp=w*c.nd/(c.na+c.nd),xn=w*c.na/(c.na+c.nd),peak=w>0?2*barrier/w:Infinity;if(peak>1e7)throw Error('High-field cutoff reached. Avalanche and tunneling breakdown are not modeled.');const residual=vj+R*current.total-c.bias;if(Math.abs(residual)>1e-8)throw Error('Series-resistance residual exceeds 10 nV.');return{...p,...current,vj,w,xp,xn,peak,barrier,qn:p.qn0*current.factor,qp:p.qp0*current.factor,charge:(p.qn0+p.qp0)*current.factor,iterations,residual}}
-export type DiodeSolution=ReturnType<typeof solveDiode>;
-export function shape(distance:number,length:number,L:number){const z=distance/L,a=length/L;return Math.exp(-z)*(-Math.expm1(-2*(a-z)))/(-Math.expm1(-2*a))}
-export function currentShape(distance:number,length:number,L:number){const z=distance/L,a=length/L;return Math.exp(-z)*(1+Math.exp(-2*(a-z)))/(-Math.expm1(-2*a))}
-export function diodeProfiles(c:DiodeInput,s=solveDiode(c),count=120){const points:{x:number;region:string;n:number|null;p:number|null;excess:number|null;in:number;ip:number;total:number;ec:number;ev:number;ei:number;fn:number;fp:number}[]=[];const eLeft=s.vt*Math.log(c.na/s.ni),offset=s.vt/2*Math.log(s.nv/s.nc);const append=(x:number,region:string,n:number|null,p:number|null,excess:number|null,In:number,Ip:number,ei:number,fn:number,fp:number)=>points.push({x,region,n,p,excess,in:In,ip:Ip,total:In+Ip,ec:ei+s.eg/(2*jq)-offset,ev:ei-s.eg/(2*jq)-offset,ei,fn,fp});for(let i=0;i<=count;i++){const distance=c.wp*(1-i/count),n=s.n0*((1-shape(distance,c.wp,s.ln))+Math.exp(s.vj/s.vt)*shape(distance,c.wp,s.ln)),In=jq*c.area*s.dn/s.ln*s.n0*s.factor*currentShape(distance,c.wp,s.ln);append(-s.xp-distance,'p neutral',n,null,n-s.n0,In,s.diffusion-In,eLeft,eLeft+s.vt*Math.log(n/s.ni),0)}for(let i=1;i<40;i++){const x=-s.xp+s.w*i/40,phi=x<0?jq*c.na*(x+s.xp)**2/(2*s.epsilon):s.barrier-jq*c.nd*(s.xn-x)**2/(2*s.epsilon);append(x,'depletion',null,null,null,s.electron,s.hole,eLeft-phi,s.vj,0)}for(let i=0;i<=count;i++){const distance=c.wn*i/count,p=s.p0*((1-shape(distance,c.wn,s.lp))+Math.exp(s.vj/s.vt)*shape(distance,c.wn,s.lp)),Ip=jq*c.area*s.dp/s.lp*s.p0*s.factor*currentShape(distance,c.wn,s.lp),ei=eLeft-s.barrier;append(s.xn+distance,'n neutral',null,p,p-s.p0,s.diffusion-Ip,Ip,ei,s.vj,ei-s.vt*Math.log(p/s.ni))}return points}
+import { junctionConditions, jq } from './junction';
+export interface DiodeInput {
+  bias: number;
+  temperature: number;
+  area: number;
+  na: number;
+  nd: number;
+  tauN: number;
+  tauP: number;
+  wp: number;
+  wn: number;
+  series: boolean;
+  resistance: number;
+  recombination: boolean;
+  recombDensity: number;
+}
+export const diodeDefault: DiodeInput = {
+  bias: 0.4,
+  temperature: 300,
+  area: 1e-8,
+  na: 1e22,
+  nd: 1e21,
+  tauN: 1e-6,
+  tauP: 1e-6,
+  wp: 200e-6,
+  wn: 200e-6,
+  series: false,
+  resistance: 1000,
+  recombination: false,
+  recombDensity: 1e-4,
+};
+export function diodeParameters(c: DiodeInput) {
+  if (
+    !Object.values(c).every((v) => typeof v === 'boolean' || Number.isFinite(v)) ||
+    c.area < 1e-12 ||
+    c.area > 1e-5 ||
+    c.tauN < 1e-9 ||
+    c.tauN > 1e-4 ||
+    c.tauP < 1e-9 ||
+    c.tauP > 1e-4 ||
+    c.wp < 1e-7 ||
+    c.wp > 2e-3 ||
+    c.wn < 1e-7 ||
+    c.wn > 2e-3 ||
+    c.resistance < 0 ||
+    c.recombDensity < 0 ||
+    c.bias < -1 ||
+    c.bias > 1
+  )
+    throw Error('Unsupported diode input.');
+  const b = junctionConditions({
+      na: c.na,
+      nd: c.nd,
+      temperature: c.temperature,
+      relativePermittivity: 11.7,
+      voltage: 0,
+    }),
+    dn = 0.135 * b.vt,
+    dp = 0.048 * b.vt,
+    ln = Math.sqrt(dn * c.tauN),
+    lp = Math.sqrt(dp * c.tauP),
+    n0 = (b.ni * b.ni) / c.na,
+    p0 = (b.ni * b.ni) / c.nd,
+    isn = (((jq * c.area * dn) / ln) * n0) / Math.tanh(c.wp / ln),
+    isp = (((jq * c.area * dp) / lp) * p0) / Math.tanh(c.wn / lp),
+    qn0 = jq * c.area * n0 * ln * Math.tanh(c.wp / (2 * ln)),
+    qp0 = jq * c.area * p0 * lp * Math.tanh(c.wn / (2 * lp)),
+    vbi = b.vt * Math.log((c.na * c.nd) / (b.ni * b.ni)),
+    maxBias = Math.min(vbi - 6 * b.vt, b.vt * Math.log1p(0.01 / Math.max(n0 / c.na, p0 / c.nd)));
+  return {
+    ...b,
+    dn,
+    dp,
+    ln,
+    lp,
+    n0,
+    p0,
+    isn,
+    isp,
+    is: isn + isp,
+    qn0,
+    qp0,
+    tauCharge: (qn0 + qp0) / (isn + isp),
+    vbi,
+    maxBias,
+  };
+}
+export type DiodeParameters = ReturnType<typeof diodeParameters>;
+export function injectionCurrent(v: number, c: DiodeInput, p = diodeParameters(c)) {
+  const factor = Math.expm1(v / p.vt),
+    electron = p.isn * factor,
+    hole = p.isp * factor,
+    recombination = c.recombination ? c.area * c.recombDensity * Math.expm1(v / (2 * p.vt)) : 0;
+  return {
+    electron,
+    hole,
+    diffusion: electron + hole,
+    recombination,
+    total: electron + hole + recombination,
+    factor,
+  };
+}
+export function solveDiode(c: DiodeInput) {
+  const p = diodeParameters(c),
+    R = c.series ? c.resistance : 0;
+  let vj = c.bias,
+    iterations = 0;
+  if (R > 0 && c.bias !== 0) {
+    let lo = Math.min(0, c.bias),
+      hi = Math.max(0, c.bias);
+    for (; iterations < 100; iterations++) {
+      vj = (lo + hi) / 2;
+      const residual = vj + R * injectionCurrent(vj, c, p).total - c.bias;
+      if (residual > 0) hi = vj;
+      else lo = vj;
+      if (hi - lo < 1e-12) break;
+    }
+    if (iterations === 100) throw Error('Series-resistance solve did not converge.');
+  }
+  if (vj > p.maxBias)
+    throw Error(
+      'Low-injection/depletion limit exceeded: reduce junction bias (barrier ≥ 6VT, injection ≤ 1%).',
+    );
+  const current = injectionCurrent(vj, c, p),
+    barrier = p.vbi - vj,
+    w = Math.sqrt(((2 * p.epsilon * barrier) / jq) * (1 / c.na + 1 / c.nd)),
+    xp = (w * c.nd) / (c.na + c.nd),
+    xn = (w * c.na) / (c.na + c.nd),
+    peak = w > 0 ? (2 * barrier) / w : Infinity;
+  if (peak > 1e7)
+    throw Error('High-field cutoff reached. Avalanche and tunneling breakdown are not modeled.');
+  const residual = vj + R * current.total - c.bias;
+  if (Math.abs(residual) > 1e-8) throw Error('Series-resistance residual exceeds 10 nV.');
+  return {
+    ...p,
+    ...current,
+    vj,
+    w,
+    xp,
+    xn,
+    peak,
+    barrier,
+    qn: p.qn0 * current.factor,
+    qp: p.qp0 * current.factor,
+    charge: (p.qn0 + p.qp0) * current.factor,
+    iterations,
+    residual,
+  };
+}
+export type DiodeSolution = ReturnType<typeof solveDiode>;
+export function shape(distance: number, length: number, L: number) {
+  const z = distance / L,
+    a = length / L;
+  return (Math.exp(-z) * -Math.expm1(-2 * (a - z))) / -Math.expm1(-2 * a);
+}
+export function currentShape(distance: number, length: number, L: number) {
+  const z = distance / L,
+    a = length / L;
+  return (Math.exp(-z) * (1 + Math.exp(-2 * (a - z)))) / -Math.expm1(-2 * a);
+}
+export function diodeProfiles(c: DiodeInput, s = solveDiode(c), count = 120) {
+  const points: {
+    x: number;
+    region: string;
+    n: number | null;
+    p: number | null;
+    excess: number | null;
+    in: number;
+    ip: number;
+    total: number;
+    ec: number;
+    ev: number;
+    ei: number;
+    fn: number;
+    fp: number;
+  }[] = [];
+  const eLeft = s.vt * Math.log(c.na / s.ni),
+    offset = (s.vt / 2) * Math.log(s.nv / s.nc);
+  const append = (
+    x: number,
+    region: string,
+    n: number | null,
+    p: number | null,
+    excess: number | null,
+    In: number,
+    Ip: number,
+    ei: number,
+    fn: number,
+    fp: number,
+  ) =>
+    points.push({
+      x,
+      region,
+      n,
+      p,
+      excess,
+      in: In,
+      ip: Ip,
+      total: In + Ip,
+      ec: ei + s.eg / (2 * jq) - offset,
+      ev: ei - s.eg / (2 * jq) - offset,
+      ei,
+      fn,
+      fp,
+    });
+  for (let i = 0; i <= count; i++) {
+    const distance = c.wp * (1 - i / count),
+      n =
+        s.n0 *
+        (1 - shape(distance, c.wp, s.ln) + Math.exp(s.vj / s.vt) * shape(distance, c.wp, s.ln)),
+      In = ((jq * c.area * s.dn) / s.ln) * s.n0 * s.factor * currentShape(distance, c.wp, s.ln);
+    append(
+      -s.xp - distance,
+      'p neutral',
+      n,
+      null,
+      n - s.n0,
+      In,
+      s.diffusion - In,
+      eLeft,
+      eLeft + s.vt * Math.log(n / s.ni),
+      0,
+    );
+  }
+  for (let i = 1; i < 40; i++) {
+    const x = -s.xp + (s.w * i) / 40,
+      phi =
+        x < 0
+          ? (jq * c.na * (x + s.xp) ** 2) / (2 * s.epsilon)
+          : s.barrier - (jq * c.nd * (s.xn - x) ** 2) / (2 * s.epsilon);
+    append(x, 'depletion', null, null, null, s.electron, s.hole, eLeft - phi, s.vj, 0);
+  }
+  for (let i = 0; i <= count; i++) {
+    const distance = (c.wn * i) / count,
+      p =
+        s.p0 *
+        (1 - shape(distance, c.wn, s.lp) + Math.exp(s.vj / s.vt) * shape(distance, c.wn, s.lp)),
+      Ip = ((jq * c.area * s.dp) / s.lp) * s.p0 * s.factor * currentShape(distance, c.wn, s.lp),
+      ei = eLeft - s.barrier;
+    append(
+      s.xn + distance,
+      'n neutral',
+      null,
+      p,
+      p - s.p0,
+      s.diffusion - Ip,
+      Ip,
+      ei,
+      s.vj,
+      ei - s.vt * Math.log(p / s.ni),
+    );
+  }
+  return points;
+}
 /** Lumped charge control, not a transient diffusion PDE. Only storage interval is modeled. */
-export function switching(c:DiodeInput,ratio=1){if(ratio<=0||!Number.isFinite(ratio))throw Error('Positive reverse/forward current ratio required');const ideal={...c,bias:.35,series:false,recombination:false},s=solveDiode(ideal),tau=s.tauCharge,If=s.diffusion,Ir=If*ratio,tOn=4*tau,qAtSwitch=If*tau*(-Math.expm1(-4)),storage=tau*Math.log1p(qAtSwitch/(Ir*tau)),end=tOn+storage;const at=(t:number)=>{if(t<0||t>end)throw Error('Outside modeled switching interval');const on=t<tOn,Q=on?If*tau*(-Math.expm1(-t/tau)):t===end?0:(qAtSwitch+Ir*tau)*Math.exp(-(t-tOn)/tau)-Ir*tau,I=on?If:-Ir;return{t,Q,I,loss:Q/tau,voltage:s.vt*Math.log1p(Q/(s.qn0+s.qp0)),phase:on?'turn-on':'reverse storage'}};const times=Array.from({length:301},(_,i)=>end*(i/300));times.push(tOn,end);return{tau,If,Ir,tOn,storage,end,qAtSwitch,at,rows:[...new Set(times)].sort((a,b)=>a-b).map(at)}}
+export function switching(c: DiodeInput, ratio = 1) {
+  if (ratio <= 0 || !Number.isFinite(ratio))
+    throw Error('Positive reverse/forward current ratio required');
+  const ideal = { ...c, bias: 0.35, series: false, recombination: false },
+    s = solveDiode(ideal),
+    tau = s.tauCharge,
+    If = s.diffusion,
+    Ir = If * ratio,
+    tOn = 4 * tau,
+    qAtSwitch = If * tau * -Math.expm1(-4),
+    storage = tau * Math.log1p(qAtSwitch / (Ir * tau)),
+    end = tOn + storage;
+  const at = (t: number) => {
+    if (t < 0 || t > end) throw Error('Outside modeled switching interval');
+    const on = t < tOn,
+      Q = on
+        ? If * tau * -Math.expm1(-t / tau)
+        : t === end
+          ? 0
+          : (qAtSwitch + Ir * tau) * Math.exp(-(t - tOn) / tau) - Ir * tau,
+      I = on ? If : -Ir;
+    return {
+      t,
+      Q,
+      I,
+      loss: Q / tau,
+      voltage: s.vt * Math.log1p(Q / (s.qn0 + s.qp0)),
+      phase: on ? 'turn-on' : 'reverse storage',
+    };
+  };
+  const times = Array.from({ length: 301 }, (_, i) => end * (i / 300));
+  times.push(tOn, end);
+  return {
+    tau,
+    If,
+    Ir,
+    tOn,
+    storage,
+    end,
+    qAtSwitch,
+    at,
+    rows: [...new Set(times)].sort((a, b) => a - b).map(at),
+  };
+}

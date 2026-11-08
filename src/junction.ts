@@ -1,30 +1,274 @@
 /** Silicon abrupt-junction electrostatics. SI throughout, including energies in joules. */
-export const jq=1.602176634e-19,jk=1.380649e-23,eps0=8.8541878128e-12;
-export type JunctionInput={na:number;nd:number;temperature:number;relativePermittivity:number;voltage:number};
-export const junctionDefault:JunctionInput={na:1e22,nd:1e21,temperature:300,relativePermittivity:11.7,voltage:0};
-export function junctionConditions(c:JunctionInput){if(!Object.values(c).every(Number.isFinite)||c.na<1e20||c.na>1e23||c.nd<1e20||c.nd>1e23||c.temperature<280||c.temperature>400||c.relativePermittivity<8||c.relativePermittivity>16||c.voltage< -5||c.voltage>.5)throw Error('Supported inputs: 10¹⁴–10¹⁷ cm⁻³, 280–400 K, εr 8–16, −5 to +0.5 V.');const vt=jk*c.temperature/jq,eg=1.12*jq,nc=2.8e25*(c.temperature/300)**1.5,nv=1.04e25*(c.temperature/300)**1.5,ni=Math.sqrt(nc*nv)*Math.exp(-eg/(2*jk*c.temperature)),epsilon=eps0*c.relativePermittivity;return{vt,eg,nc,nv,ni,epsilon}}
-export function depletion(c:JunctionInput){const b=junctionConditions(c),vbi=b.vt*Math.log(c.na*c.nd/(b.ni*b.ni)),barrier=vbi-c.voltage;if(Math.min(c.na,c.nd)<20*b.ni)throw Error('Near-intrinsic doping: the extrinsic depletion approximation is not supported.');if(barrier<6*b.vt)throw Error('Strong forward bias: barrier below 6 kT/q. Depletion approximation disabled.');const injection=Math.max((b.ni/c.na)**2,(b.ni/c.nd)**2)*Math.exp(c.voltage/b.vt);if(injection>.01)throw Error('High injection: estimated excess minority/majority ratio exceeds 1%. Depletion approximation disabled.');const w=Math.sqrt(2*b.epsilon*barrier/jq*(1/c.na+1/c.nd)),xp=w*c.nd/(c.na+c.nd),xn=w*c.na/(c.na+c.nd),peak=-2*barrier/w;if(Math.abs(peak)>1e7)throw Error('High-field guard: peak field exceeds 100 kV/cm. Breakdown is not modeled; this is a conservative teaching cutoff, not a breakdown prediction.');return{...c,...b,vbi,barrier,w,xp,xn,peak,cap:b.epsilon/w,injection}}
-export type Depletion=ReturnType<typeof depletion>;
-export function depletionAt(s:Depletion,x:number){let phi=0,field=0,rho=0;if(x>=s.xn)phi=s.barrier;else if(x>=0){phi=s.barrier-jq*s.nd*(s.xn-x)**2/(2*s.epsilon);field=-jq*s.nd*(s.xn-x)/s.epsilon;rho=jq*s.nd}else if(x>=-s.xp){phi=jq*s.na*(x+s.xp)**2/(2*s.epsilon);field=-jq*s.na*(x+s.xp)/s.epsilon;rho=-jq*s.na}return{x,phi,field,rho}}
-export type JunctionRow={x:number;phi:number;field:number;rho:number;n:number;p:number;na:number;nd:number;ec:number;ev:number;ei:number;ef:number|null};
-function energies(s:Depletion,phi:number){const ei=jk*s.temperature*Math.log(s.na/s.ni)-jq*phi,offset=jk*s.temperature/2*Math.log(s.nv/s.nc);return{ei,ec:ei+s.eg/2-offset,ev:ei-s.eg/2-offset,ef:s.voltage===0?0:null}}
-export function depletionRow(s:Depletion,x:number):JunctionRow{const a=depletionAt(s,x),u=-Math.log(s.na/s.ni)+a.phi/s.vt,inside=x>=-s.xp&&x<=s.xn;const n=s.voltage===0?s.ni*Math.exp(u):inside?0:x<0?s.ni*s.ni/s.na:s.nd,p=s.voltage===0?s.ni*Math.exp(-u):inside?0:x<0?s.na:s.ni*s.ni/s.nd;return{...a,n,p,na:x<0?s.na:0,nd:x>=0?s.nd:0,...energies(s,a.phi)}}
-export type PBResult={rows:JunctionRow[];iterations:number;residual:number;charge:number;absoluteCharge:number;gaussError:number;boundaryField:number;leftField:number;rightField:number;spacing:number;potentialDrop:number};
-export function poissonBoltzmann(c:JunctionInput,cellsPerSide=200,padding=10,maxIterations=100):PBResult{
- if(c.voltage!==0)throw Error('Poisson–Boltzmann mode requires Va = 0. A biased device needs transport and separate quasi-Fermi levels.');if(!Number.isInteger(cellsPerSide)||cellsPerSide<40||cellsPerSide>1600)throw Error('Grid: 40–1600 cells per side.');const s=depletion(c),lp=Math.sqrt(s.epsilon*s.vt/(jq*c.na)),ln=Math.sqrt(s.epsilon*s.vt/(jq*c.nd)),L=s.xp+padding*lp,R=s.xn+padding*ln,hp=L/cellsPerSide,hn=R/cellsPerSide;
- // Cell-centered grid: discontinuous doping lies exactly on a face at x=0.
- const N=2*cellsPerSide,x=Float64Array.from({length:N},(_,i)=>i<cellsPerSide?-L+(i+.5)*hp:(i-cellsPerSide+.5)*hn),h=Float64Array.from({length:N},(_,i)=>i<cellsPerSide?hp:hn),net=Float64Array.from(x,v=>v<0?-c.na:c.nd),ul=-Math.asinh(c.na/(2*s.ni)),ur=Math.asinh(c.nd/(2*s.ni)),u=Float64Array.from(x,v=>ul+depletionAt(s,v).phi/s.vt),coef=jq/(s.epsilon*s.vt),scale=coef*Math.max(c.na,c.nd);
- const residual=(v:Float64Array,arr?:Float64Array)=>{let norm=0;for(let i=0;i<N;i++){const hm=i?x[i]-x[i-1]:h[i]/2,hh=i<N-1?x[i+1]-x[i]:h[i]/2,n=s.ni*Math.exp(v[i]),p=s.ni*Math.exp(-v[i]),f=((i<N-1?v[i+1]:ur)-v[i])/hh-(v[i]-(i?v[i-1]:ul))/hm+coef*(p-n+net[i])*h[i];if(arr)arr[i]=f;norm=Math.max(norm,Math.abs(f)/(h[i]*scale))}return norm};
- let norm=residual(u),iterations=0;
- for(;iterations<maxIterations&&norm>1e-9;iterations++){
- const a=new Float64Array(N),b=new Float64Array(N),d=new Float64Array(N),rhs=new Float64Array(N);residual(u,rhs);
- for(let i=0;i<N;i++){const hm=i?x[i]-x[i-1]:h[i]/2,hh=i<N-1?x[i+1]-x[i]:h[i]/2;a[i]=i?1/hm:0;d[i]=i<N-1?1/hh:0;b[i]=-1/hm-1/hh-coef*s.ni*(Math.exp(u[i])+Math.exp(-u[i]))*h[i];rhs[i]=-rhs[i]}
- for(let i=1;i<N;i++){const w=a[i]/b[i-1];b[i]-=w*d[i-1];rhs[i]-=w*rhs[i-1]}const delta=new Float64Array(N);delta[N-1]=rhs[N-1]/b[N-1];for(let i=N-2;i>=0;i--)delta[i]=(rhs[i]-d[i]*delta[i+1])/b[i];let accepted=false;
- for(let damping=1;damping>=1/4096;damping/=2){const trial=Float64Array.from(u,(v,i)=>v+damping*delta[i]),next=residual(trial);if(Number.isFinite(next)&&next<norm){u.set(trial);norm=next;accepted=true;break}}if(!accepted)throw Error(`Poisson–Boltzmann line search failed at iteration ${iterations}, residual ${norm.toExponential(2)}.`)
- }
- if(norm>1e-9||!Number.isFinite(norm))throw Error(`Poisson–Boltzmann did not converge in ${maxIterations} iterations (residual ${norm}).`);
- const faces=new Float64Array(N+1);faces[0]=-s.vt*(u[0]-ul)/(hp/2);faces[N]=-s.vt*(ur-u[N-1])/(hn/2);for(let i=1;i<N;i++)faces[i]=-s.vt*(u[i]-u[i-1])/(x[i]-x[i-1]);let charge=0,absoluteCharge=0,gaussError=0;
- const rows=Array.from(x,(pos,i)=>{const n=s.ni*Math.exp(u[i]),p=s.ni*Math.exp(-u[i]),rho=jq*(p-n+net[i]),phi=s.vt*(u[i]-ul),ei=-jk*c.temperature*u[i],offset=jk*c.temperature/2*Math.log(s.nv/s.nc);charge+=rho*h[i];absoluteCharge+=Math.abs(rho)*h[i];gaussError=Math.max(gaussError,Math.abs(s.epsilon*(faces[i+1]-faces[i])-rho*h[i]));return{x:pos,phi,field:(faces[i]+faces[i+1])/2,rho,n,p,na:pos<0?c.na:0,nd:pos>=0?c.nd:0,ei,ec:ei+s.eg/2-offset,ev:ei-s.eg/2-offset,ef:0}});
- return{rows,iterations,residual:norm,charge,absoluteCharge,gaussError,boundaryField:Math.max(Math.abs(faces[0]),Math.abs(faces[N])),leftField:faces[0],rightField:faces[N],spacing:Math.max(hp,hn),potentialDrop:s.vt*(ur-ul)}
+export const jq = 1.602176634e-19,
+  jk = 1.380649e-23,
+  eps0 = 8.8541878128e-12;
+export type JunctionInput = {
+  na: number;
+  nd: number;
+  temperature: number;
+  relativePermittivity: number;
+  voltage: number;
+};
+export const junctionDefault: JunctionInput = {
+  na: 1e22,
+  nd: 1e21,
+  temperature: 300,
+  relativePermittivity: 11.7,
+  voltage: 0,
+};
+export function junctionConditions(c: JunctionInput) {
+  if (
+    !Object.values(c).every(Number.isFinite) ||
+    c.na < 1e20 ||
+    c.na > 1e23 ||
+    c.nd < 1e20 ||
+    c.nd > 1e23 ||
+    c.temperature < 280 ||
+    c.temperature > 400 ||
+    c.relativePermittivity < 8 ||
+    c.relativePermittivity > 16 ||
+    c.voltage < -5 ||
+    c.voltage > 0.5
+  )
+    throw Error('Supported inputs: 10¹⁴–10¹⁷ cm⁻³, 280–400 K, εr 8–16, −5 to +0.5 V.');
+  const vt = (jk * c.temperature) / jq,
+    eg = 1.12 * jq,
+    nc = 2.8e25 * (c.temperature / 300) ** 1.5,
+    nv = 1.04e25 * (c.temperature / 300) ** 1.5,
+    ni = Math.sqrt(nc * nv) * Math.exp(-eg / (2 * jk * c.temperature)),
+    epsilon = eps0 * c.relativePermittivity;
+  return { vt, eg, nc, nv, ni, epsilon };
 }
-export function junctionCsv(rows:JunctionRow[],c:JunctionInput,mode:string){return `# ${mode}; T_K=${c.temperature}; NA_m-3=${c.na}; ND_m-3=${c.nd}; Va_V=${c.voltage}; epsilon_r=${c.relativePermittivity}\n`+'x_m,NA_m-3,ND_m-3,n_m-3,p_m-3,rho_C_m-3,E_V_m-1,phi_V,Ec_J,Ev_J,Ei_J,EF_J\n'+rows.map(r=>[r.x,r.na,r.nd,r.n,r.p,r.rho,r.field,r.phi,r.ec,r.ev,r.ei,r.ef??''].join(',')).join('\n')}
+export function depletion(c: JunctionInput) {
+  const b = junctionConditions(c),
+    vbi = b.vt * Math.log((c.na * c.nd) / (b.ni * b.ni)),
+    barrier = vbi - c.voltage;
+  if (Math.min(c.na, c.nd) < 20 * b.ni)
+    throw Error('Near-intrinsic doping: the extrinsic depletion approximation is not supported.');
+  if (barrier < 6 * b.vt)
+    throw Error('Strong forward bias: barrier below 6 kT/q. Depletion approximation disabled.');
+  const injection = Math.max((b.ni / c.na) ** 2, (b.ni / c.nd) ** 2) * Math.exp(c.voltage / b.vt);
+  if (injection > 0.01)
+    throw Error(
+      'High injection: estimated excess minority/majority ratio exceeds 1%. Depletion approximation disabled.',
+    );
+  const w = Math.sqrt(((2 * b.epsilon * barrier) / jq) * (1 / c.na + 1 / c.nd)),
+    xp = (w * c.nd) / (c.na + c.nd),
+    xn = (w * c.na) / (c.na + c.nd),
+    peak = (-2 * barrier) / w;
+  if (Math.abs(peak) > 1e7)
+    throw Error(
+      'High-field guard: peak field exceeds 100 kV/cm. Breakdown is not modeled; this is a conservative teaching cutoff, not a breakdown prediction.',
+    );
+  return { ...c, ...b, vbi, barrier, w, xp, xn, peak, cap: b.epsilon / w, injection };
+}
+export type Depletion = ReturnType<typeof depletion>;
+export function depletionAt(s: Depletion, x: number) {
+  let phi = 0,
+    field = 0,
+    rho = 0;
+  if (x >= s.xn) phi = s.barrier;
+  else if (x >= 0) {
+    phi = s.barrier - (jq * s.nd * (s.xn - x) ** 2) / (2 * s.epsilon);
+    field = (-jq * s.nd * (s.xn - x)) / s.epsilon;
+    rho = jq * s.nd;
+  } else if (x >= -s.xp) {
+    phi = (jq * s.na * (x + s.xp) ** 2) / (2 * s.epsilon);
+    field = (-jq * s.na * (x + s.xp)) / s.epsilon;
+    rho = -jq * s.na;
+  }
+  return { x, phi, field, rho };
+}
+export type JunctionRow = {
+  x: number;
+  phi: number;
+  field: number;
+  rho: number;
+  n: number;
+  p: number;
+  na: number;
+  nd: number;
+  ec: number;
+  ev: number;
+  ei: number;
+  ef: number | null;
+};
+function energies(s: Depletion, phi: number) {
+  const ei = jk * s.temperature * Math.log(s.na / s.ni) - jq * phi,
+    offset = ((jk * s.temperature) / 2) * Math.log(s.nv / s.nc);
+  return {
+    ei,
+    ec: ei + s.eg / 2 - offset,
+    ev: ei - s.eg / 2 - offset,
+    ef: s.voltage === 0 ? 0 : null,
+  };
+}
+export function depletionRow(s: Depletion, x: number): JunctionRow {
+  const a = depletionAt(s, x),
+    u = -Math.log(s.na / s.ni) + a.phi / s.vt,
+    inside = x >= -s.xp && x <= s.xn;
+  const n = s.voltage === 0 ? s.ni * Math.exp(u) : inside ? 0 : x < 0 ? (s.ni * s.ni) / s.na : s.nd,
+    p = s.voltage === 0 ? s.ni * Math.exp(-u) : inside ? 0 : x < 0 ? s.na : (s.ni * s.ni) / s.nd;
+  return { ...a, n, p, na: x < 0 ? s.na : 0, nd: x >= 0 ? s.nd : 0, ...energies(s, a.phi) };
+}
+export type PBResult = {
+  rows: JunctionRow[];
+  iterations: number;
+  residual: number;
+  charge: number;
+  absoluteCharge: number;
+  gaussError: number;
+  boundaryField: number;
+  leftField: number;
+  rightField: number;
+  spacing: number;
+  potentialDrop: number;
+};
+export function poissonBoltzmann(
+  c: JunctionInput,
+  cellsPerSide = 200,
+  padding = 10,
+  maxIterations = 100,
+): PBResult {
+  if (c.voltage !== 0)
+    throw Error(
+      'Poisson–Boltzmann mode requires Va = 0. A biased device needs transport and separate quasi-Fermi levels.',
+    );
+  if (!Number.isInteger(cellsPerSide) || cellsPerSide < 40 || cellsPerSide > 1600)
+    throw Error('Grid: 40–1600 cells per side.');
+  const s = depletion(c),
+    lp = Math.sqrt((s.epsilon * s.vt) / (jq * c.na)),
+    ln = Math.sqrt((s.epsilon * s.vt) / (jq * c.nd)),
+    L = s.xp + padding * lp,
+    R = s.xn + padding * ln,
+    hp = L / cellsPerSide,
+    hn = R / cellsPerSide;
+  // Cell-centered grid: discontinuous doping lies exactly on a face at x=0.
+  const N = 2 * cellsPerSide,
+    x = Float64Array.from({ length: N }, (_, i) =>
+      i < cellsPerSide ? -L + (i + 0.5) * hp : (i - cellsPerSide + 0.5) * hn,
+    ),
+    h = Float64Array.from({ length: N }, (_, i) => (i < cellsPerSide ? hp : hn)),
+    net = Float64Array.from(x, (v) => (v < 0 ? -c.na : c.nd)),
+    ul = -Math.asinh(c.na / (2 * s.ni)),
+    ur = Math.asinh(c.nd / (2 * s.ni)),
+    u = Float64Array.from(x, (v) => ul + depletionAt(s, v).phi / s.vt),
+    coef = jq / (s.epsilon * s.vt),
+    scale = coef * Math.max(c.na, c.nd);
+  const residual = (v: Float64Array, arr?: Float64Array) => {
+    let norm = 0;
+    for (let i = 0; i < N; i++) {
+      const hm = i ? x[i] - x[i - 1] : h[i] / 2,
+        hh = i < N - 1 ? x[i + 1] - x[i] : h[i] / 2,
+        n = s.ni * Math.exp(v[i]),
+        p = s.ni * Math.exp(-v[i]),
+        f =
+          ((i < N - 1 ? v[i + 1] : ur) - v[i]) / hh -
+          (v[i] - (i ? v[i - 1] : ul)) / hm +
+          coef * (p - n + net[i]) * h[i];
+      if (arr) arr[i] = f;
+      norm = Math.max(norm, Math.abs(f) / (h[i] * scale));
+    }
+    return norm;
+  };
+  let norm = residual(u),
+    iterations = 0;
+  for (; iterations < maxIterations && norm > 1e-9; iterations++) {
+    const a = new Float64Array(N),
+      b = new Float64Array(N),
+      d = new Float64Array(N),
+      rhs = new Float64Array(N);
+    residual(u, rhs);
+    for (let i = 0; i < N; i++) {
+      const hm = i ? x[i] - x[i - 1] : h[i] / 2,
+        hh = i < N - 1 ? x[i + 1] - x[i] : h[i] / 2;
+      a[i] = i ? 1 / hm : 0;
+      d[i] = i < N - 1 ? 1 / hh : 0;
+      b[i] = -1 / hm - 1 / hh - coef * s.ni * (Math.exp(u[i]) + Math.exp(-u[i])) * h[i];
+      rhs[i] = -rhs[i];
+    }
+    for (let i = 1; i < N; i++) {
+      const w = a[i] / b[i - 1];
+      b[i] -= w * d[i - 1];
+      rhs[i] -= w * rhs[i - 1];
+    }
+    const delta = new Float64Array(N);
+    delta[N - 1] = rhs[N - 1] / b[N - 1];
+    for (let i = N - 2; i >= 0; i--) delta[i] = (rhs[i] - d[i] * delta[i + 1]) / b[i];
+    let accepted = false;
+    for (let damping = 1; damping >= 1 / 4096; damping /= 2) {
+      const trial = Float64Array.from(u, (v, i) => v + damping * delta[i]),
+        next = residual(trial);
+      if (Number.isFinite(next) && next < norm) {
+        u.set(trial);
+        norm = next;
+        accepted = true;
+        break;
+      }
+    }
+    if (!accepted)
+      throw Error(
+        `Poisson–Boltzmann line search failed at iteration ${iterations}, residual ${norm.toExponential(2)}.`,
+      );
+  }
+  if (norm > 1e-9 || !Number.isFinite(norm))
+    throw Error(
+      `Poisson–Boltzmann did not converge in ${maxIterations} iterations (residual ${norm}).`,
+    );
+  const faces = new Float64Array(N + 1);
+  faces[0] = (-s.vt * (u[0] - ul)) / (hp / 2);
+  faces[N] = (-s.vt * (ur - u[N - 1])) / (hn / 2);
+  for (let i = 1; i < N; i++) faces[i] = (-s.vt * (u[i] - u[i - 1])) / (x[i] - x[i - 1]);
+  let charge = 0,
+    absoluteCharge = 0,
+    gaussError = 0;
+  const rows = Array.from(x, (pos, i) => {
+    const n = s.ni * Math.exp(u[i]),
+      p = s.ni * Math.exp(-u[i]),
+      rho = jq * (p - n + net[i]),
+      phi = s.vt * (u[i] - ul),
+      ei = -jk * c.temperature * u[i],
+      offset = ((jk * c.temperature) / 2) * Math.log(s.nv / s.nc);
+    charge += rho * h[i];
+    absoluteCharge += Math.abs(rho) * h[i];
+    gaussError = Math.max(gaussError, Math.abs(s.epsilon * (faces[i + 1] - faces[i]) - rho * h[i]));
+    return {
+      x: pos,
+      phi,
+      field: (faces[i] + faces[i + 1]) / 2,
+      rho,
+      n,
+      p,
+      na: pos < 0 ? c.na : 0,
+      nd: pos >= 0 ? c.nd : 0,
+      ei,
+      ec: ei + s.eg / 2 - offset,
+      ev: ei - s.eg / 2 - offset,
+      ef: 0,
+    };
+  });
+  return {
+    rows,
+    iterations,
+    residual: norm,
+    charge,
+    absoluteCharge,
+    gaussError,
+    boundaryField: Math.max(Math.abs(faces[0]), Math.abs(faces[N])),
+    leftField: faces[0],
+    rightField: faces[N],
+    spacing: Math.max(hp, hn),
+    potentialDrop: s.vt * (ur - ul),
+  };
+}
+export function junctionCsv(rows: JunctionRow[], c: JunctionInput, mode: string) {
+  return (
+    `# ${mode}; T_K=${c.temperature}; NA_m-3=${c.na}; ND_m-3=${c.nd}; Va_V=${c.voltage}; epsilon_r=${c.relativePermittivity}\n` +
+    'x_m,NA_m-3,ND_m-3,n_m-3,p_m-3,rho_C_m-3,E_V_m-1,phi_V,Ec_J,Ev_J,Ei_J,EF_J\n' +
+    rows
+      .map((r) =>
+        [r.x, r.na, r.nd, r.n, r.p, r.rho, r.field, r.phi, r.ec, r.ev, r.ei, r.ef ?? ''].join(','),
+      )
+      .join('\n')
+  );
+}

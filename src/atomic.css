@@ -1,1 +1,437 @@
-.atomic-lab{--al-green:#98dcc7;--al-purple:#b4a0e2;background:#0c1219;color:#d5e0e9;min-height:100vh}.atomic-lab main{max-width:1440px;margin:auto;padding:42px}.atomic-lab header{background:#101922}.al-hero{padding:25px 0 35px}.al-hero h1{font-size:clamp(32px,4.3vw,62px);line-height:1.08;font-weight:500;letter-spacing:-2px;margin:20px 0}.al-hero>p{font-size:17px;color:#a2b6c4}.al-actions{display:flex;gap:9px;flex-wrap:wrap;margin:18px 0}.atomic-lab button{font-size:12px;background:#1a2833;border:1px solid #3a4c59;color:#d4e1e8;border-radius:5px;padding:10px 13px;cursor:pointer}.atomic-lab button:hover{border-color:#98dcc7;background:#243b40}.atomic-lab button.active{background:#29453f;border-color:#74b19f;color:#e5fff4}.atomic-lab button:disabled{opacity:.45;cursor:not-allowed}.atomic-lab :focus-visible{outline:2px solid #c7efdd;outline-offset:4px}.al-sectionnav{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #33424f;border-radius:8px;overflow:hidden}.al-sectionnav a{padding:22px;color:#dce6ed;text-decoration:none;background:#17222d;font-size:14px;border-right:1px solid #33424f}.al-sectionnav a:hover{background:#243c40}.al-sectionnav span{display:block;margin-top:9px;color:#8fa9b7;font-size:12px}.al-section{padding-top:60px;scroll-margin-top:20px}.al-section-title>span{font:11px ui-monospace,monospace;color:#8eb6ab;letter-spacing:2px}.al-section-title h2{font-size:30px;font-weight:500;letter-spacing:-1px;margin:15px 0 10px}.al-section-title p{color:#9db0bf;font-size:14px;line-height:1.8;margin-bottom:24px}.al-layout{display:grid;grid-template-columns:265px minmax(0,1fr);gap:20px}.al-card{background:#131e28;border:1px solid #31414f;border-radius:8px;padding:24px;min-width:0}.al-layout>aside{align-self:start}.al-card h3{font-size:16px;font-weight:500;margin:0 0 18px}.al-card p{font-size:13px;line-height:1.8;color:#acbdcb}.al-card b{color:#d9e6ee}.al-slider{display:block!important;margin:23px 0!important;border:0!important;padding:0!important;font-size:12px!important}.al-slider>span{display:flex;justify-content:space-between;gap:10px;align-items:center}.al-slider b{white-space:nowrap;color:#bbdbce;font:13px ui-monospace,monospace}.al-slider input{display:block;width:100%;margin:14px 0 8px;accent-color:#98dcc7}.al-slider small{font-size:10px;color:#94a9b9}.al-select{display:block;font-size:13px}.al-select select{display:block;width:100%;margin:12px 0 20px;background:#1a2c38;border:1px solid #516676;border-radius:5px;padding:10px;color:#cce0eb}.al-check{display:flex;align-items:start;gap:8px;font-size:12px;line-height:1.7;margin:18px 0}.al-check input{accent-color:#98dcc7;width:auto}.al-note{background:#182833;padding:13px 15px;border-left:2px solid #507b83;font-size:11px!important;color:#a0b5c4!important;line-height:1.8;margin:16px 0}.al-note p{font-size:12px}.al-plothead{display:flex;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:18px;font-size:13px}.al-plothead>span{font:9px ui-monospace,monospace;letter-spacing:1px;color:#97b0bf}.al-crystal{background:radial-gradient(ellipse at center,#20313e,#111c26 70%);border:1px solid #304553;border-radius:6px;width:100%;height:auto}.al-crystal g[role=slider]{touch-action:none;cursor:grab}.al-crystal g[role=slider]:active{cursor:grabbing}.atomic-lab svg text{fill:#b8ccd8;font:12px system-ui,sans-serif}.al-draghint{text-align:center;font-size:12px;color:#a6d2c3;margin:15px 0}.al-key{display:flex;gap:15px;flex-wrap:wrap;font-size:10px;color:#a4b8c6}.al-key i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}.al-explain{background:#1a302e;border:1px solid #2e4e47;padding:17px 20px;border-radius:6px;margin-top:20px}.al-explain h3{font-size:13px;color:#bde7d6;margin:0}.al-explain p{margin-bottom:0}.al-two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.al-plot{border-top:2px solid #729b91;padding-top:17px;margin-top:20px;min-width:0}.al-kplot{border-top-color:#a08ac8}.al-kplot .al-plothead>span{color:#c0b0de}.al-chart{height:240px}.al-plothead b{font-size:12px;font-weight:500}.al-readout{padding:18px 0;border-top:1px solid #3a4e5d;margin-top:24px;display:grid;gap:10px}.al-readout>span{font-size:11px;line-height:1.7;color:#b0c4d2}.al-readout strong{font:28px ui-monospace,monospace;color:#b8e4d4}.al-readout small{font-size:14px}.al-well{width:100%;height:auto}.al-level{cursor:pointer}.al-level:hover path,.al-level:focus path{stroke:#f5d49f;stroke-width:4}.al-subsection{margin-top:24px}.al-flux{display:flex;height:12px;border-radius:4px;overflow:hidden;background:#263847}.al-gap{margin-top:24px}.al-gap svg{display:block;max-width:850px;width:100%;margin:auto}.al-experiments{margin-top:40px}.al-experiments textarea{width:100%;min-height:90px;padding:15px;background:#0e1923;color:#cbdce7;border:1px solid #4a5f70;border-radius:5px;box-sizing:border-box}.al-reference{margin-top:18px}.al-reference summary{cursor:pointer;font-size:14px}.al-reference h3{margin-top:25px}.al-formula{font:14px/2 ui-monospace,monospace;color:#c3d9e8;background:#0e1923;padding:20px;overflow-x:auto}.al-reference p{max-width:1100px}.atomic-lab footer{margin-top:35px;font-size:10px;color:#8fa7b8}.atomic-lab svg{max-width:100%}@media(max-width:1100px){.al-two{grid-template-columns:1fr}.al-layout{grid-template-columns:230px minmax(0,1fr)}.atomic-lab main{padding:26px}}@media(max-width:760px){.al-layout{grid-template-columns:1fr}.al-sectionnav a{padding:14px;font-size:12px}.al-sectionnav span{font-size:10px}.al-card{padding:17px}.atomic-lab main{padding:18px}.al-hero h1{letter-spacing:-1px}.al-section{padding-top:40px}.al-chart{height:230px}.al-crystal{min-height:260px}.atomic-lab header .brand-sub{display:none}}
+.atomic-lab {
+  --al-green: #98dcc7;
+  --al-purple: #b4a0e2;
+  background: #0c1219;
+  color: #d5e0e9;
+  min-height: 100vh;
+}
+.atomic-lab main {
+  max-width: 1440px;
+  margin: auto;
+  padding: 42px;
+}
+.atomic-lab header {
+  background: #101922;
+}
+.al-hero {
+  padding: 25px 0 35px;
+}
+.al-hero h1 {
+  font-size: clamp(32px, 4.3vw, 62px);
+  line-height: 1.08;
+  font-weight: 500;
+  letter-spacing: -2px;
+  margin: 20px 0;
+}
+.al-hero > p {
+  font-size: 17px;
+  color: #a2b6c4;
+}
+.al-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin: 18px 0;
+}
+.atomic-lab button {
+  font-size: 12px;
+  background: #1a2833;
+  border: 1px solid #3a4c59;
+  color: #d4e1e8;
+  border-radius: 5px;
+  padding: 10px 13px;
+  cursor: pointer;
+}
+.atomic-lab button:hover {
+  border-color: #98dcc7;
+  background: #243b40;
+}
+.atomic-lab button.active {
+  background: #29453f;
+  border-color: #74b19f;
+  color: #e5fff4;
+}
+.atomic-lab button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.atomic-lab :focus-visible {
+  outline: 2px solid #c7efdd;
+  outline-offset: 4px;
+}
+.al-sectionnav {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #33424f;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.al-sectionnav a {
+  padding: 22px;
+  color: #dce6ed;
+  text-decoration: none;
+  background: #17222d;
+  font-size: 14px;
+  border-right: 1px solid #33424f;
+}
+.al-sectionnav a:hover {
+  background: #243c40;
+}
+.al-sectionnav span {
+  display: block;
+  margin-top: 9px;
+  color: #8fa9b7;
+  font-size: 12px;
+}
+.al-section {
+  padding-top: 60px;
+  scroll-margin-top: 20px;
+}
+.al-section-title > span {
+  font:
+    11px ui-monospace,
+    monospace;
+  color: #8eb6ab;
+  letter-spacing: 2px;
+}
+.al-section-title h2 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 15px 0 10px;
+}
+.al-section-title p {
+  color: #9db0bf;
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.al-layout {
+  display: grid;
+  grid-template-columns: 265px minmax(0, 1fr);
+  gap: 20px;
+}
+.al-card {
+  background: #131e28;
+  border: 1px solid #31414f;
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 0;
+}
+.al-layout > aside {
+  align-self: start;
+}
+.al-card h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 18px;
+}
+.al-card p {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #acbdcb;
+}
+.al-card b {
+  color: #d9e6ee;
+}
+.al-slider {
+  display: block !important;
+  margin: 23px 0 !important;
+  border: 0 !important;
+  padding: 0 !important;
+  font-size: 12px !important;
+}
+.al-slider > span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+.al-slider b {
+  white-space: nowrap;
+  color: #bbdbce;
+  font:
+    13px ui-monospace,
+    monospace;
+}
+.al-slider input {
+  display: block;
+  width: 100%;
+  margin: 14px 0 8px;
+  accent-color: #98dcc7;
+}
+.al-slider small {
+  font-size: 10px;
+  color: #94a9b9;
+}
+.al-select {
+  display: block;
+  font-size: 13px;
+}
+.al-select select {
+  display: block;
+  width: 100%;
+  margin: 12px 0 20px;
+  background: #1a2c38;
+  border: 1px solid #516676;
+  border-radius: 5px;
+  padding: 10px;
+  color: #cce0eb;
+}
+.al-check {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 18px 0;
+}
+.al-check input {
+  accent-color: #98dcc7;
+  width: auto;
+}
+.al-note {
+  background: #182833;
+  padding: 13px 15px;
+  border-left: 2px solid #507b83;
+  font-size: 11px !important;
+  color: #a0b5c4 !important;
+  line-height: 1.8;
+  margin: 16px 0;
+}
+.al-note p {
+  font-size: 12px;
+}
+.al-plothead {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+.al-plothead > span {
+  font:
+    9px ui-monospace,
+    monospace;
+  letter-spacing: 1px;
+  color: #97b0bf;
+}
+.al-crystal {
+  background: radial-gradient(ellipse at center, #20313e, #111c26 70%);
+  border: 1px solid #304553;
+  border-radius: 6px;
+  width: 100%;
+  height: auto;
+}
+.al-crystal g[role='slider'] {
+  touch-action: none;
+  cursor: grab;
+}
+.al-crystal g[role='slider']:active {
+  cursor: grabbing;
+}
+.atomic-lab svg text {
+  fill: #b8ccd8;
+  font:
+    12px system-ui,
+    sans-serif;
+}
+.al-draghint {
+  text-align: center;
+  font-size: 12px;
+  color: #a6d2c3;
+  margin: 15px 0;
+}
+.al-key {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 10px;
+  color: #a4b8c6;
+}
+.al-key i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.al-explain {
+  background: #1a302e;
+  border: 1px solid #2e4e47;
+  padding: 17px 20px;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+.al-explain h3 {
+  font-size: 13px;
+  color: #bde7d6;
+  margin: 0;
+}
+.al-explain p {
+  margin-bottom: 0;
+}
+.al-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.al-plot {
+  border-top: 2px solid #729b91;
+  padding-top: 17px;
+  margin-top: 20px;
+  min-width: 0;
+}
+.al-kplot {
+  border-top-color: #a08ac8;
+}
+.al-kplot .al-plothead > span {
+  color: #c0b0de;
+}
+.al-chart {
+  height: 240px;
+}
+.al-plothead b {
+  font-size: 12px;
+  font-weight: 500;
+}
+.al-readout {
+  padding: 18px 0;
+  border-top: 1px solid #3a4e5d;
+  margin-top: 24px;
+  display: grid;
+  gap: 10px;
+}
+.al-readout > span {
+  font-size: 11px;
+  line-height: 1.7;
+  color: #b0c4d2;
+}
+.al-readout strong {
+  font:
+    28px ui-monospace,
+    monospace;
+  color: #b8e4d4;
+}
+.al-readout small {
+  font-size: 14px;
+}
+.al-well {
+  width: 100%;
+  height: auto;
+}
+.al-level {
+  cursor: pointer;
+}
+.al-level:hover path,
+.al-level:focus path {
+  stroke: #f5d49f;
+  stroke-width: 4;
+}
+.al-subsection {
+  margin-top: 24px;
+}
+.al-flux {
+  display: flex;
+  height: 12px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #263847;
+}
+.al-gap {
+  margin-top: 24px;
+}
+.al-gap svg {
+  display: block;
+  max-width: 850px;
+  width: 100%;
+  margin: auto;
+}
+.al-experiments {
+  margin-top: 40px;
+}
+.al-experiments textarea {
+  width: 100%;
+  min-height: 90px;
+  padding: 15px;
+  background: #0e1923;
+  color: #cbdce7;
+  border: 1px solid #4a5f70;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+.al-reference {
+  margin-top: 18px;
+}
+.al-reference summary {
+  cursor: pointer;
+  font-size: 14px;
+}
+.al-reference h3 {
+  margin-top: 25px;
+}
+.al-formula {
+  font:
+    14px/2 ui-monospace,
+    monospace;
+  color: #c3d9e8;
+  background: #0e1923;
+  padding: 20px;
+  overflow-x: auto;
+}
+.al-reference p {
+  max-width: 1100px;
+}
+.atomic-lab footer {
+  margin-top: 35px;
+  font-size: 10px;
+  color: #8fa7b8;
+}
+.atomic-lab svg {
+  max-width: 100%;
+}
+@media (max-width: 1100px) {
+  .al-two {
+    grid-template-columns: 1fr;
+  }
+  .al-layout {
+    grid-template-columns: 230px minmax(0, 1fr);
+  }
+  .atomic-lab main {
+    padding: 26px;
+  }
+}
+@media (max-width: 760px) {
+  .al-layout {
+    grid-template-columns: 1fr;
+  }
+  .al-sectionnav a {
+    padding: 14px;
+    font-size: 12px;
+  }
+  .al-sectionnav span {
+    font-size: 10px;
+  }
+  .al-card {
+    padding: 17px;
+  }
+  .atomic-lab main {
+    padding: 18px;
+  }
+  .al-hero h1 {
+    letter-spacing: -1px;
+  }
+  .al-section {
+    padding-top: 40px;
+  }
+  .al-chart {
+    height: 230px;
+  }
+  .al-crystal {
+    min-height: 260px;
+  }
+  .atomic-lab header .brand-sub {
+    display: none;
+  }
+}

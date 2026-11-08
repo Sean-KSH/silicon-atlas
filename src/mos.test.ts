@@ -1,10 +1,135 @@
-import{test}from'node:test';import assert from'node:assert/strict';import{mosDefault as c,mosParams,capacitor,capacitorBands,surfaceCharge,transistor,channel,nominalFabrication,parseFabrication,reduceFabrication}from'./mos';import{defaults}from'./fabrication';
-const close=(a:number,b:number,t=1e-7)=>assert.ok(Math.abs(a-b)<=t*Math.max(Math.abs(b),1e-20),`${a} != ${b}`);
-test('MOS flat band, charge balance and inverse oxide thickness scaling',()=>{for(const kind of ['n','p']as const){const r={...c,kind},p=mosParams(r),a=capacitor({...r,vg:p.vfb});assert.ok(Math.abs(a.psi)<1e-12);assert.ok(Math.abs(a.qs)<1e-12);close(mosParams({...r,tox:2*c.tox}).cox,p.cox/2);for(const vg of [-2,0,1,2]){const z=capacitor({...r,vg,fixed:1e15});assert.ok(Math.abs(z.qg+z.qs+1.602176634e-19*1e15)<1e-18);assert.ok(Math.abs(z.residual)<1e-10)}}});
-test('MOS analytic QS capacitance agrees with independent finite differences including flat band',()=>{for(const kind of ['n','p']as const){const p=mosParams({...c,kind});for(const vg of [-1,p.vfb,p.vfb+.1,1,2]){const r={...c,kind,vg},a=capacitor(r),h=1e-4,d=(capacitor({...r,vg:vg+h}).qg-capacitor({...r,vg:vg-h}).qg)/(2*h);close(a.cqs,d,3e-5);assert.ok(a.cqs>0&&a.cqs<a.cox)}}});
-test('MOS bands obey first-integral field and spatial quadrature refinement',()=>{const a=capacitor(c),b=capacitorBands(c,200),d=capacitorBands(c,400),e=capacitorBands(c,800);assert.ok(Math.abs(d.at(-1)!.x-e.at(-1)!.x)<Math.abs(b.at(-1)!.x-e.at(-1)!.x));for(let i=1;i<d.length;i++){const v=(d[i-1].psi+d[i].psi)/2,field=-(d[i].psi-d[i-1].psi)/(d[i].x-d[i-1].x);close(field,-surfaceCharge(v,a).Q/a.eps,1e-9);close(d[i].ec-d[0].ec,-d[i].psi+d[0].psi,1e-8)}});
-test('MOS HF limit saturates at series oxide/maximum depletion capacitance; transition omitted',()=>{const p=mosParams(c),a=capacitor({...c,vg:2}),b=capacitor({...c,vg:3});close(a.chf!,p.cox/(1+p.cox*p.wmax/p.eps));close(a.chf!,b.chf!);assert.equal(capacitor({...c,vg:p.vfb}).chf,null);assert.ok(a.cqs>a.chf!)});
-test('MOSFET zero drain bias, cutoff, W/L scaling and boundary continuity',()=>{for(const clm of [false,true]){const r={...c,clm},a=transistor(r);assert.equal(transistor({...r,vds:0}).id,0);assert.equal(transistor({...r,vgs:-2}).id,0);close(transistor({...r,W:c.W*2}).id,2*a.id);close(transistor({...r,L:c.L*2}).id,a.id/2);const v=a.ov,lo=transistor({...r,vds:v-1e-7}),hi=transistor({...r,vds:v+1e-7});close(lo.id,hi.id,1e-7)}});
-test('MOSFET gm matches finite difference for n/p with CLM and body effect',()=>{for(const kind of ['n','p']as const)for(const clm of [false,true])for(const mag of [.1,3]){const sign=kind==='n'?1:-1,r={...c,kind,clm,vgs:2*sign,vds:mag*sign},a=transistor(r),h=1e-5;close(a.gm,(transistor({...r,vgs:r.vgs+h}).id-transistor({...r,vgs:r.vgs-h}).id)/(2*h));assert.ok(transistor({...r,reverseBody:2}).theta>a.theta);assert.ok(Math.abs(transistor({...r,reverseBody:2}).id)<Math.abs(a.id))}});
-test('Polarity mirror with matched flat-band and mobility preserves charge/current magnitude',()=>{const a=mosParams(c),np={...c,kind:'p' as const,vgs:-c.vgs,vds:-c.vds},bp=mosParams(np),r={...np,work:bp.semWork-a.vfb};close(transistor(r).id,-transistor(c).id);close(capacitor({...r,vg:-c.vg}).qs,-capacitor(c).qs);const rows=channel(c);close(rows[0].v,0);close(rows.at(-1)!.v,c.vds);const sat=channel({...c,vds:3});close(sat.at(-1)!.charge,0);close(sat.at(-1)!.v,transistor(c).ov)});
-test('Fabrication reduction accepts nominal completed recipe and rejects incompatible geometry/schema',()=>{const a=nominalFabrication();close(a.patch.tox,54.817317104218e-9);close(a.patch.L,10.5e-6);close(a.patch.W,8.5e-6);assert.equal(a.patch.doping,defaults.acceptor);assert.throws(()=>parseFabrication('{}'),/Expected/);assert.throws(()=>parseFabrication(JSON.stringify({schema:'silicon-atlas-fabrication-v1',recipe:defaults,selectedStep:14})),/completed/);assert.throws(()=>reduceFabrication({...structuredClone(defaults),contactEtch:0}),/incompatible/)});
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  mosDefault as c,
+  mosParams,
+  capacitor,
+  capacitorBands,
+  surfaceCharge,
+  transistor,
+  channel,
+  nominalFabrication,
+  parseFabrication,
+  reduceFabrication,
+} from './mos';
+import { defaults } from './fabrication';
+const close = (a: number, b: number, t = 1e-7) =>
+  assert.ok(Math.abs(a - b) <= t * Math.max(Math.abs(b), 1e-20), `${a} != ${b}`);
+test('MOS flat band, charge balance and inverse oxide thickness scaling', () => {
+  for (const kind of ['n', 'p'] as const) {
+    const r = { ...c, kind },
+      p = mosParams(r),
+      a = capacitor({ ...r, vg: p.vfb });
+    assert.ok(Math.abs(a.psi) < 1e-12);
+    assert.ok(Math.abs(a.qs) < 1e-12);
+    close(mosParams({ ...r, tox: 2 * c.tox }).cox, p.cox / 2);
+    for (const vg of [-2, 0, 1, 2]) {
+      const z = capacitor({ ...r, vg, fixed: 1e15 });
+      assert.ok(Math.abs(z.qg + z.qs + 1.602176634e-19 * 1e15) < 1e-18);
+      assert.ok(Math.abs(z.residual) < 1e-10);
+    }
+  }
+});
+test('MOS analytic QS capacitance agrees with independent finite differences including flat band', () => {
+  for (const kind of ['n', 'p'] as const) {
+    const p = mosParams({ ...c, kind });
+    for (const vg of [-1, p.vfb, p.vfb + 0.1, 1, 2]) {
+      const r = { ...c, kind, vg },
+        a = capacitor(r),
+        h = 1e-4,
+        d = (capacitor({ ...r, vg: vg + h }).qg - capacitor({ ...r, vg: vg - h }).qg) / (2 * h);
+      close(a.cqs, d, 3e-5);
+      assert.ok(a.cqs > 0 && a.cqs < a.cox);
+    }
+  }
+});
+test('MOS bands obey first-integral field and spatial quadrature refinement', () => {
+  const a = capacitor(c),
+    b = capacitorBands(c, 200),
+    d = capacitorBands(c, 400),
+    e = capacitorBands(c, 800);
+  assert.ok(Math.abs(d.at(-1)!.x - e.at(-1)!.x) < Math.abs(b.at(-1)!.x - e.at(-1)!.x));
+  for (let i = 1; i < d.length; i++) {
+    const v = (d[i - 1].psi + d[i].psi) / 2,
+      field = -(d[i].psi - d[i - 1].psi) / (d[i].x - d[i - 1].x);
+    close(field, -surfaceCharge(v, a).Q / a.eps, 1e-9);
+    close(d[i].ec - d[0].ec, -d[i].psi + d[0].psi, 1e-8);
+  }
+});
+test('MOS HF limit saturates at series oxide/maximum depletion capacitance; transition omitted', () => {
+  const p = mosParams(c),
+    a = capacitor({ ...c, vg: 2 }),
+    b = capacitor({ ...c, vg: 3 });
+  close(a.chf!, p.cox / (1 + (p.cox * p.wmax) / p.eps));
+  close(a.chf!, b.chf!);
+  assert.equal(capacitor({ ...c, vg: p.vfb }).chf, null);
+  assert.ok(a.cqs > a.chf!);
+});
+test('MOSFET zero drain bias, cutoff, W/L scaling and boundary continuity', () => {
+  for (const clm of [false, true]) {
+    const r = { ...c, clm },
+      a = transistor(r);
+    assert.equal(transistor({ ...r, vds: 0 }).id, 0);
+    assert.equal(transistor({ ...r, vgs: -2 }).id, 0);
+    close(transistor({ ...r, W: c.W * 2 }).id, 2 * a.id);
+    close(transistor({ ...r, L: c.L * 2 }).id, a.id / 2);
+    const v = a.ov,
+      lo = transistor({ ...r, vds: v - 1e-7 }),
+      hi = transistor({ ...r, vds: v + 1e-7 });
+    close(lo.id, hi.id, 1e-7);
+  }
+});
+test('MOSFET gm matches finite difference for n/p with CLM and body effect', () => {
+  for (const kind of ['n', 'p'] as const)
+    for (const clm of [false, true])
+      for (const mag of [0.1, 3]) {
+        const sign = kind === 'n' ? 1 : -1,
+          r = { ...c, kind, clm, vgs: 2 * sign, vds: mag * sign },
+          a = transistor(r),
+          h = 1e-5;
+        close(
+          a.gm,
+          (transistor({ ...r, vgs: r.vgs + h }).id - transistor({ ...r, vgs: r.vgs - h }).id) /
+            (2 * h),
+        );
+        assert.ok(transistor({ ...r, reverseBody: 2 }).theta > a.theta);
+        assert.ok(Math.abs(transistor({ ...r, reverseBody: 2 }).id) < Math.abs(a.id));
+      }
+});
+test('Polarity mirror with matched flat-band and mobility preserves charge/current magnitude', () => {
+  const a = mosParams(c),
+    np = { ...c, kind: 'p' as const, vgs: -c.vgs, vds: -c.vds },
+    bp = mosParams(np),
+    r = { ...np, work: bp.semWork - a.vfb };
+  close(transistor(r).id, -transistor(c).id);
+  close(capacitor({ ...r, vg: -c.vg }).qs, -capacitor(c).qs);
+  const rows = channel(c);
+  close(rows[0].v, 0);
+  close(rows.at(-1)!.v, c.vds);
+  const sat = channel({ ...c, vds: 3 });
+  close(sat.at(-1)!.charge, 0);
+  close(sat.at(-1)!.v, transistor(c).ov);
+});
+test('Fabrication reduction accepts nominal completed recipe and rejects incompatible geometry/schema', () => {
+  const a = nominalFabrication();
+  close(a.patch.tox, 54.817317104218e-9);
+  close(a.patch.L, 10.5e-6);
+  close(a.patch.W, 8.5e-6);
+  assert.equal(a.patch.doping, defaults.acceptor);
+  assert.throws(() => parseFabrication('{}'), /Expected/);
+  assert.throws(
+    () =>
+      parseFabrication(
+        JSON.stringify({
+          schema: 'silicon-atlas-fabrication-v1',
+          recipe: defaults,
+          selectedStep: 14,
+        }),
+      ),
+    /completed/,
+  );
+  assert.throws(
+    () => reduceFabrication({ ...structuredClone(defaults), contactEtch: 0 }),
+    /incompatible/,
+  );
+});

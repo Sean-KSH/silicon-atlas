@@ -1,1 +1,89 @@
-.bench-rack{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:22px;padding:24px;background:#17252e;border:1px solid #445966;border-radius:8px;margin:0 0 26px}.bench-rack>div>span{display:block;font-size:10px;letter-spacing:.14em;color:#93b4c8}.bench-rack strong{display:block;font:15px monospace;color:#a7dfc7;margin:12px 0}.bench-rack small{color:#9db0bd}.bench-lab .pn-metrics b{font-size:18px}.bench-check{display:block;line-height:1.7;margin:18px 0}.bench-select{display:flex;flex-direction:column;gap:12px;margin:20px 0;font-size:13px}.bench-select select{background:#10212b;border:1px solid #526c7a;color:#dce8ee;padding:12px;border-radius:5px;max-width:100%}.bench-diagram{width:100%;display:block;margin:28px 0}.bench-diagram text{fill:#dbe8ed;font:14px sans-serif}.bench-scope{background:#101f28!important}.bench-lab .pn-explain a{color:#a3d2ee}.bench-lab .pn-equations{line-height:2;overflow-wrap:anywhere}.bench-lab .pn-legend{padding-left:85px}@media(max-width:1000px){.bench-rack{grid-template-columns:1fr 1fr}.bench-rack .pn-actions{grid-column:1/-1}}@media(max-width:650px){.bench-rack{grid-template-columns:1fr}.bench-lab .pn-hero h1{font-size:36px}.bench-lab .pn-legend{padding-left:0}}
+.bench-rack {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.2fr;
+  gap: 22px;
+  padding: 24px;
+  background: #17252e;
+  border: 1px solid #445966;
+  border-radius: 8px;
+  margin: 0 0 26px;
+}
+.bench-rack > div > span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: #93b4c8;
+}
+.bench-rack strong {
+  display: block;
+  font: 15px monospace;
+  color: #a7dfc7;
+  margin: 12px 0;
+}
+.bench-rack small {
+  color: #9db0bd;
+}
+.bench-lab .pn-metrics b {
+  font-size: 18px;
+}
+.bench-check {
+  display: block;
+  line-height: 1.7;
+  margin: 18px 0;
+}
+.bench-select {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+  font-size: 13px;
+}
+.bench-select select {
+  background: #10212b;
+  border: 1px solid #526c7a;
+  color: #dce8ee;
+  padding: 12px;
+  border-radius: 5px;
+  max-width: 100%;
+}
+.bench-diagram {
+  width: 100%;
+  display: block;
+  margin: 28px 0;
+}
+.bench-diagram text {
+  fill: #dbe8ed;
+  font: 14px sans-serif;
+}
+.bench-scope {
+  background: #101f28 !important;
+}
+.bench-lab .pn-explain a {
+  color: #a3d2ee;
+}
+.bench-lab .pn-equations {
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+.bench-lab .pn-legend {
+  padding-left: 85px;
+}
+@media (max-width: 1000px) {
+  .bench-rack {
+    grid-template-columns: 1fr 1fr;
+  }
+  .bench-rack .pn-actions {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 650px) {
+  .bench-rack {
+    grid-template-columns: 1fr;
+  }
+  .bench-lab .pn-hero h1 {
+    font-size: 36px;
+  }
+  .bench-lab .pn-legend {
+    padding-left: 0;
+  }
+}

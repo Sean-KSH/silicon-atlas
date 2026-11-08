@@ -1,18 +1,882 @@
-import React,{useEffect,useMemo,useState}from'react';
-import{ResponsiveContainer,LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,ReferenceLine}from'recharts';
-import{DiodeInput,diodeDefault,solveDiode,diodeProfiles,switching}from'./diode';
-import './junction.css';import './diode.css';
-const fmt=(v:number)=>v===0?'0':Math.abs(v)<.001||Math.abs(v)>=1e5?v.toExponential(2):Number(v.toPrecision(4)).toString();
-function Input({label,value,min,max,step,unit,set}:{label:string;value:number;min:number;max:number;step:number;unit:string;set:(n:number)=>void}){return <label className="pn-control"><span>{label}</span><b>{fmt(value)} {unit}</b><input aria-label={label} type="range" min={min} max={max} step={step} value={value} onChange={e=>set(+e.target.value)}/><small>{min}–{max} {unit}</small></label>}
-export default function DiodeLab(){const[c,setC]=useState<DiodeInput>({...diodeDefault}),[deep,setDeep]=useState(false),[ratio,setRatio]=useState(1),[frame,setFrame]=useState(0),[playing,setPlaying]=useState(false),[experiment,setExperiment]=useState(0),[prediction,setPrediction]=useState(''),[reveal,setReveal]=useState(false);const set=<K extends keyof DiodeInput>(key:K,v:DiodeInput[K])=>setC(old=>({...old,[key]:v}));const model=useMemo(()=>{try{const s=solveDiode(c);return{s,profiles:diodeProfiles(c,s),error:''}}catch(e){return{s:null,profiles:[],error:String(e)}}},[c]);const sw=useMemo(()=>{try{return{value:switching(c,ratio),error:''}}catch(e){return{value:null,error:String(e)}}},[c,ratio]);useEffect(()=>{setFrame(0);setPlaying(false)},[c,ratio]);useEffect(()=>{if(!playing||!sw.value)return;const id=setInterval(()=>setFrame(v=>{if(v>=sw.value!.rows.length-2){setPlaying(false);return sw.value!.rows.length-1}return v+1}),40);return()=>clearInterval(id)},[playing,sw]);useEffect(()=>{const hide=()=>{if(document.hidden)setPlaying(false)};document.addEventListener('visibilitychange',hide);return()=>document.removeEventListener('visibilitychange',hide)},[]);
- const iv=useMemo(()=>Array.from({length:201},(_,i)=>{const v=-1+i*.01;try{const s=solveDiode({...c,bias:v});return{x:v,I:s.total*1e6,forward:s.total>0?s.total:null,diff:s.diffusion*1e6,rec:s.recombination*1e6}}catch{return{x:v,I:null,forward:null,diff:null,rec:null}}}),[c]);const s=model.s,profiles=model.profiles.map(r=>({...r,x:r.x*1e6,n:r.n===null?null:r.n/1e6,p:r.p===null?null:r.p/1e6,in:r.in*1e6,ip:r.ip*1e6,total:r.total*1e6})),swRows=sw.value?.rows.map(r=>({...r,x:r.t*1e6,Q:r.Q*1e12,I:r.I*1e6,loss:r.loss*1e6}))??[],now=sw.value?.rows[frame];
- const chart=(data:object[],keys:[string,string,string][],xLabel:string,yLabel:string,log=false,selected?:number,sync?:string)=><div className="dd-plot"><div className="dd-axis-label">{yLabel}{log?' · logarithmic':''}</div><div className="dd-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={data} syncId={sync} syncMethod="value" margin={{top:14,right:20,bottom:30,left:12}}><CartesianGrid stroke="#314755" strokeDasharray="3 5"/><XAxis type="number" dataKey="x" domain={['dataMin','dataMax']} tickFormatter={fmt} tick={{fill:'#a8c1cd',fontSize:10}} label={{value:xLabel,position:'bottom',offset:8,fill:'#a8c1cd',fontSize:11}}/><YAxis width={78} scale={log?'log':'linear'} domain={['auto','auto']} tickFormatter={fmt} tick={{fill:'#a8c1cd',fontSize:10}}/><Tooltip contentStyle={{background:'#142732',border:'1px solid #597180',fontSize:11}} formatter={(v,name)=>[fmt(Number(v)),name]}/>{selected!==undefined&&<ReferenceLine x={selected} stroke="#edcb8b" strokeDasharray="4 4"/>}{keys.map(([key,name,color])=><Line key={key} type={xLabel==='Time (µs)'&&key==='I'?'stepAfter':'linear'} dataKey={key} name={name} stroke={color} strokeWidth={2} dot={false} isAnimationActive={false} connectNulls={false}/>)}</LineChart></ResponsiveContainer></div><div className="pn-legend">{keys.map(([key,name,color])=><span key={key} style={{color}}>{name}</span>)}</div></div>;
- const reset=()=>{setC({...diodeDefault});setRatio(1);setPlaying(false);setFrame(0)};
- return <div className="pn-lab dd-lab"><header><a className="brand" href="#diode"><span className="brandmark">Si</span><span>SILICON ATLAS<span className="brand-sub">Injection → circuit behavior</span></span></a><button onClick={reset}>Restore ideal defaults</button></header><main><div className="pn-hero"><span className="eyebrow">NEAMEN / CHAPTER 8</span><h1>A diode has no<br/>magic turn-on voltage.</h1><p>Connect minority-carrier injection to terminal current, stored charge and switching.</p><div className="pn-actions"><button className={!deep?'selected':''} onClick={()=>setDeep(false)}>Beginner</button><button className={deep?'selected':''} onClick={()=>setDeep(true)}>Deeper physics</button><button disabled={!s} onClick={()=>{if(!s)return;const csv='# SI except explicitly labeled band energies in eV; ideal spatial submodel at solved junction bias\n'+`# Vterminal=${c.bias}; Vjunction=${s.vj}; Iterminal_A=${s.total}; Idiff_A=${s.diffusion}; Irec_A=${s.recombination}; Qsigned_C=${s.charge}\n`+'x_m,region,n_m-3,p_m-3,excess_m-3,In_A,Ip_A,Idiff_A,Ec_eV,Ev_eV,Ei_eV,Fn_eV,Fp_eV\n'+model.profiles.map(r=>[r.x,r.region,r.n??'',r.p??'',r.excess??'',r.in,r.ip,r.total,r.ec,r.ev,r.ei,r.fn,r.fp].join(',')).join('\n'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv'})),a=document.createElement('a');a.href=url;a.download='diode-injection-profile.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}}>↓ Profile CSV</button></div></div><div className="pn-layout"><aside className="pn-card pn-controls"><h2>Device & circuit</h2><Input label="Terminal bias" value={c.bias} min={-1} max={1} step={.01} unit="V" set={v=>set('bias',v)}/><Input label="Temperature" value={c.temperature} min={280} max={400} step={5} unit="K" set={v=>set('temperature',v)}/><Input label="log₁₀ area [µm²]" value={Math.log10(c.area*1e12)} min={2} max={6} step={.1} unit="" set={v=>set('area',10**v*1e-12)}/>{(['na','nd']as const).map(k=><Input key={k} label={`log₁₀ ${k==='na'?'NA':'ND'} [cm⁻³]`} value={Math.log10(c[k]/1e6)} min={14} max={17} step={.1} unit="" set={v=>set(k,10**v*1e6)}/>)}{(['tauN','tauP']as const).map(k=><Input key={k} label={k==='tauN'?'Electron lifetime in p region':'Hole lifetime in n region'} value={c[k]*1e6} min={.05} max={10} step={.05} unit="µs" set={v=>set(k,v*1e-6)}/>)}{(['wp','wn']as const).map(k=><Input key={k} label={k==='wp'?'Neutral p-region length':'Neutral n-region length'} value={c[k]*1e6} min={1} max={1000} step={1} unit="µm" set={v=>set(k,v*1e-6)}/>)}<div className="pn-presets"><button onClick={reset}>Ideal reference</button><button onClick={()=>setC({...diodeDefault,wp:1000e-6,wn:1000e-6})}>Long regions</button><button onClick={()=>setC({...diodeDefault,wp:2e-6,wn:2e-6})}>Short regions · 2 µm</button><button onClick={()=>setC({...diodeDefault,bias:.5,series:true,resistance:100000})}>Series-resistance example</button></div><h3>Optional extensions</h3><label><input type="checkbox" checked={c.series} onChange={e=>set('series',e.target.checked)}/> Series resistance</label>{c.series&&<Input label="Series resistance Rs" value={c.resistance} min={0} max={100000} step={1000} unit="Ω" set={v=>set('resistance',v)}/>}<label><input type="checkbox" checked={c.recombination} onChange={e=>set('recombination',e.target.checked)}/> Depletion recombination</label>{c.recombination&&<Input label="log₁₀ empirical J02 [A/m²]" value={Math.log10(c.recombDensity)} min={-7} max={-1} step={.2} unit="" set={v=>set('recombDensity',10**v)}/>}<p className="pn-note">Rs is a chosen lumped circuit parameter. J02 is an empirical ideality-2 prefactor, not an SRH trap calculation. Both are off by default.</p></aside><div className="pn-main">{s?<section className="pn-card"><h2>Calculated operating point</h2><div className="pn-metrics">{[['Junction bias',s.vj,'V'],['Terminal current',s.total*1e6,'µA'],['Diffusion saturation Is',s.is,'A'],['Electron injection current',s.electron*1e6,'µA'],['Hole injection current',s.hole*1e6,'µA'],['Recombination extension',s.recombination*1e6,'µA'],['Stored excess charge',Math.max(0,s.charge)*1e12,'pC'],['Qn + Qp, signed',s.charge*1e12,'pC'],['Charge residence time',s.tauCharge*1e6,'µs']].map(([name,value,unit])=><div key={String(name)}><span>{name}</span><b>{fmt(Number(value))} <small>{unit}</small></b></div>)}</div><p className="pn-note">Ln = {fmt(s.ln*1e6)} µm; Lp = {fmt(s.lp*1e6)} µm. Wp/Ln = {fmt(c.wp/s.ln)}; Wn/Lp = {fmt(c.wn/s.lp)}. Negative signed excess under reverse bias is a deficit, not stored positive injection charge.</p><div className="pn-explain"><h3>What changed and why?</h3><p>Injection grows continuously as exp(Vj/VT) − 1. Shorter neutral regions steepen the concentration gradients and increase Is while reducing residence time. {c.series?'Some terminal voltage is lost across Rs, so Vj is smaller than the applied forward voltage. ':''}{c.recombination?'An additional empirical ideality-2 current is included at the terminals. ':''}The built-in potential is {fmt(s.vbi)} V; it is an internal equilibrium barrier, not a terminal turn-on threshold. “0.7 V” only approximates certain currents, areas and temperatures.</p></div></section>:<section className="pn-card pn-error" role="alert"><h2>Operating point outside the model</h2><p>{model.error}</p><button onClick={reset}>Restore valid ideal default</button></section>}
-<section className="pn-card"><h2>Terminal I–V: two scales, one model</h2><div className="dd-two">{chart(iv,[['I','Terminal I','#8bd7c0'],['diff','Diffusion part','#b7b0ef'],['rec','Recombination part','#edbb8d']],'Terminal voltage (V)','Current (µA)',false,c.bias,'diode-iv')}{chart(iv,[['forward','Forward terminal I','#8bd7c0']],'Terminal voltage (V)','Forward current (A)',true,c.bias,'diode-iv')}</div><p className="pn-note">Semilog view omits I ≤ 0; zero remains exact in the calculation. Unsupported high-injection/high-field points are gaps ({iv.filter(r=>r.I===null).length} of 201 samples). Reverse sweep stops at −1 V. No avalanche/Zener prediction or extrapolation is provided. A separate breakdown model with material-dependent parameters would be required.</p></section>
-{s&&<><section className="pn-card"><h2>Injection in the quasi-neutral regions</h2><svg viewBox="0 0 850 125" role="img" aria-label="Schematic diode with p neutral region, depletion layer, n neutral region and absorbing contacts"><rect x="30" y="25" width="330" height="55" fill="#5d3a40"/><rect x="360" y="25" width="130" height="55" fill="#31475d"/><rect x="490" y="25" width="330" height="55" fill="#24554f"/><text x="80" y="58">p region · injected electrons ←</text><text x="375" y="58">depletion</text><text x="515" y="58">→ injected holes · n region</text><text x="30" y="105">Ohmic contact: Δn = 0</text><text x="610" y="105">Ohmic contact: Δp = 0</text></svg><p className="pn-note">Illustration is not to scale. Plots use actual position, with x = 0 at the metallurgical junction. Neutral lengths are measured from depletion edges and held fixed as bias changes.</p>{chart(profiles,[['n','Minority electrons in p','#8bd7c0'],['p','Minority holes in n','#edbb8d']],'Position (µm)','Minority density (cm⁻³)',true,undefined,'diode-position')}{chart(profiles,[['in','Electron current In','#8bd7c0'],['ip','Hole current Ip','#edbb8d'],['total','In + Ip','#b7b0ef']],'Position (µm)','Ideal diffusion currents (µA)',false,undefined,'diode-position')}<p className="pn-note">The minority diffusion current decreases toward each contact as carriers recombine. The complementary majority current maintains constant total diffusion current. The tiny majority-field/quasi-Fermi gradient needed to carry it is neglected in the leading low-injection band approximation. {c.recombination?'The recombination extension is NOT included in these spatial currents; its spatial distribution is not solved.':''}</p></section><section className="pn-card"><h2>Bands and quasi-Fermi levels</h2>{chart(profiles,[['ec','Ec','#8bd7c0'],['ev','Ev','#edbb8d'],['ei','Ei','#a9c0ce'],['fn','Fn · electrons','#c9a7f2'],['fp','Fp · holes','#f1ce7d']],'Position (µm)','Electron energy (eV)',false,undefined,'diode-position')}<p className="pn-note">Calculated ideal-diffusion reference at Vj = {fmt(s.vj)} V. Fn and Fp are derived from carrier concentrations in the neutral regions; they are assumed constant across depletion in the ideal no-recombination limit. Fn − Fp = qVj there. At equilibrium both coincide and are flat. Ec = constant − qφ. {c.recombination?'With the empirical recombination extension enabled, these are reference submodel levels, not a spatial solution for the total device.':''} No electric-field force or electron path is represented by these lines.</p></section></>}
-<section className="pn-card"><h2>Turn-on & reverse-storage demonstration</h2><p className="pn-note">Lumped charge control: dQ/dt = Idrive − Q/τQ. Preload uses the ideal diode at +0.35 V, held for 4τQ, independent of the operating bias and both extensions. Then a fixed reverse extraction current removes stored charge. This illustrates the storage portion of reverse recovery; the later depletion-capacitance transient and current tail are not solved.</p><Input label="Reverse / forward drive current" value={ratio} min={.1} max={5} step={.1} unit="×" set={setRatio}/>{sw.value&&now?<><div className="pn-actions"><button onClick={()=>{if(frame===sw.value!.rows.length-1)setFrame(0);setPlaying(v=>!v)}}>{playing?'Pause switching':'Play switching once'}</button><button onClick={()=>{setFrame(0);setPlaying(false)}}>Reset switching</button></div><input className="dd-time" aria-label="Switching time" type="range" min={0} max={sw.value.rows.length-1} step={1} value={frame} onChange={e=>{setFrame(+e.target.value);setPlaying(false)}}/><div className="dd-charge"><span>{frame===sw.value.rows.length-1?'Storage interval complete':now.phase} · t = {fmt(now.t*1e6)} µs</span><div><i style={{width:`${100*now.Q/sw.value.qAtSwitch}%`}}/></div><b>Q = {fmt(now.Q*1e12)} pC</b></div><div className="dd-two">{chart(swRows,[['Q','Stored charge','#8bd7c0']],'Time (µs)','Charge (pC)',false,now.t*1e6,'diode-switch')}{chart(swRows,[['I','Drive current','#edbb8d'],['loss','Lumped loss Q/τQ','#b7b0ef']],'Time (µs)','Current (µA)',false,now.t*1e6,'diode-switch')}</div><p>IF = {fmt(sw.value.If*1e6)} µA; IR = {fmt(sw.value.Ir*1e6)} µA; τQ = {fmt(sw.value.tau*1e6)} µs; reverse storage time = {fmt(sw.value.storage*1e6)} µs.</p><p className="pn-note">Playback magnifies time and samples exact lumped formulas, not particle trajectories. At Q = 0 the modeled interval ends; no artificial negative stored charge or predicted recovery tail is drawn. For finite short regions, τQ is an effective residence time including contact extraction; it is not simply the recombination lifetime.</p></>:<p className="pn-error">Switching unavailable for this recipe: {sw.error} The fixed +0.35 V preload must satisfy the low-injection limit.</p>}</section></div></div>
-<section className="pn-card"><h2>Predict, then compare</h2><div className="pn-actions">{['Area and threshold','Long versus short','Reverse extraction'].map((v,i)=><button key={v} className={experiment===i?'selected':''} onClick={()=>{setExperiment(i);setReveal(false)}}>{i+1}. {v}</button>)}</div><h3>{['Does doubling area move a sharp turn-on voltage, or double current at the same bias?','What happens to current and stored charge if both neutral regions become much shorter than a diffusion length?','How does a stronger reverse extraction current change the time needed to remove stored charge?'][experiment]}</h3><textarea aria-label="Diode prediction" value={prediction} onChange={e=>setPrediction(e.target.value)} placeholder="Write your prediction…"/><div className="pn-actions"><button onClick={()=>{reset();if(experiment===1)setC({...diodeDefault,wp:2e-6,wn:2e-6});if(experiment===2)setRatio(3)}}>Apply experiment</button><button onClick={()=>setReveal(v=>!v)}>Reveal explanation</button></div>{reveal&&<p>{['With Rs off, diffusion current and stored charge scale with area. There is no exact threshold; the voltage for a chosen current shifts logarithmically with area, temperature and Is.','Short regions have nearly linear excess profiles. Current scales approximately as D/W, charge as W/2, and Q/I approaches W²/(2D); a short diode can carry more current while storing less charge.','Larger IR shortens the lumped storage interval τQ ln[1+Qstart/(IRτQ)]. This is only the storage portion, not a calculation of the entire physical recovery waveform.'][experiment]}</p>}</section>
-<details className="pn-card" open={deep}><summary>Equations, assumptions and model boundaries</summary><div className="pn-equations">VT = kBT/q; Dn = μn VT; Dp = μp VT; Ln,p = √(Dn,p τn,p)<br/>np0 = ni²/NA; pn0 = ni²/ND; F = exp(Vj/VT) − 1<br/>Δc(s) = c0 F sinh[(W−s)/L] / sinh(W/L)<br/>Is = qA [Dn np0 coth(Wp/Ln)/Ln + Dp pn0 coth(Wn/Lp)/Lp]<br/>Idiff = Is F<br/>Qn = qA np0 F Ln tanh(Wp/2Ln); Qp = qA pn0 F Lp tanh(Wn/2Lp)<br/>τQ = (Qn+Qp)/Idiff (evaluated by bias-independent coefficients at Vj = 0)<br/>Irec = A J02 [exp(Vj/2VT) − 1]; Vterminal = Vj + Rs(Idiff + Irec)<br/>Fn = Ei + kBT ln(n/ni); Fp = Ei − kBT ln(p/ni)</div><p>A: junction area (m²); s: distance from the depletion edge toward a contact (m); Wp,Wn: neutral-region lengths (m); τn,τp: minority lifetimes (s); μn = 0.135, μp = 0.048 m²/(V·s), held constant; D: diffusion coefficient (m²/s); L: diffusion length (m); n,p,c0: carrier densities (m⁻³); Is,I: currents (A); Qn,Qp: signed minority excess-charge magnitudes (C), not net electrostatic charge; q is positive elementary charge. Vj and Vterminal are volts; Rs is ohms; J02 is A/m². Band/quasi-Fermi energies are eV in the plot and explicitly labeled CSV columns. All transport calculations use SI.</p><p>kB: Boltzmann constant; T: temperature (K); VT: thermal voltage; NA,ND: ionized acceptor/donor densities; ni: intrinsic density; np0,pn0: equilibrium minority densities; F: dimensionless injection factor. Nc,Nv are effective band densities of states; Eg is the band gap. Ec,Ev,Ei are conduction, valence and intrinsic energies; Fn,Fp are electron/hole quasi-Fermi energies; φ is electric potential. In,Ip are conventional electron/hole currents, positive from p to n in forward bias; electrons move toward p, opposite their conventional current. In switching, IF and IR are positive drive magnitudes, t is elapsed time, t′ = t − ton, ts is reverse storage duration, and Qstart is charge at reversal.</p><p>Finite-region boundary conditions: Δc(0) = c0F, Δc(W) = 0 at an ideal recombining ohmic contact. The exact steady solution solves D d²Δc/ds² − Δc/τ = 0. For W/L ≫ 1 it becomes exponential and Qn ≈ τn In, Qp ≈ τp Ip. For W/L ≪ 1 it is nearly linear and each Q/I approaches W²/(2D). There is no separate arbitrary Is slider. Neutral lengths are held fixed, so depletion motion relative to fixed fabricated contacts is not modeled.</p><p>Si, full ionization, Boltzmann statistics and low injection; no electric field in the neutral-region minority diffusion equation. Band bending uses abrupt depletion electrostatics. The tiny majority electric-field drop is neglected. Nc,Nv ∝ T³ᐟ² and Eg = 1.12 eV are the same fixed-gap approximation as the equilibrium/junction modules, giving ni ≈ 6.68×10⁹ cm⁻³ at 300 K. This differs from Neamen’s example ni = 1.5×10¹⁰; values are not silently mixed. Temperature changes D through Einstein but mobility is not a fitted μ(T,N) model.</p><p>Guardrails: 280–400 K, doping 10¹⁴–10¹⁷ cm⁻³, junction barrier ≥ 6VT, injected minority/majority ratio ≤ 1%, peak depletion field ≤ 100 kV/cm. The last is a conservative guard, not a breakdown prediction. Invalid I–V samples are omitted explicitly. Series resistance is solved by bracketed bisection on Vj; residual &gt; 10 nV or nonconvergence is exposed. The empirical ideality-2 extension has a user-selected J02, no trap parameters or spatial recombination solution; its negative-bias saturation is not a full SRH generation model.</p><h3>Lumped switching approximation</h3><div className="pn-equations">Turn-on: Q(t) = IF τQ [1 − exp(−t/τQ)]<br/>Switch at ton = 4τQ: Qstart = IF τQ(1 − e⁻⁴)<br/>Reverse extraction: Q(t′) = (Qstart + IR τQ)e⁻ᵗ′/τQ − IR τQ<br/>ts = τQ ln[1 + Qstart/(IR τQ)]</div><p>This single-charge approximation assumes one effective residence time from steady Q/Idiff; it does not solve the distributed transient diffusion equation. Recombination and contact extraction share its lumped Q/τQ loss. Spatial profiles above remain steady-state operating-point profiles and are not animated as transient solutions. The bar only visualizes computed lumped Q. Extensions are excluded from switching. No depletion-capacitance turn-on phase, late recovery tail, parasitics or voltage-driven circuit transient is predicted.</p></details>
-<details className="pn-card"><summary>Neamen alignment and validation</summary><p><b>Neamen, Semiconductor Physics and Devices, Fourth Edition, Chapter 8:</b> §§8.1.2–8.1.5, printed pp. 278–289 (PDF 303–314), assumptions, injected carrier boundaries, distributions, quasi-Fermi levels and ideal current; §8.1.7 pp. 292–293, temperature; §8.1.8 pp. 293–295 (PDF 318–320), short diode; §8.2.1 pp. 296–301, generation/recombination; §8.3.3 pp. 313–314, series resistance; §8.4 pp. 314–317 (PDF 339–342), storage and switching. The lumped storage relation corresponds to the approximate logarithmic behavior of Eq. 8.110, not the full erf-based transient or Eq. 8.111 recovery tail. Table B.4 supplies reference Si mobilities/DOS/gap.</p><p>Validation checks equilibrium zero current, ideal area scaling, forward semilog slope, finite-region boundary conditions and current conservation, integrated stored charge, long/short charge-time limits, implicit series-resistance residual, zero-bias empirical current, and lumped charge-control balance and recovery event.</p></details><footer>PN DIODE / INJECTION TO CIRCUITS <span>Finite-region diffusion · Explicit extensions · Lumped switching</span></footer></main></div>
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+} from 'recharts';
+import { DiodeInput, diodeDefault, solveDiode, diodeProfiles, switching } from './diode';
+import './junction.css';
+import './diode.css';
+const fmt = (v: number) =>
+  v === 0
+    ? '0'
+    : Math.abs(v) < 0.001 || Math.abs(v) >= 1e5
+      ? v.toExponential(2)
+      : Number(v.toPrecision(4)).toString();
+function Input({
+  label,
+  value,
+  min,
+  max,
+  step,
+  unit,
+  set,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+  set: (n: number) => void;
+}) {
+  return (
+    <label className="pn-control">
+      <span>{label}</span>
+      <b>
+        {fmt(value)} {unit}
+      </b>
+      <input
+        aria-label={label}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => set(+e.target.value)}
+      />
+      <small>
+        {min}–{max} {unit}
+      </small>
+    </label>
+  );
+}
+export default function DiodeLab() {
+  const [c, setC] = useState<DiodeInput>({ ...diodeDefault }),
+    [deep, setDeep] = useState(false),
+    [ratio, setRatio] = useState(1),
+    [frame, setFrame] = useState(0),
+    [playing, setPlaying] = useState(false),
+    [experiment, setExperiment] = useState(0),
+    [prediction, setPrediction] = useState(''),
+    [reveal, setReveal] = useState(false);
+  const set = <K extends keyof DiodeInput>(key: K, v: DiodeInput[K]) =>
+    setC((old) => ({ ...old, [key]: v }));
+  const model = useMemo(() => {
+    try {
+      const s = solveDiode(c);
+      return { s, profiles: diodeProfiles(c, s), error: '' };
+    } catch (e) {
+      return { s: null, profiles: [], error: String(e) };
+    }
+  }, [c]);
+  const sw = useMemo(() => {
+    try {
+      return { value: switching(c, ratio), error: '' };
+    } catch (e) {
+      return { value: null, error: String(e) };
+    }
+  }, [c, ratio]);
+  useEffect(() => {
+    setFrame(0);
+    setPlaying(false);
+  }, [c, ratio]);
+  useEffect(() => {
+    if (!playing || !sw.value) return;
+    const id = setInterval(
+      () =>
+        setFrame((v) => {
+          if (v >= sw.value!.rows.length - 2) {
+            setPlaying(false);
+            return sw.value!.rows.length - 1;
+          }
+          return v + 1;
+        }),
+      40,
+    );
+    return () => clearInterval(id);
+  }, [playing, sw]);
+  useEffect(() => {
+    const hide = () => {
+      if (document.hidden) setPlaying(false);
+    };
+    document.addEventListener('visibilitychange', hide);
+    return () => document.removeEventListener('visibilitychange', hide);
+  }, []);
+  const iv = useMemo(
+    () =>
+      Array.from({ length: 201 }, (_, i) => {
+        const v = -1 + i * 0.01;
+        try {
+          const s = solveDiode({ ...c, bias: v });
+          return {
+            x: v,
+            I: s.total * 1e6,
+            forward: s.total > 0 ? s.total : null,
+            diff: s.diffusion * 1e6,
+            rec: s.recombination * 1e6,
+          };
+        } catch {
+          return { x: v, I: null, forward: null, diff: null, rec: null };
+        }
+      }),
+    [c],
+  );
+  const s = model.s,
+    profiles = model.profiles.map((r) => ({
+      ...r,
+      x: r.x * 1e6,
+      n: r.n === null ? null : r.n / 1e6,
+      p: r.p === null ? null : r.p / 1e6,
+      in: r.in * 1e6,
+      ip: r.ip * 1e6,
+      total: r.total * 1e6,
+    })),
+    swRows =
+      sw.value?.rows.map((r) => ({
+        ...r,
+        x: r.t * 1e6,
+        Q: r.Q * 1e12,
+        I: r.I * 1e6,
+        loss: r.loss * 1e6,
+      })) ?? [],
+    now = sw.value?.rows[frame];
+  const chart = (
+    data: object[],
+    keys: [string, string, string][],
+    xLabel: string,
+    yLabel: string,
+    log = false,
+    selected?: number,
+    sync?: string,
+  ) => (
+    <div className="dd-plot">
+      <div className="dd-axis-label">
+        {yLabel}
+        {log ? ' · logarithmic' : ''}
+      </div>
+      <div className="dd-chart">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={data}
+            syncId={sync}
+            syncMethod="value"
+            margin={{ top: 14, right: 20, bottom: 30, left: 12 }}
+          >
+            <CartesianGrid stroke="#314755" strokeDasharray="3 5" />
+            <XAxis
+              type="number"
+              dataKey="x"
+              domain={['dataMin', 'dataMax']}
+              tickFormatter={fmt}
+              tick={{ fill: '#a8c1cd', fontSize: 10 }}
+              label={{
+                value: xLabel,
+                position: 'bottom',
+                offset: 8,
+                fill: '#a8c1cd',
+                fontSize: 11,
+              }}
+            />
+            <YAxis
+              width={78}
+              scale={log ? 'log' : 'linear'}
+              domain={['auto', 'auto']}
+              tickFormatter={fmt}
+              tick={{ fill: '#a8c1cd', fontSize: 10 }}
+            />
+            <Tooltip
+              contentStyle={{ background: '#142732', border: '1px solid #597180', fontSize: 11 }}
+              formatter={(v, name) => [fmt(Number(v)), name]}
+            />
+            {selected !== undefined && (
+              <ReferenceLine x={selected} stroke="#edcb8b" strokeDasharray="4 4" />
+            )}
+            {keys.map(([key, name, color]) => (
+              <Line
+                key={key}
+                type={xLabel === 'Time (µs)' && key === 'I' ? 'stepAfter' : 'linear'}
+                dataKey={key}
+                name={name}
+                stroke={color}
+                strokeWidth={2}
+                dot={false}
+                isAnimationActive={false}
+                connectNulls={false}
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="pn-legend">
+        {keys.map(([key, name, color]) => (
+          <span key={key} style={{ color }}>
+            {name}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+  const reset = () => {
+    setC({ ...diodeDefault });
+    setRatio(1);
+    setPlaying(false);
+    setFrame(0);
+  };
+  return (
+    <div className="pn-lab dd-lab">
+      <header>
+        <a className="brand" href="#diode">
+          <span className="brandmark">Si</span>
+          <span>
+            SILICON ATLAS<span className="brand-sub">Injection → circuit behavior</span>
+          </span>
+        </a>
+        <button onClick={reset}>Restore ideal defaults</button>
+      </header>
+      <main>
+        <div className="pn-hero">
+          <span className="eyebrow">NEAMEN / CHAPTER 8</span>
+          <h1>
+            A diode has no
+            <br />
+            magic turn-on voltage.
+          </h1>
+          <p>
+            Connect minority-carrier injection to terminal current, stored charge and switching.
+          </p>
+          <div className="pn-actions">
+            <button className={!deep ? 'selected' : ''} onClick={() => setDeep(false)}>
+              Beginner
+            </button>
+            <button className={deep ? 'selected' : ''} onClick={() => setDeep(true)}>
+              Deeper physics
+            </button>
+            <button
+              disabled={!s}
+              onClick={() => {
+                if (!s) return;
+                const csv =
+                    '# SI except explicitly labeled band energies in eV; ideal spatial submodel at solved junction bias\n' +
+                    `# Vterminal=${c.bias}; Vjunction=${s.vj}; Iterminal_A=${s.total}; Idiff_A=${s.diffusion}; Irec_A=${s.recombination}; Qsigned_C=${s.charge}\n` +
+                    'x_m,region,n_m-3,p_m-3,excess_m-3,In_A,Ip_A,Idiff_A,Ec_eV,Ev_eV,Ei_eV,Fn_eV,Fp_eV\n' +
+                    model.profiles
+                      .map((r) =>
+                        [
+                          r.x,
+                          r.region,
+                          r.n ?? '',
+                          r.p ?? '',
+                          r.excess ?? '',
+                          r.in,
+                          r.ip,
+                          r.total,
+                          r.ec,
+                          r.ev,
+                          r.ei,
+                          r.fn,
+                          r.fp,
+                        ].join(','),
+                      )
+                      .join('\n'),
+                  url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })),
+                  a = document.createElement('a');
+                a.href = url;
+                a.download = 'diode-injection-profile.csv';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+              }}
+            >
+              ↓ Profile CSV
+            </button>
+          </div>
+        </div>
+        <div className="pn-layout">
+          <aside className="pn-card pn-controls">
+            <h2>Device & circuit</h2>
+            <Input
+              label="Terminal bias"
+              value={c.bias}
+              min={-1}
+              max={1}
+              step={0.01}
+              unit="V"
+              set={(v) => set('bias', v)}
+            />
+            <Input
+              label="Temperature"
+              value={c.temperature}
+              min={280}
+              max={400}
+              step={5}
+              unit="K"
+              set={(v) => set('temperature', v)}
+            />
+            <Input
+              label="log₁₀ area [µm²]"
+              value={Math.log10(c.area * 1e12)}
+              min={2}
+              max={6}
+              step={0.1}
+              unit=""
+              set={(v) => set('area', 10 ** v * 1e-12)}
+            />
+            {(['na', 'nd'] as const).map((k) => (
+              <Input
+                key={k}
+                label={`log₁₀ ${k === 'na' ? 'NA' : 'ND'} [cm⁻³]`}
+                value={Math.log10(c[k] / 1e6)}
+                min={14}
+                max={17}
+                step={0.1}
+                unit=""
+                set={(v) => set(k, 10 ** v * 1e6)}
+              />
+            ))}
+            {(['tauN', 'tauP'] as const).map((k) => (
+              <Input
+                key={k}
+                label={k === 'tauN' ? 'Electron lifetime in p region' : 'Hole lifetime in n region'}
+                value={c[k] * 1e6}
+                min={0.05}
+                max={10}
+                step={0.05}
+                unit="µs"
+                set={(v) => set(k, v * 1e-6)}
+              />
+            ))}
+            {(['wp', 'wn'] as const).map((k) => (
+              <Input
+                key={k}
+                label={k === 'wp' ? 'Neutral p-region length' : 'Neutral n-region length'}
+                value={c[k] * 1e6}
+                min={1}
+                max={1000}
+                step={1}
+                unit="µm"
+                set={(v) => set(k, v * 1e-6)}
+              />
+            ))}
+            <div className="pn-presets">
+              <button onClick={reset}>Ideal reference</button>
+              <button onClick={() => setC({ ...diodeDefault, wp: 1000e-6, wn: 1000e-6 })}>
+                Long regions
+              </button>
+              <button onClick={() => setC({ ...diodeDefault, wp: 2e-6, wn: 2e-6 })}>
+                Short regions · 2 µm
+              </button>
+              <button
+                onClick={() =>
+                  setC({ ...diodeDefault, bias: 0.5, series: true, resistance: 100000 })
+                }
+              >
+                Series-resistance example
+              </button>
+            </div>
+            <h3>Optional extensions</h3>
+            <label>
+              <input
+                type="checkbox"
+                checked={c.series}
+                onChange={(e) => set('series', e.target.checked)}
+              />{' '}
+              Series resistance
+            </label>
+            {c.series && (
+              <Input
+                label="Series resistance Rs"
+                value={c.resistance}
+                min={0}
+                max={100000}
+                step={1000}
+                unit="Ω"
+                set={(v) => set('resistance', v)}
+              />
+            )}
+            <label>
+              <input
+                type="checkbox"
+                checked={c.recombination}
+                onChange={(e) => set('recombination', e.target.checked)}
+              />{' '}
+              Depletion recombination
+            </label>
+            {c.recombination && (
+              <Input
+                label="log₁₀ empirical J02 [A/m²]"
+                value={Math.log10(c.recombDensity)}
+                min={-7}
+                max={-1}
+                step={0.2}
+                unit=""
+                set={(v) => set('recombDensity', 10 ** v)}
+              />
+            )}
+            <p className="pn-note">
+              Rs is a chosen lumped circuit parameter. J02 is an empirical ideality-2 prefactor, not
+              an SRH trap calculation. Both are off by default.
+            </p>
+          </aside>
+          <div className="pn-main">
+            {s ? (
+              <section className="pn-card">
+                <h2>Calculated operating point</h2>
+                <div className="pn-metrics">
+                  {[
+                    ['Junction bias', s.vj, 'V'],
+                    ['Terminal current', s.total * 1e6, 'µA'],
+                    ['Diffusion saturation Is', s.is, 'A'],
+                    ['Electron injection current', s.electron * 1e6, 'µA'],
+                    ['Hole injection current', s.hole * 1e6, 'µA'],
+                    ['Recombination extension', s.recombination * 1e6, 'µA'],
+                    ['Stored excess charge', Math.max(0, s.charge) * 1e12, 'pC'],
+                    ['Qn + Qp, signed', s.charge * 1e12, 'pC'],
+                    ['Charge residence time', s.tauCharge * 1e6, 'µs'],
+                  ].map(([name, value, unit]) => (
+                    <div key={String(name)}>
+                      <span>{name}</span>
+                      <b>
+                        {fmt(Number(value))} <small>{unit}</small>
+                      </b>
+                    </div>
+                  ))}
+                </div>
+                <p className="pn-note">
+                  Ln = {fmt(s.ln * 1e6)} µm; Lp = {fmt(s.lp * 1e6)} µm. Wp/Ln = {fmt(c.wp / s.ln)};
+                  Wn/Lp = {fmt(c.wn / s.lp)}. Negative signed excess under reverse bias is a
+                  deficit, not stored positive injection charge.
+                </p>
+                <div className="pn-explain">
+                  <h3>What changed and why?</h3>
+                  <p>
+                    Injection grows continuously as exp(Vj/VT) − 1. Shorter neutral regions steepen
+                    the concentration gradients and increase Is while reducing residence time.{' '}
+                    {c.series
+                      ? 'Some terminal voltage is lost across Rs, so Vj is smaller than the applied forward voltage. '
+                      : ''}
+                    {c.recombination
+                      ? 'An additional empirical ideality-2 current is included at the terminals. '
+                      : ''}
+                    The built-in potential is {fmt(s.vbi)} V; it is an internal equilibrium barrier,
+                    not a terminal turn-on threshold. “0.7 V” only approximates certain currents,
+                    areas and temperatures.
+                  </p>
+                </div>
+              </section>
+            ) : (
+              <section className="pn-card pn-error" role="alert">
+                <h2>Operating point outside the model</h2>
+                <p>{model.error}</p>
+                <button onClick={reset}>Restore valid ideal default</button>
+              </section>
+            )}
+            <section className="pn-card">
+              <h2>Terminal I–V: two scales, one model</h2>
+              <div className="dd-two">
+                {chart(
+                  iv,
+                  [
+                    ['I', 'Terminal I', '#8bd7c0'],
+                    ['diff', 'Diffusion part', '#b7b0ef'],
+                    ['rec', 'Recombination part', '#edbb8d'],
+                  ],
+                  'Terminal voltage (V)',
+                  'Current (µA)',
+                  false,
+                  c.bias,
+                  'diode-iv',
+                )}
+                {chart(
+                  iv,
+                  [['forward', 'Forward terminal I', '#8bd7c0']],
+                  'Terminal voltage (V)',
+                  'Forward current (A)',
+                  true,
+                  c.bias,
+                  'diode-iv',
+                )}
+              </div>
+              <p className="pn-note">
+                Semilog view omits I ≤ 0; zero remains exact in the calculation. Unsupported
+                high-injection/high-field points are gaps ({iv.filter((r) => r.I === null).length}{' '}
+                of 201 samples). Reverse sweep stops at −1 V. No avalanche/Zener prediction or
+                extrapolation is provided. A separate breakdown model with material-dependent
+                parameters would be required.
+              </p>
+            </section>
+            {s && (
+              <>
+                <section className="pn-card">
+                  <h2>Injection in the quasi-neutral regions</h2>
+                  <svg
+                    viewBox="0 0 850 125"
+                    role="img"
+                    aria-label="Schematic diode with p neutral region, depletion layer, n neutral region and absorbing contacts"
+                  >
+                    <rect x="30" y="25" width="330" height="55" fill="#5d3a40" />
+                    <rect x="360" y="25" width="130" height="55" fill="#31475d" />
+                    <rect x="490" y="25" width="330" height="55" fill="#24554f" />
+                    <text x="80" y="58">
+                      p region · injected electrons ←
+                    </text>
+                    <text x="375" y="58">
+                      depletion
+                    </text>
+                    <text x="515" y="58">
+                      → injected holes · n region
+                    </text>
+                    <text x="30" y="105">
+                      Ohmic contact: Δn = 0
+                    </text>
+                    <text x="610" y="105">
+                      Ohmic contact: Δp = 0
+                    </text>
+                  </svg>
+                  <p className="pn-note">
+                    Illustration is not to scale. Plots use actual position, with x = 0 at the
+                    metallurgical junction. Neutral lengths are measured from depletion edges and
+                    held fixed as bias changes.
+                  </p>
+                  {chart(
+                    profiles,
+                    [
+                      ['n', 'Minority electrons in p', '#8bd7c0'],
+                      ['p', 'Minority holes in n', '#edbb8d'],
+                    ],
+                    'Position (µm)',
+                    'Minority density (cm⁻³)',
+                    true,
+                    undefined,
+                    'diode-position',
+                  )}
+                  {chart(
+                    profiles,
+                    [
+                      ['in', 'Electron current In', '#8bd7c0'],
+                      ['ip', 'Hole current Ip', '#edbb8d'],
+                      ['total', 'In + Ip', '#b7b0ef'],
+                    ],
+                    'Position (µm)',
+                    'Ideal diffusion currents (µA)',
+                    false,
+                    undefined,
+                    'diode-position',
+                  )}
+                  <p className="pn-note">
+                    The minority diffusion current decreases toward each contact as carriers
+                    recombine. The complementary majority current maintains constant total diffusion
+                    current. The tiny majority-field/quasi-Fermi gradient needed to carry it is
+                    neglected in the leading low-injection band approximation.{' '}
+                    {c.recombination
+                      ? 'The recombination extension is NOT included in these spatial currents; its spatial distribution is not solved.'
+                      : ''}
+                  </p>
+                </section>
+                <section className="pn-card">
+                  <h2>Bands and quasi-Fermi levels</h2>
+                  {chart(
+                    profiles,
+                    [
+                      ['ec', 'Ec', '#8bd7c0'],
+                      ['ev', 'Ev', '#edbb8d'],
+                      ['ei', 'Ei', '#a9c0ce'],
+                      ['fn', 'Fn · electrons', '#c9a7f2'],
+                      ['fp', 'Fp · holes', '#f1ce7d'],
+                    ],
+                    'Position (µm)',
+                    'Electron energy (eV)',
+                    false,
+                    undefined,
+                    'diode-position',
+                  )}
+                  <p className="pn-note">
+                    Calculated ideal-diffusion reference at Vj = {fmt(s.vj)} V. Fn and Fp are
+                    derived from carrier concentrations in the neutral regions; they are assumed
+                    constant across depletion in the ideal no-recombination limit. Fn − Fp = qVj
+                    there. At equilibrium both coincide and are flat. Ec = constant − qφ.{' '}
+                    {c.recombination
+                      ? 'With the empirical recombination extension enabled, these are reference submodel levels, not a spatial solution for the total device.'
+                      : ''}{' '}
+                    No electric-field force or electron path is represented by these lines.
+                  </p>
+                </section>
+              </>
+            )}
+            <section className="pn-card">
+              <h2>Turn-on & reverse-storage demonstration</h2>
+              <p className="pn-note">
+                Lumped charge control: dQ/dt = Idrive − Q/τQ. Preload uses the ideal diode at +0.35
+                V, held for 4τQ, independent of the operating bias and both extensions. Then a fixed
+                reverse extraction current removes stored charge. This illustrates the storage
+                portion of reverse recovery; the later depletion-capacitance transient and current
+                tail are not solved.
+              </p>
+              <Input
+                label="Reverse / forward drive current"
+                value={ratio}
+                min={0.1}
+                max={5}
+                step={0.1}
+                unit="×"
+                set={setRatio}
+              />
+              {sw.value && now ? (
+                <>
+                  <div className="pn-actions">
+                    <button
+                      onClick={() => {
+                        if (frame === sw.value!.rows.length - 1) setFrame(0);
+                        setPlaying((v) => !v);
+                      }}
+                    >
+                      {playing ? 'Pause switching' : 'Play switching once'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFrame(0);
+                        setPlaying(false);
+                      }}
+                    >
+                      Reset switching
+                    </button>
+                  </div>
+                  <input
+                    className="dd-time"
+                    aria-label="Switching time"
+                    type="range"
+                    min={0}
+                    max={sw.value.rows.length - 1}
+                    step={1}
+                    value={frame}
+                    onChange={(e) => {
+                      setFrame(+e.target.value);
+                      setPlaying(false);
+                    }}
+                  />
+                  <div className="dd-charge">
+                    <span>
+                      {frame === sw.value.rows.length - 1 ? 'Storage interval complete' : now.phase}{' '}
+                      · t = {fmt(now.t * 1e6)} µs
+                    </span>
+                    <div>
+                      <i style={{ width: `${(100 * now.Q) / sw.value.qAtSwitch}%` }} />
+                    </div>
+                    <b>Q = {fmt(now.Q * 1e12)} pC</b>
+                  </div>
+                  <div className="dd-two">
+                    {chart(
+                      swRows,
+                      [['Q', 'Stored charge', '#8bd7c0']],
+                      'Time (µs)',
+                      'Charge (pC)',
+                      false,
+                      now.t * 1e6,
+                      'diode-switch',
+                    )}
+                    {chart(
+                      swRows,
+                      [
+                        ['I', 'Drive current', '#edbb8d'],
+                        ['loss', 'Lumped loss Q/τQ', '#b7b0ef'],
+                      ],
+                      'Time (µs)',
+                      'Current (µA)',
+                      false,
+                      now.t * 1e6,
+                      'diode-switch',
+                    )}
+                  </div>
+                  <p>
+                    IF = {fmt(sw.value.If * 1e6)} µA; IR = {fmt(sw.value.Ir * 1e6)} µA; τQ ={' '}
+                    {fmt(sw.value.tau * 1e6)} µs; reverse storage time ={' '}
+                    {fmt(sw.value.storage * 1e6)} µs.
+                  </p>
+                  <p className="pn-note">
+                    Playback magnifies time and samples exact lumped formulas, not particle
+                    trajectories. At Q = 0 the modeled interval ends; no artificial negative stored
+                    charge or predicted recovery tail is drawn. For finite short regions, τQ is an
+                    effective residence time including contact extraction; it is not simply the
+                    recombination lifetime.
+                  </p>
+                </>
+              ) : (
+                <p className="pn-error">
+                  Switching unavailable for this recipe: {sw.error} The fixed +0.35 V preload must
+                  satisfy the low-injection limit.
+                </p>
+              )}
+            </section>
+          </div>
+        </div>
+        <section className="pn-card">
+          <h2>Predict, then compare</h2>
+          <div className="pn-actions">
+            {['Area and threshold', 'Long versus short', 'Reverse extraction'].map((v, i) => (
+              <button
+                key={v}
+                className={experiment === i ? 'selected' : ''}
+                onClick={() => {
+                  setExperiment(i);
+                  setReveal(false);
+                }}
+              >
+                {i + 1}. {v}
+              </button>
+            ))}
+          </div>
+          <h3>
+            {
+              [
+                'Does doubling area move a sharp turn-on voltage, or double current at the same bias?',
+                'What happens to current and stored charge if both neutral regions become much shorter than a diffusion length?',
+                'How does a stronger reverse extraction current change the time needed to remove stored charge?',
+              ][experiment]
+            }
+          </h3>
+          <textarea
+            aria-label="Diode prediction"
+            value={prediction}
+            onChange={(e) => setPrediction(e.target.value)}
+            placeholder="Write your prediction…"
+          />
+          <div className="pn-actions">
+            <button
+              onClick={() => {
+                reset();
+                if (experiment === 1) setC({ ...diodeDefault, wp: 2e-6, wn: 2e-6 });
+                if (experiment === 2) setRatio(3);
+              }}
+            >
+              Apply experiment
+            </button>
+            <button onClick={() => setReveal((v) => !v)}>Reveal explanation</button>
+          </div>
+          {reveal && (
+            <p>
+              {
+                [
+                  'With Rs off, diffusion current and stored charge scale with area. There is no exact threshold; the voltage for a chosen current shifts logarithmically with area, temperature and Is.',
+                  'Short regions have nearly linear excess profiles. Current scales approximately as D/W, charge as W/2, and Q/I approaches W²/(2D); a short diode can carry more current while storing less charge.',
+                  'Larger IR shortens the lumped storage interval τQ ln[1+Qstart/(IRτQ)]. This is only the storage portion, not a calculation of the entire physical recovery waveform.',
+                ][experiment]
+              }
+            </p>
+          )}
+        </section>
+        <details className="pn-card" open={deep}>
+          <summary>Equations, assumptions and model boundaries</summary>
+          <div className="pn-equations">
+            VT = kBT/q; Dn = μn VT; Dp = μp VT; Ln,p = √(Dn,p τn,p)
+            <br />
+            np0 = ni²/NA; pn0 = ni²/ND; F = exp(Vj/VT) − 1<br />
+            Δc(s) = c0 F sinh[(W−s)/L] / sinh(W/L)
+            <br />
+            Is = qA [Dn np0 coth(Wp/Ln)/Ln + Dp pn0 coth(Wn/Lp)/Lp]
+            <br />
+            Idiff = Is F<br />
+            Qn = qA np0 F Ln tanh(Wp/2Ln); Qp = qA pn0 F Lp tanh(Wn/2Lp)
+            <br />
+            τQ = (Qn+Qp)/Idiff (evaluated by bias-independent coefficients at Vj = 0)
+            <br />
+            Irec = A J02 [exp(Vj/2VT) − 1]; Vterminal = Vj + Rs(Idiff + Irec)
+            <br />
+            Fn = Ei + kBT ln(n/ni); Fp = Ei − kBT ln(p/ni)
+          </div>
+          <p>
+            A: junction area (m²); s: distance from the depletion edge toward a contact (m); Wp,Wn:
+            neutral-region lengths (m); τn,τp: minority lifetimes (s); μn = 0.135, μp = 0.048
+            m²/(V·s), held constant; D: diffusion coefficient (m²/s); L: diffusion length (m);
+            n,p,c0: carrier densities (m⁻³); Is,I: currents (A); Qn,Qp: signed minority
+            excess-charge magnitudes (C), not net electrostatic charge; q is positive elementary
+            charge. Vj and Vterminal are volts; Rs is ohms; J02 is A/m². Band/quasi-Fermi energies
+            are eV in the plot and explicitly labeled CSV columns. All transport calculations use
+            SI.
+          </p>
+          <p>
+            kB: Boltzmann constant; T: temperature (K); VT: thermal voltage; NA,ND: ionized
+            acceptor/donor densities; ni: intrinsic density; np0,pn0: equilibrium minority
+            densities; F: dimensionless injection factor. Nc,Nv are effective band densities of
+            states; Eg is the band gap. Ec,Ev,Ei are conduction, valence and intrinsic energies;
+            Fn,Fp are electron/hole quasi-Fermi energies; φ is electric potential. In,Ip are
+            conventional electron/hole currents, positive from p to n in forward bias; electrons
+            move toward p, opposite their conventional current. In switching, IF and IR are positive
+            drive magnitudes, t is elapsed time, t′ = t − ton, ts is reverse storage duration, and
+            Qstart is charge at reversal.
+          </p>
+          <p>
+            Finite-region boundary conditions: Δc(0) = c0F, Δc(W) = 0 at an ideal recombining ohmic
+            contact. The exact steady solution solves D d²Δc/ds² − Δc/τ = 0. For W/L ≫ 1 it becomes
+            exponential and Qn ≈ τn In, Qp ≈ τp Ip. For W/L ≪ 1 it is nearly linear and each Q/I
+            approaches W²/(2D). There is no separate arbitrary Is slider. Neutral lengths are held
+            fixed, so depletion motion relative to fixed fabricated contacts is not modeled.
+          </p>
+          <p>
+            Si, full ionization, Boltzmann statistics and low injection; no electric field in the
+            neutral-region minority diffusion equation. Band bending uses abrupt depletion
+            electrostatics. The tiny majority electric-field drop is neglected. Nc,Nv ∝ T³ᐟ² and Eg
+            = 1.12 eV are the same fixed-gap approximation as the equilibrium/junction modules,
+            giving ni ≈ 6.68×10⁹ cm⁻³ at 300 K. This differs from Neamen’s example ni = 1.5×10¹⁰;
+            values are not silently mixed. Temperature changes D through Einstein but mobility is
+            not a fitted μ(T,N) model.
+          </p>
+          <p>
+            Guardrails: 280–400 K, doping 10¹⁴–10¹⁷ cm⁻³, junction barrier ≥ 6VT, injected
+            minority/majority ratio ≤ 1%, peak depletion field ≤ 100 kV/cm. The last is a
+            conservative guard, not a breakdown prediction. Invalid I–V samples are omitted
+            explicitly. Series resistance is solved by bracketed bisection on Vj; residual &gt; 10
+            nV or nonconvergence is exposed. The empirical ideality-2 extension has a user-selected
+            J02, no trap parameters or spatial recombination solution; its negative-bias saturation
+            is not a full SRH generation model.
+          </p>
+          <h3>Lumped switching approximation</h3>
+          <div className="pn-equations">
+            Turn-on: Q(t) = IF τQ [1 − exp(−t/τQ)]
+            <br />
+            Switch at ton = 4τQ: Qstart = IF τQ(1 − e⁻⁴)
+            <br />
+            Reverse extraction: Q(t′) = (Qstart + IR τQ)e⁻ᵗ′/τQ − IR τQ
+            <br />
+            ts = τQ ln[1 + Qstart/(IR τQ)]
+          </div>
+          <p>
+            This single-charge approximation assumes one effective residence time from steady
+            Q/Idiff; it does not solve the distributed transient diffusion equation. Recombination
+            and contact extraction share its lumped Q/τQ loss. Spatial profiles above remain
+            steady-state operating-point profiles and are not animated as transient solutions. The
+            bar only visualizes computed lumped Q. Extensions are excluded from switching. No
+            depletion-capacitance turn-on phase, late recovery tail, parasitics or voltage-driven
+            circuit transient is predicted.
+          </p>
+        </details>
+        <details className="pn-card">
+          <summary>Neamen alignment and validation</summary>
+          <p>
+            <b>Neamen, Semiconductor Physics and Devices, Fourth Edition, Chapter 8:</b>{' '}
+            §§8.1.2–8.1.5, printed pp. 278–289 (PDF 303–314), assumptions, injected carrier
+            boundaries, distributions, quasi-Fermi levels and ideal current; §8.1.7 pp. 292–293,
+            temperature; §8.1.8 pp. 293–295 (PDF 318–320), short diode; §8.2.1 pp. 296–301,
+            generation/recombination; §8.3.3 pp. 313–314, series resistance; §8.4 pp. 314–317 (PDF
+            339–342), storage and switching. The lumped storage relation corresponds to the
+            approximate logarithmic behavior of Eq. 8.110, not the full erf-based transient or Eq.
+            8.111 recovery tail. Table B.4 supplies reference Si mobilities/DOS/gap.
+          </p>
+          <p>
+            Validation checks equilibrium zero current, ideal area scaling, forward semilog slope,
+            finite-region boundary conditions and current conservation, integrated stored charge,
+            long/short charge-time limits, implicit series-resistance residual, zero-bias empirical
+            current, and lumped charge-control balance and recovery event.
+          </p>
+        </details>
+        <footer>
+          PN DIODE / INJECTION TO CIRCUITS{' '}
+          <span>Finite-region diffusion · Explicit extensions · Lumped switching</span>
+        </footer>
+      </main>
+    </div>
+  );
 }

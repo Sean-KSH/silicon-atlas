@@ -1,19 +1,975 @@
-import React,{useMemo,useState}from'react';
-import{ResponsiveContainer,LineChart,Line,XAxis,YAxis,CartesianGrid,Tooltip,ReferenceLine}from'recharts';
-import{Q,materials,solveEquilibrium,energyDistributions,equilibriumCsv,EquilibriumInput,EquilibriumResult}from'./equilibrium';
+import React, { useMemo, useState } from 'react';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ReferenceLine,
+} from 'recharts';
+import {
+  Q,
+  materials,
+  solveEquilibrium,
+  energyDistributions,
+  equilibriumCsv,
+  EquilibriumInput,
+  EquilibriumResult,
+} from './equilibrium';
 import './equilibrium.css';
-const sci=(v:number)=>v===0?'0':Math.abs(v)>=.01&&Math.abs(v)<1000?Number(v.toPrecision(4)).toString():v.toExponential(2);
-function EnergyView({s}:{s:EquilibriumResult}){const rows=energyDistributions(s,601),lo=rows[0].energy,hi=rows[rows.length-1].energy,y=(energy:number)=>65+330*(hi-energy)/(hi-lo),maxDOS=Math.max(...rows.map(p=>Math.max(p.gc,p.gv))),maxN=Math.max(...rows.map(p=>p.electrons)),maxP=Math.max(...rows.map(p=>p.holes));const path=(key:'gc'|'gv'|'f'|'hole'|'electrons'|'holes',start:number,width:number,max:number)=>rows.map((p,i)=>`${i?'L':'M'}${start+width*p[key]/max},${y(p.energy)}`).join(' ');const levels=[{e:s.ec,name:'Ec',color:'#8ddfc7'},{e:s.ed,name:'Ed',color:'#6ab3ef'},{e:s.ef,name:'EF',color:'#ffffff'},{e:s.ei,name:'Ei',color:'#c3afdf'},{e:s.ea,name:'Ea',color:'#edb783'},{e:0,name:'Ev',color:'#edb783'}];return <><div className="eq-energy-scroll"><svg viewBox="0 0 960 460" role="img" aria-label="Synchronized energy-space views of band levels, density of states, Fermi occupation and carrier distributions"><defs><linearGradient id="eq-cb" x2="0" y2="1"><stop stopColor="#5db49c" stopOpacity=".2"/><stop offset="1" stopColor="#5db49c" stopOpacity=".04"/></linearGradient></defs>{[[110,'Energy levels'],[325,'Density of states'],[555,'Occupation'],[790,'Carrier distributions']].map(([x,label])=><text key={String(label)} x={Number(x)} y="25" textAnchor="middle" className="eq-svg-title">{label}</text>)}<text x="6" y="48">E (eV)</text>{[0,s.ec/2,s.ec].map(e=><g key={e}><line x1="45" x2="932" y1={y(e)} y2={y(e)} stroke="#314958" strokeDasharray="3 5"/><text x="4" y={y(e)+4}>{(e/Q).toFixed(3)}</text></g>)}<rect x="64" y="65" width="145" height={y(s.ec)-65} fill="url(#eq-cb)"/><rect x="64" y={y(0)} width="145" height={395-y(0)} fill="#e8af7820"/>{levels.map(l=><line key={l.name} x1="64" x2="209" y1={y(l.e)} y2={y(l.e)} stroke={l.color} strokeWidth={l.name==='EF'?2.5:1.5} strokeDasharray={l.name==='EF'?'7 3':l.name==='Ei'?'2 4':undefined}/>)}<text x="75" y={y(s.ec)-9}>Ec</text><text x="168" y={y(s.ed)+15}>Ed</text><text x="168" y={y(s.ea)-8}>Ea</text><text x="75" y={y(0)+19}>Ev</text><text x="86" y="424">Ev = 0 reference</text>{[260,480,700].map(x=><line key={x} x1={x} x2={x} y1="65" y2="395" stroke="#697b89"/>)}<path d={path('gc',260,160,maxDOS)} stroke="#8ddfc7" fill="none" strokeWidth="2"/><path d={path('gv',260,160,maxDOS)} stroke="#edb783" fill="none" strokeWidth="2"/><text x="260" y="416">0 → {sci(maxDOS*Q/1e6)}</text><text x="260" y="436">states / (eV·cm³)</text><path d={path('f',480,160,1)} stroke="#8ddfc7" fill="none" strokeWidth="2"/><path d={path('hole',480,160,1)} stroke="#edb783" fill="none" strokeWidth="2"/><line x1="560" x2="560" y1="65" y2="395" stroke="#4b5a66" strokeDasharray="2 4"/><circle cx="560" cy={y(s.ef)} r="4" fill="white"/><text x="480" y="416">0</text><text x="552" y="416">½</text><text x="635" y="416">1</text><text x="486" y="436">fFD and 1 − fFD</text><path d={path('electrons',700,200,maxN||1)} stroke="#8ddfc7" fill="none" strokeWidth="2"/><path d={path('holes',700,200,maxP||1)} stroke="#edb783" fill="none" strokeWidth="2"/><text x="700" y="416">0 → each carrier’s own maximum</text><text x="700" y="436">{s.statistics==='FD'?'gc fFD and gv (1−fFD)':'gc fMB and gv hMB · approximation'}</text><line x1="240" x2="930" y1={y(s.ef)} y2={y(s.ef)} stroke="white" strokeDasharray="6 5" opacity=".4"/></svg></div><div className="eq-key"><span><i style={{background:'#8ddfc7'}}/>Conduction / electrons</span><span><i style={{background:'#edb783'}}/>Valence / holes</span><span><i style={{background:'#fff'}}/>Fermi level EF</span><span><i style={{background:'#c3afdf'}}/>Intrinsic level Ei</span></div><p className="eq-note">All four panels share the same energy axis, with a ±10kT band-edge window. Horizontal axes show different quantities, never position. Carrier distribution widths are normalized separately to reveal minority carriers: electron maximum {sci(maxN*Q/1e6)}, hole maximum {sci(maxP*Q/1e6)} cm⁻³ eV⁻¹. Total concentrations integrate the entire bands, not this display window. Dopant states are discrete levels, excluded from the continuum DOS curves. Material dopant energies remain visible even when that dopant concentration is zero.</p><div className="eq-levels">{levels.map(l=><div key={l.name}><span style={{color:l.color}}>{l.name}</span><strong>{(l.e/Q).toFixed(5)} <small>eV</small></strong></div>)}</div></>}
-const experiments=[{name:'Donors → n type',prompt:'Add phosphorus donors to intrinsic silicon at 300 K. Will n increase by exactly ND, and what happens to holes?',answer:'Ionized donors supply positive fixed charge. Neutrality requires additional mobile electrons; EF shifts upward and n increases. Holes decrease as states redistribute. In the nondegenerate extrinsic limit n ≈ ND − NA and p ≈ ni²/n, not n = ni + ND.'},{name:'Three temperature regimes',prompt:'With ND = 10¹⁵ cm⁻³, predict what warming does at 40 K, 300 K and 800 K. Is the majority-carrier increase the same?',answer:'At low temperature many donors remain neutral (freeze-out). Warming ionizes them. Once nearly all are ionized, the extrinsic carrier concentration changes relatively little. At high temperature electron–hole generation becomes important and both concentrations approach intrinsic behavior. The crossover temperatures here depend on the stated fixed-gap approximation.'},{name:'What EF means',prompt:'At E = EF, what is the chance that a state is occupied? Does moving EF draw a path or exert a force on an electron?',answer:'fFD(EF) = ½ at every nonzero temperature. EF is the equilibrium chemical potential: an occupation parameter fixed here by charge neutrality. It is not a trajectory or a force. In this uniform sample, bands have no spatial gradient and the equilibrium net current is zero, even when conductivity is nonzero.'}];
-export default function EquilibriumLab(){const[material,setMaterial]=useState<EquilibriumInput['material']>('Si'),[temperature,setTemperature]=useState(300),[ld,setLd]=useState(15),[la,setLa]=useState(14),[donorsOn,setDonorsOn]=useState(true),[acceptorsOn,setAcceptorsOn]=useState(false),[statistics,setStatistics]=useState<'MB'|'FD'>('MB'),[deep,setDeep]=useState(false),[exp,setExp]=useState(0),[prediction,setPrediction]=useState(''),[reveal,setReveal]=useState(false),[sweepTab,setSweepTab]=useState('carriers'),[fullRange,setFullRange]=useState(false);
- const input:EquilibriumInput={material,temperature,donors:donorsOn?10**ld*1e6:0,acceptors:acceptorsOn?10**la*1e6:0,statistics};
- const result=useMemo(()=>{try{return{s:solveEquilibrium(input),error:''}}catch(e){return{s:null,error:String(e)}}},[material,temperature,ld,la,donorsOn,acceptorsOn,statistics]);
- const sweep=useMemo(()=>Array.from({length:77},(_,i)=>{const temperature=40+i*10;try{const s=solveEquilibrium({...input,temperature});return{temperature,n:s.n/1e6,p:s.p/1e6,ni:s.ni/1e6,donor:input.donors?s.nd/input.donors:null,acceptor:input.acceptors?s.na/input.acceptors:null,error:''}}catch(e){return{temperature,n:null,p:null,ni:null,donor:null,acceptor:null,error:String(e)}}}),[material,ld,la,donorsOn,acceptorsOn,statistics]);
- const reset=()=>{setMaterial('Si');setTemperature(300);setLd(15);setLa(14);setDonorsOn(true);setAcceptorsOn(false);setStatistics('MB');setDeep(false);setExp(0);setPrediction('');setReveal(false);setSweepTab('carriers');setFullRange(false)};
- const preset=(name:string)=>{setMaterial('Si');setStatistics('MB');setTemperature(name==='freeze'?40:name==='hot'?800:300);setDonorsOn(name!=='intrinsic');setAcceptorsOn(name==='compensated');setLd(name==='compensated'?16:15);setLa(Math.log10(4e15))};
- const s=result.s;
- return <div className="eq-lab"><header><a className="brand" href="#equilibrium"><span className="brandmark">Si</span><span>SILICON ATLAS<span className="brand-sub">Equilibrium statistics</span></span></a><button onClick={reset}>Reset explorer</button></header><main><div className="eq-hero"><div className="eyebrow">NEAMEN / CHAPTERS 3—4</div><h1>Equilibrium<br/>Semiconductor Explorer.</h1><p>One Fermi level. Balanced charge. A continuum of occupied states.</p><div className="eq-actions"><button className={!deep?'selected':''} onClick={()=>setDeep(false)}>Beginner</button><button className={deep?'selected':''} onClick={()=>setDeep(true)}>Deeper physics</button><button disabled={!s} onClick={()=>{if(!s)return;const u=URL.createObjectURL(new Blob([equilibriumCsv(s)],{type:'text/csv'})),a=document.createElement('a');a.href=u;a.download='equilibrium-energy-SI.csv';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}}>↓ Energy data CSV</button></div></div><div className="eq-workspace"><aside className="eq-card eq-controls"><div className="eyebrow">UNIFORM BULK SAMPLE</div><h2>Material & conditions</h2><label>Material<select aria-label="Equilibrium material" value={material} onChange={e=>setMaterial(e.target.value as typeof material)}>{Object.entries(materials).map(([id,m])=><option value={id} key={id}>{m.name}</option>)}</select></label><label>Temperature<strong>{temperature} <small>K</small></strong><input aria-label="Equilibrium temperature" type="range" min="40" max="800" step="5" value={temperature} onChange={e=>setTemperature(+e.target.value)}/><small>40 K → 800 K</small></label>{[{name:'Donors ND',species:materials[material].donor,on:donorsOn,toggle:setDonorsOn,value:ld,set:setLd},{name:'Acceptors NA',species:materials[material].acceptor,on:acceptorsOn,toggle:setAcceptorsOn,value:la,set:setLa}].map(c=><div className="eq-doping" key={c.name}><label className="eq-check"><input aria-label={`Enable ${c.name}`} type="checkbox" checked={c.on} onChange={e=>c.toggle(e.target.checked)}/>{c.name} · {c.species}</label><strong>{c.on?sci(10**c.value):'0'} <small>cm⁻³</small></strong><input aria-label={c.name} type="range" min="10" max="18" step="any" disabled={!c.on} value={c.value} onChange={e=>c.set(+e.target.value)}/><small>Logarithmic slider · 10¹⁰–10¹⁸ cm⁻³</small></div>)}<label>Carrier statistics<select aria-label="Carrier statistics" value={statistics} onChange={e=>setStatistics(e.target.value as 'MB'|'FD')}><option value="MB">Boltzmann · nondegenerate</option><option value="FD">Fermi–Dirac integral</option></select></label><p className="eq-note">Both modes include donor and acceptor ionization statistics. FD mode integrates the parabolic-band density of states; it does not extrapolate the Boltzmann formula.</p><p className="eq-note">Fixed bandgap and fixed 300 K mobility: broad-temperature results illustrate regimes, not a calibrated material-temperature model.</p><h3>Reference settings</h3><div className="eq-presets"><button onClick={()=>preset('intrinsic')}>Intrinsic · 300 K</button><button onClick={()=>preset('compensated')}>Compensated · 10¹⁶ − 4×10¹⁵</button><button onClick={()=>preset('freeze')}>Freeze-out · 40 K</button><button onClick={()=>preset('extrinsic')}>Extrinsic · 300 K</button><button onClick={()=>preset('hot')}>Intrinsic-dominated · 800 K</button></div></aside><div className="eq-main">{!s?<div className="eq-card" role="alert"><h2>Solution unavailable</h2><p>{result.error}</p><button onClick={reset}>Restore defaults</button></div>:<><div className={`eq-valid ${s.boltzmannValid?'':'eq-warning'}`}><b>{s.boltzmannValid?'Nondegenerate region · band edges ≥ 3kT from EF':statistics==='MB'?'Boltzmann validity exceeded · approximate results only':'Degenerate correction active · Fermi–Dirac integration'}</b><p>{statistics==='MB'?'Carrier concentrations and occupied distributions use Boltzmann tails; np = ni² holds within that model. The occupation panel separately shows the exact Fermi–Dirac function.':'Carrier concentrations and occupied distributions use exact Fermi–Dirac occupations with numerical integration. np = ni² is not assumed.'} {!s.boltzmannValid&&statistics==='MB'&&<button onClick={()=>setStatistics('FD')}>Use Fermi–Dirac statistics</button>}</p></div>{s.donors+s.acceptors>1e23&&<div className="eq-valid eq-warning"><b>High-doping material-model limitation</b><p>Isolated dopant levels can be altered by impurity interactions and bandgap narrowing, especially at low temperature. FD carrier statistics do not correct those omitted effects.</p></div>}<section className="eq-card"><div className="eq-heading"><div><div className="eyebrow">SYNCHRONIZED ENERGY SPACE</div><h2>States, occupation, and carriers.</h2></div><span className="eq-badge">{statistics==='MB'?'BOLTZMANN CARRIERS':'FD INTEGRATED CARRIERS'}</span></div><EnergyView s={s}/></section><div className="eq-metrics"><div><span>Electrons n</span><strong>{sci(s.n/1e6)}</strong><small>cm⁻³</small></div><div><span>Holes p</span><strong>{sci(s.p/1e6)}</strong><small>cm⁻³</small></div><div><span>Intrinsic ni · same model</span><strong>{sci(s.ni/1e6)}</strong><small>cm⁻³</small></div><div><span>Conductivity σ</span><strong>{sci(s.sigma)}</strong><small>S/m · fixed reference mobility</small></div></div><section className="eq-card"><div className="eq-heading"><h2>Charge is balanced.</h2><span className="eq-badge">p + ND⁺ = n + NA⁻</span></div><div className="eq-ion-grid">{[{label:'Ionized donors ND⁺',value:s.nd,total:s.donors,color:'#8ddfc7'},{label:'Ionized acceptors NA⁻',value:s.na,total:s.acceptors,color:'#edb783'}].map(i=><div key={i.label}><span>{i.label}</span><strong>{sci(i.value/1e6)} <small>cm⁻³</small></strong><div className="eq-ion-track"><i style={{width:`${i.total?i.value/i.total*100:0}%`,background:i.color}}/></div><small>{i.total?`${(100*i.value/i.total).toFixed(2)}% ionized`:'No dopants of this type'}</small></div>)}</div><div className="eq-balance"><span>Positive: {sci((s.p+s.nd)/1e6)} cm⁻³</span><span>Negative: {sci((s.n+s.na)/1e6)} cm⁻³</span><span>Relative residual: {s.relative.toExponential(1)}</span></div><p className="eq-note">Fixed 300 K reference mobilities: μn = {materials[material].muN*1e4} and μp = {materials[material].muP*1e4} cm²/(V·s). σ = q(nμn + pμp). Only populations change with temperature here; mobility scattering, impurity concentration effects and hopping transport are excluded. This conductivity is a teaching estimate, not a temperature-calibrated device prediction. Net equilibrium current is zero.</p><div className="eq-explain"><h3>What changed and why?</h3><p>{Math.abs(Math.log(s.n/s.p))<.1?'Electron and hole concentrations are nearly equal: intrinsic-like populations.':s.n>s.p?'Electrons are the majority carriers. Ionized donors exceed ionized acceptors, and EF lies above the intrinsic level.':'Holes are the majority carriers. Ionized acceptors exceed ionized donors, and EF lies below the intrinsic level.'} {s.donors&&s.nd/s.donors<.5?'Many donors still hold their electrons: donor freeze-out is important. ':''}{s.acceptors&&s.na/s.acceptors<.5?'Many acceptors are neutral: incomplete acceptor ionization is important. ':''}Charge neutrality uses ionized dopants, not simply the chemical difference ND − NA. EF is adjusted until positive and negative charge balance.</p></div>{deep&&<p className="eq-details">ηn = (EF−Ec)/kT = {s.etaN.toFixed(3)}; ηp = (Ev−EF)/kT = {s.etaP.toFixed(3)}. np / ni,MB² = {s.massAction.toPrecision(6)}. Solver: bracketed bisection, {s.iterations} iterations, energy bracket tolerance 10⁻¹² eV, relative neutrality acceptance 10⁻⁸. {statistics==='FD'?'Normalized F½ evaluated with 128 Simpson subintervals.':'Band populations evaluated analytically.'}</p>}</section><section className="eq-card"><div className="eq-heading"><div><div className="eyebrow">TEMPERATURE INVESTIGATION</div><h2>Freeze-out → extrinsic → intrinsic.</h2></div></div><p className="eq-details">Same material, doping and statistics as above. Marker shows current temperature. Regime boundaries are gradual and depend on doping and material.</p><div className="eq-actions"><button className={sweepTab==='carriers'?'selected':''} onClick={()=>setSweepTab('carriers')}>Carrier concentrations</button><button className={sweepTab==='ionization'?'selected':''} onClick={()=>setSweepTab('ionization')}>Ionized fractions</button></div>{sweepTab==='carriers'&&<label className="eq-check"><input type="checkbox" checked={fullRange} onChange={e=>setFullRange(e.target.checked)}/>Show full concentration range, including tiny minority tails</label>}<p className="eq-details">{sweepTab==='carriers'?'Concentration (cm⁻³) · logarithmic vertical axis':'Ionized fraction (%) · linear vertical axis'}</p><div className="eq-chart"><ResponsiveContainer width="100%" height="100%"><LineChart data={sweep} margin={{top:12,right:30,bottom:25,left:20}}><CartesianGrid stroke="#293e4b" strokeDasharray="3 5"/><XAxis dataKey="temperature" type="number" domain={[40,800]} tick={{fill:'#a6bdca',fontSize:11}} label={{value:'Temperature (K)',position:'bottom',offset:5,fill:'#a6bdca'}}/><YAxis scale={sweepTab==='carriers'?'log':'linear'} allowDataOverflow domain={sweepTab==='carriers'?(fullRange?['auto','auto']:[1e8,10**Math.ceil(Math.log10(Math.max(...sweep.flatMap(p=>[p.n||0,p.p||0,p.ni||0]))))]):[0,1]} width={68} tick={{fill:'#a6bdca',fontSize:11}} tickFormatter={v=>sweepTab==='carriers'?Number(v).toExponential(0):`${Math.round(v*100)}%`}/><Tooltip contentStyle={{background:'#162531',border:'1px solid #496675'}} formatter={(v,name)=>[sweepTab==='carriers'?`${sci(Number(v))} cm⁻³`:`${(100*Number(v)).toFixed(2)}%`,name]} labelFormatter={v=>`${v} K`}/><ReferenceLine x={temperature} stroke="#fff" strokeDasharray="5 4"/>{(sweepTab==='carriers'?[{key:'n',name:'n',color:'#8ddfc7'},{key:'p',name:'p',color:'#edb783'},{key:'ni',name:'ni',color:'#b7a1db'}]:[{key:'donor',name:'ND⁺ / ND',color:'#8ddfc7'},{key:'acceptor',name:'NA⁻ / NA',color:'#edb783'}]).map(l=><Line key={l.key} dataKey={l.key} name={l.name} stroke={l.color} strokeWidth={2} dot={false} isAnimationActive={false} connectNulls={false}/>)}</LineChart></ResponsiveContainer></div>{sweepTab==='carriers'&&!fullRange&&<p className="eq-details">Concentration view starts at 10⁸ cm⁻³ to resolve the three regimes. Smaller values are outside the plot, not clamped; enable the full range to see them.</p>}<div className="eq-key"><span style={{color:'#8ddfc7'}}>{sweepTab==='carriers'?'n · electrons':'Ionized donor fraction'}</span><span style={{color:'#edb783'}}>{sweepTab==='carriers'?'p · holes':'Ionized acceptor fraction'}</span>{sweepTab==='carriers'&&<span style={{color:'#b7a1db'}}>ni · intrinsic</span>}</div>{sweep.some(p=>p.error)&&<p role="alert">Some temperature points failed to converge; gaps are shown rather than interpolated.</p>}<p className="eq-note">Bandgap fixed at {(s.ec/Q).toFixed(2)} eV and Nc,v ∝ T³ᐟ². This textbook approximation isolates occupation and ionization; real temperature-dependent bandgaps shift the intrinsic crossover. Broad-temperature trends are qualitative. {statistics==='MB'?'The sweep remains a Boltzmann calculation; check the validity banner at each temperature or select FD mode.':''}</p></section></>}</div></div>
-<section className="eq-card eq-experiments"><div className="eyebrow">GUIDED EXPERIMENTS</div><h2>Predict before changing the sample.</h2><div className="eq-actions">{experiments.map((e,i)=><button key={e.name} className={exp===i?'selected':''} onClick={()=>{setExp(i);setReveal(false);setPrediction('')}}>{i+1}. {e.name}</button>)}</div><h3>{experiments[exp].prompt}</h3><textarea aria-label="Equilibrium prediction" placeholder="Write your prediction…" value={prediction} onChange={e=>setPrediction(e.target.value)}/><div className="eq-actions"><button onClick={()=>preset(exp===0?'intrinsic':exp===1?'freeze':'extrinsic')}>Apply starting conditions</button><button onClick={()=>setReveal(v=>!v)}>{reveal?'Hide':'Reveal'} explanation</button></div>{reveal&&<p>{experiments[exp].answer}</p>}</section>
-<details className="eq-card eq-reference" open={deep}><summary>Equations, numerical method & assumptions</summary><h3>Band populations and occupations</h3><div className="eq-formula">fFD(E) = 1 / [1 + exp((E−EF)/kBT)]<br/>Nc,v(T) = Nc,v(300 K) (T/300 K)³ᐟ²<br/>nMB = Nc exp((EF−Ec)/kBT); pMB = Nv exp((Ev−EF)/kBT)<br/>ni,MB = √(NcNv) exp(−Eg/2kBT); Ei,MB = (Ec+Ev)/2 + ½kBT ln(Nv/Nc)<br/>nFD = Nc F½((EF−Ec)/kBT); pFD = Nv F½((Ev−EF)/kBT)<br/>F½(η) = (2/√π) ∫₀∞ √ε / [1+exp(ε−η)] dε</div><p>E: electron energy; EF: equilibrium Fermi energy (chemical potential); Ec, Ev: conduction and valence edges; Eg = Ec−Ev: fixed bandgap; Ei: Fermi energy of the undoped material solved with the selected statistics; n, p: free electron and hole densities; ni: undoped density with the selected statistics; Nc, Nv: effective band densities of states including spin; η: reduced chemical potential; ε: dimensionless kinetic energy / kBT. For Boltzmann carriers np = ni,MB². The FD product generally depends on EF, so mass action is not imposed. A conservative nondegenerate indicator requires EF at least 3kBT inside each band edge.</p><div className="eq-formula">gc(E) = [2Nc / (√π (kBT)³ᐟ²)] √(E−Ec), E ≥ Ec<br/>gv(E) = [2Nv / (√π (kBT)³ᐟ²)] √(Ev−E), E ≤ Ev<br/>n = ∫gc(E) f(E) dE; p = ∫gv(E) [1−f(E)] dE</div><p>g: continuum density of states per joule per cubic meter; in MB mode electron and hole occupation tails exp((EF−E)/kBT) and exp((E−EF)/kBT) replace f and 1−f in the occupied-distribution panel. The occupation panel always shows exact FD probabilities. The plotted DOS is parabolic, with constant DOS masses encoded by Nc,v; no impurity-band DOS or nonparabolicity is included.</p><h3>Impurity states and neutrality</h3><div className="eq-formula">Ed = Ec − donor binding energy; Ea = Ev + acceptor binding energy<br/>ND⁺ = ND / [1 + 2 exp((EF−Ed)/kBT)]<br/>NA⁻ = NA / [1 + 4 exp((Ea−EF)/kBT)]<br/>p + ND⁺ − n − NA⁻ = 0<br/>Complete-ionization MB limit: n−p = ND−NA, np = ni,MB²<br/>σ = q(nμn + pμp)</div><p>ND, NA: total substitutional donor and acceptor concentrations; ND⁺, NA⁻: their ionized densities. Donor degeneracy factor 2, acceptor factor 4 in these denominator conventions. Ed, Ea are isolated shallow-impurity levels. Mobility μn, μp is held at the tabulated 300 K reference value at every temperature and doping. σ is linear-response conductivity, not current. q = 1.602176634×10⁻¹⁹ C; kB = 1.380649×10⁻²³ J/K.</p><h3>Numerical checks and supported range</h3><p>40–800 K; each dopant 0 or 10¹⁰–10¹⁸ cm⁻³. Bisection brackets EF between −Eg and 2Eg relative to Ev = 0. Energy tolerance 10⁻¹² eV; relative neutrality residual ≤10⁻⁸; failures are exposed. Neutral dopant fractions are retained explicitly to avoid cancellation in highly compensated samples. FD integration uses ε = u² and composite Simpson quadrature with 128 subintervals up to ε = max(η, 0)+48; refinement tests use 256 and 512. No time integration is used.</p><p>Independent checks cover intrinsic neutrality, complete-ionization quadratic limits, compensation, freeze-out, FD integral references and refinement, and conductivity units. SI internally; cm⁻³ ×10⁶ → m⁻³, cm²/(V·s) ×10⁻⁴ → m²/(V·s), eV ×q → J. Display DOS per eV per cm³ = SI DOS ×q/10⁶. No bandgap narrowing, impurity interactions, hopping conduction, spatial fields, illumination, nonequilibrium quasi-Fermi levels or real-device transport. At high doping especially at low T, isolated-impurity statistics can fail even when FD band statistics are enabled.</p></details>
-<details className="eq-card eq-reference"><summary>Material parameters, sources & discrepancies</summary><div className="eq-table-scroll"><table><thead><tr><th>Parameter</th><th>Silicon</th><th>GaAs</th></tr></thead><tbody><tr><td>Fixed gap (eV)</td><td>1.12</td><td>1.42</td></tr><tr><td>Nc(300 K), Nv(300 K) (cm⁻³)</td><td>2.8×10¹⁹, 1.04×10¹⁹</td><td>4.7×10¹⁷, 7.0×10¹⁸</td></tr><tr><td>Donor · binding energy (eV)</td><td>Phosphorus · 0.045</td><td>Tellurium · 0.0058</td></tr><tr><td>Acceptor · binding energy (eV)</td><td>Boron · 0.045</td><td>Zinc · 0.0307</td></tr><tr><td>μn, μp (cm²/(V·s)), fixed reference</td><td>1350, 480</td><td>8500, 400</td></tr></tbody></table></div><p><b>Neamen, Semiconductor Physics and Devices, Fourth Edition:</b> §3.4, printed pp. 86–90: density of states; §3.5, pp. 91–97: Fermi–Dirac statistics. §§4.1–4.3, pp. 106–130: equilibrium populations and extrinsic semiconductors. Table 4.1, p. 113 (PDF 138): Nc and Nv. Tables 4.3–4.4, pp. 122–123 (PDF 147–148): impurity binding energies. §4.4, pp. 131–135 (PDF 156–160): degeneracy, ionization and freeze-out. §4.5, pp. 135–139: compensation and neutrality. Table B.4, p. 717 (PDF 742): gap and reference mobilities. Conductivity uses the standard low-field relation from §5.1, as an explicitly identified extension beyond Chapters 3–4.</p><p><b>Do not mix intrinsic concentrations:</b> Neamen p. 114 notes that the tabulated Si ni = 1.5×10¹⁰ cm⁻³ differs from the value calculated using Nc, Nv and Eg. This explorer consistently computes ni from those parameters (about 6.68×10⁹ cm⁻³ at 300 K with modern kB and q), rather than inserting the empirical table value. Neamen’s rounded constants give about 6.95×10⁹. This differs intentionally from the earlier junction module’s empirical ni.</p><p><b>Temperature model:</b> the fixed-gap and T³ᐟ² DOS assumptions follow the simplification in Example 4.3, p. 115. Extending this simplification over 40–800 K is a qualitative teaching exercise, not a validated thermal material model. Reference mobility is not fitted as a function of temperature or ionized-impurity density. Material data are not silently adjusted to force agreement with empirical ni.</p></details><footer>EQUILIBRIUM SEMICONDUCTORS <span>Neutrality solved · Ionization included · Transport limits explicit</span></footer></main></div>
+const sci = (v: number) =>
+  v === 0
+    ? '0'
+    : Math.abs(v) >= 0.01 && Math.abs(v) < 1000
+      ? Number(v.toPrecision(4)).toString()
+      : v.toExponential(2);
+function EnergyView({ s }: { s: EquilibriumResult }) {
+  const rows = energyDistributions(s, 601),
+    lo = rows[0].energy,
+    hi = rows[rows.length - 1].energy,
+    y = (energy: number) => 65 + (330 * (hi - energy)) / (hi - lo),
+    maxDOS = Math.max(...rows.map((p) => Math.max(p.gc, p.gv))),
+    maxN = Math.max(...rows.map((p) => p.electrons)),
+    maxP = Math.max(...rows.map((p) => p.holes));
+  const path = (
+    key: 'gc' | 'gv' | 'f' | 'hole' | 'electrons' | 'holes',
+    start: number,
+    width: number,
+    max: number,
+  ) =>
+    rows
+      .map((p, i) => `${i ? 'L' : 'M'}${start + (width * p[key]) / max},${y(p.energy)}`)
+      .join(' ');
+  const levels = [
+    { e: s.ec, name: 'Ec', color: '#8ddfc7' },
+    { e: s.ed, name: 'Ed', color: '#6ab3ef' },
+    { e: s.ef, name: 'EF', color: '#ffffff' },
+    { e: s.ei, name: 'Ei', color: '#c3afdf' },
+    { e: s.ea, name: 'Ea', color: '#edb783' },
+    { e: 0, name: 'Ev', color: '#edb783' },
+  ];
+  return (
+    <>
+      <div className="eq-energy-scroll">
+        <svg
+          viewBox="0 0 960 460"
+          role="img"
+          aria-label="Synchronized energy-space views of band levels, density of states, Fermi occupation and carrier distributions"
+        >
+          <defs>
+            <linearGradient id="eq-cb" x2="0" y2="1">
+              <stop stopColor="#5db49c" stopOpacity=".2" />
+              <stop offset="1" stopColor="#5db49c" stopOpacity=".04" />
+            </linearGradient>
+          </defs>
+          {[
+            [110, 'Energy levels'],
+            [325, 'Density of states'],
+            [555, 'Occupation'],
+            [790, 'Carrier distributions'],
+          ].map(([x, label]) => (
+            <text
+              key={String(label)}
+              x={Number(x)}
+              y="25"
+              textAnchor="middle"
+              className="eq-svg-title"
+            >
+              {label}
+            </text>
+          ))}
+          <text x="6" y="48">
+            E (eV)
+          </text>
+          {[0, s.ec / 2, s.ec].map((e) => (
+            <g key={e}>
+              <line x1="45" x2="932" y1={y(e)} y2={y(e)} stroke="#314958" strokeDasharray="3 5" />
+              <text x="4" y={y(e) + 4}>
+                {(e / Q).toFixed(3)}
+              </text>
+            </g>
+          ))}
+          <rect x="64" y="65" width="145" height={y(s.ec) - 65} fill="url(#eq-cb)" />
+          <rect x="64" y={y(0)} width="145" height={395 - y(0)} fill="#e8af7820" />
+          {levels.map((l) => (
+            <line
+              key={l.name}
+              x1="64"
+              x2="209"
+              y1={y(l.e)}
+              y2={y(l.e)}
+              stroke={l.color}
+              strokeWidth={l.name === 'EF' ? 2.5 : 1.5}
+              strokeDasharray={l.name === 'EF' ? '7 3' : l.name === 'Ei' ? '2 4' : undefined}
+            />
+          ))}
+          <text x="75" y={y(s.ec) - 9}>
+            Ec
+          </text>
+          <text x="168" y={y(s.ed) + 15}>
+            Ed
+          </text>
+          <text x="168" y={y(s.ea) - 8}>
+            Ea
+          </text>
+          <text x="75" y={y(0) + 19}>
+            Ev
+          </text>
+          <text x="86" y="424">
+            Ev = 0 reference
+          </text>
+          {[260, 480, 700].map((x) => (
+            <line key={x} x1={x} x2={x} y1="65" y2="395" stroke="#697b89" />
+          ))}
+          <path d={path('gc', 260, 160, maxDOS)} stroke="#8ddfc7" fill="none" strokeWidth="2" />
+          <path d={path('gv', 260, 160, maxDOS)} stroke="#edb783" fill="none" strokeWidth="2" />
+          <text x="260" y="416">
+            0 → {sci((maxDOS * Q) / 1e6)}
+          </text>
+          <text x="260" y="436">
+            states / (eV·cm³)
+          </text>
+          <path d={path('f', 480, 160, 1)} stroke="#8ddfc7" fill="none" strokeWidth="2" />
+          <path d={path('hole', 480, 160, 1)} stroke="#edb783" fill="none" strokeWidth="2" />
+          <line x1="560" x2="560" y1="65" y2="395" stroke="#4b5a66" strokeDasharray="2 4" />
+          <circle cx="560" cy={y(s.ef)} r="4" fill="white" />
+          <text x="480" y="416">
+            0
+          </text>
+          <text x="552" y="416">
+            ½
+          </text>
+          <text x="635" y="416">
+            1
+          </text>
+          <text x="486" y="436">
+            fFD and 1 − fFD
+          </text>
+          <path
+            d={path('electrons', 700, 200, maxN || 1)}
+            stroke="#8ddfc7"
+            fill="none"
+            strokeWidth="2"
+          />
+          <path
+            d={path('holes', 700, 200, maxP || 1)}
+            stroke="#edb783"
+            fill="none"
+            strokeWidth="2"
+          />
+          <text x="700" y="416">
+            0 → each carrier’s own maximum
+          </text>
+          <text x="700" y="436">
+            {s.statistics === 'FD' ? 'gc fFD and gv (1−fFD)' : 'gc fMB and gv hMB · approximation'}
+          </text>
+          <line
+            x1="240"
+            x2="930"
+            y1={y(s.ef)}
+            y2={y(s.ef)}
+            stroke="white"
+            strokeDasharray="6 5"
+            opacity=".4"
+          />
+        </svg>
+      </div>
+      <div className="eq-key">
+        <span>
+          <i style={{ background: '#8ddfc7' }} />
+          Conduction / electrons
+        </span>
+        <span>
+          <i style={{ background: '#edb783' }} />
+          Valence / holes
+        </span>
+        <span>
+          <i style={{ background: '#fff' }} />
+          Fermi level EF
+        </span>
+        <span>
+          <i style={{ background: '#c3afdf' }} />
+          Intrinsic level Ei
+        </span>
+      </div>
+      <p className="eq-note">
+        All four panels share the same energy axis, with a ±10kT band-edge window. Horizontal axes
+        show different quantities, never position. Carrier distribution widths are normalized
+        separately to reveal minority carriers: electron maximum {sci((maxN * Q) / 1e6)}, hole
+        maximum {sci((maxP * Q) / 1e6)} cm⁻³ eV⁻¹. Total concentrations integrate the entire bands,
+        not this display window. Dopant states are discrete levels, excluded from the continuum DOS
+        curves. Material dopant energies remain visible even when that dopant concentration is zero.
+      </p>
+      <div className="eq-levels">
+        {levels.map((l) => (
+          <div key={l.name}>
+            <span style={{ color: l.color }}>{l.name}</span>
+            <strong>
+              {(l.e / Q).toFixed(5)} <small>eV</small>
+            </strong>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+const experiments = [
+  {
+    name: 'Donors → n type',
+    prompt:
+      'Add phosphorus donors to intrinsic silicon at 300 K. Will n increase by exactly ND, and what happens to holes?',
+    answer:
+      'Ionized donors supply positive fixed charge. Neutrality requires additional mobile electrons; EF shifts upward and n increases. Holes decrease as states redistribute. In the nondegenerate extrinsic limit n ≈ ND − NA and p ≈ ni²/n, not n = ni + ND.',
+  },
+  {
+    name: 'Three temperature regimes',
+    prompt:
+      'With ND = 10¹⁵ cm⁻³, predict what warming does at 40 K, 300 K and 800 K. Is the majority-carrier increase the same?',
+    answer:
+      'At low temperature many donors remain neutral (freeze-out). Warming ionizes them. Once nearly all are ionized, the extrinsic carrier concentration changes relatively little. At high temperature electron–hole generation becomes important and both concentrations approach intrinsic behavior. The crossover temperatures here depend on the stated fixed-gap approximation.',
+  },
+  {
+    name: 'What EF means',
+    prompt:
+      'At E = EF, what is the chance that a state is occupied? Does moving EF draw a path or exert a force on an electron?',
+    answer:
+      'fFD(EF) = ½ at every nonzero temperature. EF is the equilibrium chemical potential: an occupation parameter fixed here by charge neutrality. It is not a trajectory or a force. In this uniform sample, bands have no spatial gradient and the equilibrium net current is zero, even when conductivity is nonzero.',
+  },
+];
+export default function EquilibriumLab() {
+  const [material, setMaterial] = useState<EquilibriumInput['material']>('Si'),
+    [temperature, setTemperature] = useState(300),
+    [ld, setLd] = useState(15),
+    [la, setLa] = useState(14),
+    [donorsOn, setDonorsOn] = useState(true),
+    [acceptorsOn, setAcceptorsOn] = useState(false),
+    [statistics, setStatistics] = useState<'MB' | 'FD'>('MB'),
+    [deep, setDeep] = useState(false),
+    [exp, setExp] = useState(0),
+    [prediction, setPrediction] = useState(''),
+    [reveal, setReveal] = useState(false),
+    [sweepTab, setSweepTab] = useState('carriers'),
+    [fullRange, setFullRange] = useState(false);
+  const input: EquilibriumInput = {
+    material,
+    temperature,
+    donors: donorsOn ? 10 ** ld * 1e6 : 0,
+    acceptors: acceptorsOn ? 10 ** la * 1e6 : 0,
+    statistics,
+  };
+  const result = useMemo(() => {
+    try {
+      return { s: solveEquilibrium(input), error: '' };
+    } catch (e) {
+      return { s: null, error: String(e) };
+    }
+  }, [material, temperature, ld, la, donorsOn, acceptorsOn, statistics]);
+  const sweep = useMemo(
+    () =>
+      Array.from({ length: 77 }, (_, i) => {
+        const temperature = 40 + i * 10;
+        try {
+          const s = solveEquilibrium({ ...input, temperature });
+          return {
+            temperature,
+            n: s.n / 1e6,
+            p: s.p / 1e6,
+            ni: s.ni / 1e6,
+            donor: input.donors ? s.nd / input.donors : null,
+            acceptor: input.acceptors ? s.na / input.acceptors : null,
+            error: '',
+          };
+        } catch (e) {
+          return {
+            temperature,
+            n: null,
+            p: null,
+            ni: null,
+            donor: null,
+            acceptor: null,
+            error: String(e),
+          };
+        }
+      }),
+    [material, ld, la, donorsOn, acceptorsOn, statistics],
+  );
+  const reset = () => {
+    setMaterial('Si');
+    setTemperature(300);
+    setLd(15);
+    setLa(14);
+    setDonorsOn(true);
+    setAcceptorsOn(false);
+    setStatistics('MB');
+    setDeep(false);
+    setExp(0);
+    setPrediction('');
+    setReveal(false);
+    setSweepTab('carriers');
+    setFullRange(false);
+  };
+  const preset = (name: string) => {
+    setMaterial('Si');
+    setStatistics('MB');
+    setTemperature(name === 'freeze' ? 40 : name === 'hot' ? 800 : 300);
+    setDonorsOn(name !== 'intrinsic');
+    setAcceptorsOn(name === 'compensated');
+    setLd(name === 'compensated' ? 16 : 15);
+    setLa(Math.log10(4e15));
+  };
+  const s = result.s;
+  return (
+    <div className="eq-lab">
+      <header>
+        <a className="brand" href="#equilibrium">
+          <span className="brandmark">Si</span>
+          <span>
+            SILICON ATLAS<span className="brand-sub">Equilibrium statistics</span>
+          </span>
+        </a>
+        <button onClick={reset}>Reset explorer</button>
+      </header>
+      <main>
+        <div className="eq-hero">
+          <div className="eyebrow">NEAMEN / CHAPTERS 3—4</div>
+          <h1>
+            Equilibrium
+            <br />
+            Semiconductor Explorer.
+          </h1>
+          <p>One Fermi level. Balanced charge. A continuum of occupied states.</p>
+          <div className="eq-actions">
+            <button className={!deep ? 'selected' : ''} onClick={() => setDeep(false)}>
+              Beginner
+            </button>
+            <button className={deep ? 'selected' : ''} onClick={() => setDeep(true)}>
+              Deeper physics
+            </button>
+            <button
+              disabled={!s}
+              onClick={() => {
+                if (!s) return;
+                const u = URL.createObjectURL(new Blob([equilibriumCsv(s)], { type: 'text/csv' })),
+                  a = document.createElement('a');
+                a.href = u;
+                a.download = 'equilibrium-energy-SI.csv';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(u), 1000);
+              }}
+            >
+              ↓ Energy data CSV
+            </button>
+          </div>
+        </div>
+        <div className="eq-workspace">
+          <aside className="eq-card eq-controls">
+            <div className="eyebrow">UNIFORM BULK SAMPLE</div>
+            <h2>Material & conditions</h2>
+            <label>
+              Material
+              <select
+                aria-label="Equilibrium material"
+                value={material}
+                onChange={(e) => setMaterial(e.target.value as typeof material)}
+              >
+                {Object.entries(materials).map(([id, m]) => (
+                  <option value={id} key={id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Temperature
+              <strong>
+                {temperature} <small>K</small>
+              </strong>
+              <input
+                aria-label="Equilibrium temperature"
+                type="range"
+                min="40"
+                max="800"
+                step="5"
+                value={temperature}
+                onChange={(e) => setTemperature(+e.target.value)}
+              />
+              <small>40 K → 800 K</small>
+            </label>
+            {[
+              {
+                name: 'Donors ND',
+                species: materials[material].donor,
+                on: donorsOn,
+                toggle: setDonorsOn,
+                value: ld,
+                set: setLd,
+              },
+              {
+                name: 'Acceptors NA',
+                species: materials[material].acceptor,
+                on: acceptorsOn,
+                toggle: setAcceptorsOn,
+                value: la,
+                set: setLa,
+              },
+            ].map((c) => (
+              <div className="eq-doping" key={c.name}>
+                <label className="eq-check">
+                  <input
+                    aria-label={`Enable ${c.name}`}
+                    type="checkbox"
+                    checked={c.on}
+                    onChange={(e) => c.toggle(e.target.checked)}
+                  />
+                  {c.name} · {c.species}
+                </label>
+                <strong>
+                  {c.on ? sci(10 ** c.value) : '0'} <small>cm⁻³</small>
+                </strong>
+                <input
+                  aria-label={c.name}
+                  type="range"
+                  min="10"
+                  max="18"
+                  step="any"
+                  disabled={!c.on}
+                  value={c.value}
+                  onChange={(e) => c.set(+e.target.value)}
+                />
+                <small>Logarithmic slider · 10¹⁰–10¹⁸ cm⁻³</small>
+              </div>
+            ))}
+            <label>
+              Carrier statistics
+              <select
+                aria-label="Carrier statistics"
+                value={statistics}
+                onChange={(e) => setStatistics(e.target.value as 'MB' | 'FD')}
+              >
+                <option value="MB">Boltzmann · nondegenerate</option>
+                <option value="FD">Fermi–Dirac integral</option>
+              </select>
+            </label>
+            <p className="eq-note">
+              Both modes include donor and acceptor ionization statistics. FD mode integrates the
+              parabolic-band density of states; it does not extrapolate the Boltzmann formula.
+            </p>
+            <p className="eq-note">
+              Fixed bandgap and fixed 300 K mobility: broad-temperature results illustrate regimes,
+              not a calibrated material-temperature model.
+            </p>
+            <h3>Reference settings</h3>
+            <div className="eq-presets">
+              <button onClick={() => preset('intrinsic')}>Intrinsic · 300 K</button>
+              <button onClick={() => preset('compensated')}>Compensated · 10¹⁶ − 4×10¹⁵</button>
+              <button onClick={() => preset('freeze')}>Freeze-out · 40 K</button>
+              <button onClick={() => preset('extrinsic')}>Extrinsic · 300 K</button>
+              <button onClick={() => preset('hot')}>Intrinsic-dominated · 800 K</button>
+            </div>
+          </aside>
+          <div className="eq-main">
+            {!s ? (
+              <div className="eq-card" role="alert">
+                <h2>Solution unavailable</h2>
+                <p>{result.error}</p>
+                <button onClick={reset}>Restore defaults</button>
+              </div>
+            ) : (
+              <>
+                <div className={`eq-valid ${s.boltzmannValid ? '' : 'eq-warning'}`}>
+                  <b>
+                    {s.boltzmannValid
+                      ? 'Nondegenerate region · band edges ≥ 3kT from EF'
+                      : statistics === 'MB'
+                        ? 'Boltzmann validity exceeded · approximate results only'
+                        : 'Degenerate correction active · Fermi–Dirac integration'}
+                  </b>
+                  <p>
+                    {statistics === 'MB'
+                      ? 'Carrier concentrations and occupied distributions use Boltzmann tails; np = ni² holds within that model. The occupation panel separately shows the exact Fermi–Dirac function.'
+                      : 'Carrier concentrations and occupied distributions use exact Fermi–Dirac occupations with numerical integration. np = ni² is not assumed.'}{' '}
+                    {!s.boltzmannValid && statistics === 'MB' && (
+                      <button onClick={() => setStatistics('FD')}>
+                        Use Fermi–Dirac statistics
+                      </button>
+                    )}
+                  </p>
+                </div>
+                {s.donors + s.acceptors > 1e23 && (
+                  <div className="eq-valid eq-warning">
+                    <b>High-doping material-model limitation</b>
+                    <p>
+                      Isolated dopant levels can be altered by impurity interactions and bandgap
+                      narrowing, especially at low temperature. FD carrier statistics do not correct
+                      those omitted effects.
+                    </p>
+                  </div>
+                )}
+                <section className="eq-card">
+                  <div className="eq-heading">
+                    <div>
+                      <div className="eyebrow">SYNCHRONIZED ENERGY SPACE</div>
+                      <h2>States, occupation, and carriers.</h2>
+                    </div>
+                    <span className="eq-badge">
+                      {statistics === 'MB' ? 'BOLTZMANN CARRIERS' : 'FD INTEGRATED CARRIERS'}
+                    </span>
+                  </div>
+                  <EnergyView s={s} />
+                </section>
+                <div className="eq-metrics">
+                  <div>
+                    <span>Electrons n</span>
+                    <strong>{sci(s.n / 1e6)}</strong>
+                    <small>cm⁻³</small>
+                  </div>
+                  <div>
+                    <span>Holes p</span>
+                    <strong>{sci(s.p / 1e6)}</strong>
+                    <small>cm⁻³</small>
+                  </div>
+                  <div>
+                    <span>Intrinsic ni · same model</span>
+                    <strong>{sci(s.ni / 1e6)}</strong>
+                    <small>cm⁻³</small>
+                  </div>
+                  <div>
+                    <span>Conductivity σ</span>
+                    <strong>{sci(s.sigma)}</strong>
+                    <small>S/m · fixed reference mobility</small>
+                  </div>
+                </div>
+                <section className="eq-card">
+                  <div className="eq-heading">
+                    <h2>Charge is balanced.</h2>
+                    <span className="eq-badge">p + ND⁺ = n + NA⁻</span>
+                  </div>
+                  <div className="eq-ion-grid">
+                    {[
+                      {
+                        label: 'Ionized donors ND⁺',
+                        value: s.nd,
+                        total: s.donors,
+                        color: '#8ddfc7',
+                      },
+                      {
+                        label: 'Ionized acceptors NA⁻',
+                        value: s.na,
+                        total: s.acceptors,
+                        color: '#edb783',
+                      },
+                    ].map((i) => (
+                      <div key={i.label}>
+                        <span>{i.label}</span>
+                        <strong>
+                          {sci(i.value / 1e6)} <small>cm⁻³</small>
+                        </strong>
+                        <div className="eq-ion-track">
+                          <i
+                            style={{
+                              width: `${i.total ? (i.value / i.total) * 100 : 0}%`,
+                              background: i.color,
+                            }}
+                          />
+                        </div>
+                        <small>
+                          {i.total
+                            ? `${((100 * i.value) / i.total).toFixed(2)}% ionized`
+                            : 'No dopants of this type'}
+                        </small>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="eq-balance">
+                    <span>Positive: {sci((s.p + s.nd) / 1e6)} cm⁻³</span>
+                    <span>Negative: {sci((s.n + s.na) / 1e6)} cm⁻³</span>
+                    <span>Relative residual: {s.relative.toExponential(1)}</span>
+                  </div>
+                  <p className="eq-note">
+                    Fixed 300 K reference mobilities: μn = {materials[material].muN * 1e4} and μp ={' '}
+                    {materials[material].muP * 1e4} cm²/(V·s). σ = q(nμn + pμp). Only populations
+                    change with temperature here; mobility scattering, impurity concentration
+                    effects and hopping transport are excluded. This conductivity is a teaching
+                    estimate, not a temperature-calibrated device prediction. Net equilibrium
+                    current is zero.
+                  </p>
+                  <div className="eq-explain">
+                    <h3>What changed and why?</h3>
+                    <p>
+                      {Math.abs(Math.log(s.n / s.p)) < 0.1
+                        ? 'Electron and hole concentrations are nearly equal: intrinsic-like populations.'
+                        : s.n > s.p
+                          ? 'Electrons are the majority carriers. Ionized donors exceed ionized acceptors, and EF lies above the intrinsic level.'
+                          : 'Holes are the majority carriers. Ionized acceptors exceed ionized donors, and EF lies below the intrinsic level.'}{' '}
+                      {s.donors && s.nd / s.donors < 0.5
+                        ? 'Many donors still hold their electrons: donor freeze-out is important. '
+                        : ''}
+                      {s.acceptors && s.na / s.acceptors < 0.5
+                        ? 'Many acceptors are neutral: incomplete acceptor ionization is important. '
+                        : ''}
+                      Charge neutrality uses ionized dopants, not simply the chemical difference ND
+                      − NA. EF is adjusted until positive and negative charge balance.
+                    </p>
+                  </div>
+                  {deep && (
+                    <p className="eq-details">
+                      ηn = (EF−Ec)/kT = {s.etaN.toFixed(3)}; ηp = (Ev−EF)/kT = {s.etaP.toFixed(3)}.
+                      np / ni,MB² = {s.massAction.toPrecision(6)}. Solver: bracketed bisection,{' '}
+                      {s.iterations} iterations, energy bracket tolerance 10⁻¹² eV, relative
+                      neutrality acceptance 10⁻⁸.{' '}
+                      {statistics === 'FD'
+                        ? 'Normalized F½ evaluated with 128 Simpson subintervals.'
+                        : 'Band populations evaluated analytically.'}
+                    </p>
+                  )}
+                </section>
+                <section className="eq-card">
+                  <div className="eq-heading">
+                    <div>
+                      <div className="eyebrow">TEMPERATURE INVESTIGATION</div>
+                      <h2>Freeze-out → extrinsic → intrinsic.</h2>
+                    </div>
+                  </div>
+                  <p className="eq-details">
+                    Same material, doping and statistics as above. Marker shows current temperature.
+                    Regime boundaries are gradual and depend on doping and material.
+                  </p>
+                  <div className="eq-actions">
+                    <button
+                      className={sweepTab === 'carriers' ? 'selected' : ''}
+                      onClick={() => setSweepTab('carriers')}
+                    >
+                      Carrier concentrations
+                    </button>
+                    <button
+                      className={sweepTab === 'ionization' ? 'selected' : ''}
+                      onClick={() => setSweepTab('ionization')}
+                    >
+                      Ionized fractions
+                    </button>
+                  </div>
+                  {sweepTab === 'carriers' && (
+                    <label className="eq-check">
+                      <input
+                        type="checkbox"
+                        checked={fullRange}
+                        onChange={(e) => setFullRange(e.target.checked)}
+                      />
+                      Show full concentration range, including tiny minority tails
+                    </label>
+                  )}
+                  <p className="eq-details">
+                    {sweepTab === 'carriers'
+                      ? 'Concentration (cm⁻³) · logarithmic vertical axis'
+                      : 'Ionized fraction (%) · linear vertical axis'}
+                  </p>
+                  <div className="eq-chart">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={sweep} margin={{ top: 12, right: 30, bottom: 25, left: 20 }}>
+                        <CartesianGrid stroke="#293e4b" strokeDasharray="3 5" />
+                        <XAxis
+                          dataKey="temperature"
+                          type="number"
+                          domain={[40, 800]}
+                          tick={{ fill: '#a6bdca', fontSize: 11 }}
+                          label={{
+                            value: 'Temperature (K)',
+                            position: 'bottom',
+                            offset: 5,
+                            fill: '#a6bdca',
+                          }}
+                        />
+                        <YAxis
+                          scale={sweepTab === 'carriers' ? 'log' : 'linear'}
+                          allowDataOverflow
+                          domain={
+                            sweepTab === 'carriers'
+                              ? fullRange
+                                ? ['auto', 'auto']
+                                : [
+                                    1e8,
+                                    10 **
+                                      Math.ceil(
+                                        Math.log10(
+                                          Math.max(
+                                            ...sweep.flatMap((p) => [
+                                              p.n || 0,
+                                              p.p || 0,
+                                              p.ni || 0,
+                                            ]),
+                                          ),
+                                        ),
+                                      ),
+                                  ]
+                              : [0, 1]
+                          }
+                          width={68}
+                          tick={{ fill: '#a6bdca', fontSize: 11 }}
+                          tickFormatter={(v) =>
+                            sweepTab === 'carriers'
+                              ? Number(v).toExponential(0)
+                              : `${Math.round(v * 100)}%`
+                          }
+                        />
+                        <Tooltip
+                          contentStyle={{ background: '#162531', border: '1px solid #496675' }}
+                          formatter={(v, name) => [
+                            sweepTab === 'carriers'
+                              ? `${sci(Number(v))} cm⁻³`
+                              : `${(100 * Number(v)).toFixed(2)}%`,
+                            name,
+                          ]}
+                          labelFormatter={(v) => `${v} K`}
+                        />
+                        <ReferenceLine x={temperature} stroke="#fff" strokeDasharray="5 4" />
+                        {(sweepTab === 'carriers'
+                          ? [
+                              { key: 'n', name: 'n', color: '#8ddfc7' },
+                              { key: 'p', name: 'p', color: '#edb783' },
+                              { key: 'ni', name: 'ni', color: '#b7a1db' },
+                            ]
+                          : [
+                              { key: 'donor', name: 'ND⁺ / ND', color: '#8ddfc7' },
+                              { key: 'acceptor', name: 'NA⁻ / NA', color: '#edb783' },
+                            ]
+                        ).map((l) => (
+                          <Line
+                            key={l.key}
+                            dataKey={l.key}
+                            name={l.name}
+                            stroke={l.color}
+                            strokeWidth={2}
+                            dot={false}
+                            isAnimationActive={false}
+                            connectNulls={false}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {sweepTab === 'carriers' && !fullRange && (
+                    <p className="eq-details">
+                      Concentration view starts at 10⁸ cm⁻³ to resolve the three regimes. Smaller
+                      values are outside the plot, not clamped; enable the full range to see them.
+                    </p>
+                  )}
+                  <div className="eq-key">
+                    <span style={{ color: '#8ddfc7' }}>
+                      {sweepTab === 'carriers' ? 'n · electrons' : 'Ionized donor fraction'}
+                    </span>
+                    <span style={{ color: '#edb783' }}>
+                      {sweepTab === 'carriers' ? 'p · holes' : 'Ionized acceptor fraction'}
+                    </span>
+                    {sweepTab === 'carriers' && (
+                      <span style={{ color: '#b7a1db' }}>ni · intrinsic</span>
+                    )}
+                  </div>
+                  {sweep.some((p) => p.error) && (
+                    <p role="alert">
+                      Some temperature points failed to converge; gaps are shown rather than
+                      interpolated.
+                    </p>
+                  )}
+                  <p className="eq-note">
+                    Bandgap fixed at {(s.ec / Q).toFixed(2)} eV and Nc,v ∝ T³ᐟ². This textbook
+                    approximation isolates occupation and ionization; real temperature-dependent
+                    bandgaps shift the intrinsic crossover. Broad-temperature trends are
+                    qualitative.{' '}
+                    {statistics === 'MB'
+                      ? 'The sweep remains a Boltzmann calculation; check the validity banner at each temperature or select FD mode.'
+                      : ''}
+                  </p>
+                </section>
+              </>
+            )}
+          </div>
+        </div>
+        <section className="eq-card eq-experiments">
+          <div className="eyebrow">GUIDED EXPERIMENTS</div>
+          <h2>Predict before changing the sample.</h2>
+          <div className="eq-actions">
+            {experiments.map((e, i) => (
+              <button
+                key={e.name}
+                className={exp === i ? 'selected' : ''}
+                onClick={() => {
+                  setExp(i);
+                  setReveal(false);
+                  setPrediction('');
+                }}
+              >
+                {i + 1}. {e.name}
+              </button>
+            ))}
+          </div>
+          <h3>{experiments[exp].prompt}</h3>
+          <textarea
+            aria-label="Equilibrium prediction"
+            placeholder="Write your prediction…"
+            value={prediction}
+            onChange={(e) => setPrediction(e.target.value)}
+          />
+          <div className="eq-actions">
+            <button
+              onClick={() => preset(exp === 0 ? 'intrinsic' : exp === 1 ? 'freeze' : 'extrinsic')}
+            >
+              Apply starting conditions
+            </button>
+            <button onClick={() => setReveal((v) => !v)}>
+              {reveal ? 'Hide' : 'Reveal'} explanation
+            </button>
+          </div>
+          {reveal && <p>{experiments[exp].answer}</p>}
+        </section>
+        <details className="eq-card eq-reference" open={deep}>
+          <summary>Equations, numerical method & assumptions</summary>
+          <h3>Band populations and occupations</h3>
+          <div className="eq-formula">
+            fFD(E) = 1 / [1 + exp((E−EF)/kBT)]
+            <br />
+            Nc,v(T) = Nc,v(300 K) (T/300 K)³ᐟ²
+            <br />
+            nMB = Nc exp((EF−Ec)/kBT); pMB = Nv exp((Ev−EF)/kBT)
+            <br />
+            ni,MB = √(NcNv) exp(−Eg/2kBT); Ei,MB = (Ec+Ev)/2 + ½kBT ln(Nv/Nc)
+            <br />
+            nFD = Nc F½((EF−Ec)/kBT); pFD = Nv F½((Ev−EF)/kBT)
+            <br />
+            F½(η) = (2/√π) ∫₀∞ √ε / [1+exp(ε−η)] dε
+          </div>
+          <p>
+            E: electron energy; EF: equilibrium Fermi energy (chemical potential); Ec, Ev:
+            conduction and valence edges; Eg = Ec−Ev: fixed bandgap; Ei: Fermi energy of the undoped
+            material solved with the selected statistics; n, p: free electron and hole densities;
+            ni: undoped density with the selected statistics; Nc, Nv: effective band densities of
+            states including spin; η: reduced chemical potential; ε: dimensionless kinetic energy /
+            kBT. For Boltzmann carriers np = ni,MB². The FD product generally depends on EF, so mass
+            action is not imposed. A conservative nondegenerate indicator requires EF at least 3kBT
+            inside each band edge.
+          </p>
+          <div className="eq-formula">
+            gc(E) = [2Nc / (√π (kBT)³ᐟ²)] √(E−Ec), E ≥ Ec
+            <br />
+            gv(E) = [2Nv / (√π (kBT)³ᐟ²)] √(Ev−E), E ≤ Ev
+            <br />n = ∫gc(E) f(E) dE; p = ∫gv(E) [1−f(E)] dE
+          </div>
+          <p>
+            g: continuum density of states per joule per cubic meter; in MB mode electron and hole
+            occupation tails exp((EF−E)/kBT) and exp((E−EF)/kBT) replace f and 1−f in the
+            occupied-distribution panel. The occupation panel always shows exact FD probabilities.
+            The plotted DOS is parabolic, with constant DOS masses encoded by Nc,v; no impurity-band
+            DOS or nonparabolicity is included.
+          </p>
+          <h3>Impurity states and neutrality</h3>
+          <div className="eq-formula">
+            Ed = Ec − donor binding energy; Ea = Ev + acceptor binding energy
+            <br />
+            ND⁺ = ND / [1 + 2 exp((EF−Ed)/kBT)]
+            <br />
+            NA⁻ = NA / [1 + 4 exp((Ea−EF)/kBT)]
+            <br />p + ND⁺ − n − NA⁻ = 0<br />
+            Complete-ionization MB limit: n−p = ND−NA, np = ni,MB²
+            <br />σ = q(nμn + pμp)
+          </div>
+          <p>
+            ND, NA: total substitutional donor and acceptor concentrations; ND⁺, NA⁻: their ionized
+            densities. Donor degeneracy factor 2, acceptor factor 4 in these denominator
+            conventions. Ed, Ea are isolated shallow-impurity levels. Mobility μn, μp is held at the
+            tabulated 300 K reference value at every temperature and doping. σ is linear-response
+            conductivity, not current. q = 1.602176634×10⁻¹⁹ C; kB = 1.380649×10⁻²³ J/K.
+          </p>
+          <h3>Numerical checks and supported range</h3>
+          <p>
+            40–800 K; each dopant 0 or 10¹⁰–10¹⁸ cm⁻³. Bisection brackets EF between −Eg and 2Eg
+            relative to Ev = 0. Energy tolerance 10⁻¹² eV; relative neutrality residual ≤10⁻⁸;
+            failures are exposed. Neutral dopant fractions are retained explicitly to avoid
+            cancellation in highly compensated samples. FD integration uses ε = u² and composite
+            Simpson quadrature with 128 subintervals up to ε = max(η, 0)+48; refinement tests use
+            256 and 512. No time integration is used.
+          </p>
+          <p>
+            Independent checks cover intrinsic neutrality, complete-ionization quadratic limits,
+            compensation, freeze-out, FD integral references and refinement, and conductivity units.
+            SI internally; cm⁻³ ×10⁶ → m⁻³, cm²/(V·s) ×10⁻⁴ → m²/(V·s), eV ×q → J. Display DOS per
+            eV per cm³ = SI DOS ×q/10⁶. No bandgap narrowing, impurity interactions, hopping
+            conduction, spatial fields, illumination, nonequilibrium quasi-Fermi levels or
+            real-device transport. At high doping especially at low T, isolated-impurity statistics
+            can fail even when FD band statistics are enabled.
+          </p>
+        </details>
+        <details className="eq-card eq-reference">
+          <summary>Material parameters, sources & discrepancies</summary>
+          <div className="eq-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Silicon</th>
+                  <th>GaAs</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Fixed gap (eV)</td>
+                  <td>1.12</td>
+                  <td>1.42</td>
+                </tr>
+                <tr>
+                  <td>Nc(300 K), Nv(300 K) (cm⁻³)</td>
+                  <td>2.8×10¹⁹, 1.04×10¹⁹</td>
+                  <td>4.7×10¹⁷, 7.0×10¹⁸</td>
+                </tr>
+                <tr>
+                  <td>Donor · binding energy (eV)</td>
+                  <td>Phosphorus · 0.045</td>
+                  <td>Tellurium · 0.0058</td>
+                </tr>
+                <tr>
+                  <td>Acceptor · binding energy (eV)</td>
+                  <td>Boron · 0.045</td>
+                  <td>Zinc · 0.0307</td>
+                </tr>
+                <tr>
+                  <td>μn, μp (cm²/(V·s)), fixed reference</td>
+                  <td>1350, 480</td>
+                  <td>8500, 400</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <b>Neamen, Semiconductor Physics and Devices, Fourth Edition:</b> §3.4, printed pp.
+            86–90: density of states; §3.5, pp. 91–97: Fermi–Dirac statistics. §§4.1–4.3, pp.
+            106–130: equilibrium populations and extrinsic semiconductors. Table 4.1, p. 113 (PDF
+            138): Nc and Nv. Tables 4.3–4.4, pp. 122–123 (PDF 147–148): impurity binding energies.
+            §4.4, pp. 131–135 (PDF 156–160): degeneracy, ionization and freeze-out. §4.5, pp.
+            135–139: compensation and neutrality. Table B.4, p. 717 (PDF 742): gap and reference
+            mobilities. Conductivity uses the standard low-field relation from §5.1, as an
+            explicitly identified extension beyond Chapters 3–4.
+          </p>
+          <p>
+            <b>Do not mix intrinsic concentrations:</b> Neamen p. 114 notes that the tabulated Si ni
+            = 1.5×10¹⁰ cm⁻³ differs from the value calculated using Nc, Nv and Eg. This explorer
+            consistently computes ni from those parameters (about 6.68×10⁹ cm⁻³ at 300 K with modern
+            kB and q), rather than inserting the empirical table value. Neamen’s rounded constants
+            give about 6.95×10⁹. This differs intentionally from the earlier junction module’s
+            empirical ni.
+          </p>
+          <p>
+            <b>Temperature model:</b> the fixed-gap and T³ᐟ² DOS assumptions follow the
+            simplification in Example 4.3, p. 115. Extending this simplification over 40–800 K is a
+            qualitative teaching exercise, not a validated thermal material model. Reference
+            mobility is not fitted as a function of temperature or ionized-impurity density.
+            Material data are not silently adjusted to force agreement with empirical ni.
+          </p>
+        </details>
+        <footer>
+          EQUILIBRIUM SEMICONDUCTORS{' '}
+          <span>Neutrality solved · Ionization included · Transport limits explicit</span>
+        </footer>
+      </main>
+    </div>
+  );
 }

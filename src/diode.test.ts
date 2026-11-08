@@ -1,14 +1,90 @@
-import {test} from 'node:test';
+import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import {diodeDefault as c,solveDiode,diodeProfiles,switching,shape} from './diode';
-import {jq} from './junction';
-const close=(a:number,b:number,t=1e-9)=>assert.ok(Math.abs(a-b)<=t*Math.max(Math.abs(b),1e-30),`${a} != ${b}`);
-test('diode equilibrium has zero current and excess charge, flat Fermi levels',()=>{const z=solveDiode({...c,bias:0,series:true,recombination:true});assert.equal(z.total,0);assert.equal(z.charge,0);for(const r of diodeProfiles({...c,bias:0},z)){assert.ok(Math.abs(r.fn)<1e-14);assert.ok(Math.abs(r.fp)<1e-14)}});
-test('ideal area scaling and semilog slope',()=>{const a=solveDiode(c),b=solveDiode({...c,area:2*c.area}),d=solveDiode({...c,bias:c.bias+.01});close(b.total,2*a.total);close(b.charge,2*a.charge);close((Math.log(d.total+d.is)-Math.log(a.total+a.is))/.01,1/a.vt)});
-test('finite profiles obey contacts, injection boundaries and current continuity',()=>{const s=solveDiode(c),r=diodeProfiles(c,s),p=r.filter(v=>v.region==='p neutral'),n=r.filter(v=>v.region==='n neutral');close(p[0].n!,s.n0);close(p.at(-1)!.n!,s.n0*Math.exp(s.vj/s.vt));close(n[0].p!,s.p0*Math.exp(s.vj/s.vt));close(n.at(-1)!.p!,s.p0);for(const v of r)close(v.total,s.diffusion)});
-test('stored charge agrees with converging independent midpoint integration',()=>{const s=solveDiode(c);for(const [W,L,c0,Q] of [[c.wp,s.ln,s.n0,s.qn],[c.wn,s.lp,s.p0,s.qp]]){const integrate=(N:number)=>{let sum=0;for(let i=0;i<N;i++)sum+=shape((i+.5)*W/N,W,L);return jq*c.area*c0*s.factor*sum*W/N};const coarse=integrate(1000),fine=integrate(2000);assert.ok(Math.abs(fine-Q)<Math.abs(coarse-Q)/3.9);close(fine,Q,1e-6)}});
-test('long and short limits connect stored charge to lifetime and transit time',()=>{const long=solveDiode({...c,wp:.002,wn:.002});close(long.qn/long.electron,c.tauN,1e-10);close(long.qp/long.hole,c.tauP,1e-10);const short=solveDiode({...c,wp:1e-7,wn:1e-7});close(short.qn/short.electron,1e-14/(2*short.dn),1e-5);close(short.qp/short.hole,1e-14/(2*short.dp),1e-5)});
-test('series solve and empirical extension remain explicit and consistent',()=>{const s=solveDiode({...c,bias:.5,series:true,resistance:100000});assert.ok(s.vj<.5);assert.ok(Math.abs(s.residual)<1e-8);const r=solveDiode({...c,recombination:true});close(r.recombination,c.area*c.recombDensity*Math.expm1(r.vj/(2*r.vt)));assert.throws(()=>solveDiode({...c,bias:1}),/limit exceeded/)});
-test('lumped switching obeys charge control and ends exactly at zero charge',()=>{const s=switching(c);assert.equal(s.at(0).Q,0);assert.equal(s.at(s.end).Q,0);close(s.at(s.tOn).Q,s.qAtSwitch);for(const t of [s.tOn/2,s.tOn+s.storage/2]){const h=s.tau*1e-5,r=s.at(t),derivative=(s.at(t+h).Q-s.at(t-h).Q)/(2*h);close(derivative,r.I-r.Q/s.tau,1e-8)}assert.ok(switching(c,3).storage<s.storage);assert.throws(()=>s.at(s.end+s.tau),/Outside/)});
+import { diodeDefault as c, solveDiode, diodeProfiles, switching, shape } from './diode';
+import { jq } from './junction';
+const close = (a: number, b: number, t = 1e-9) =>
+  assert.ok(Math.abs(a - b) <= t * Math.max(Math.abs(b), 1e-30), `${a} != ${b}`);
+test('diode equilibrium has zero current and excess charge, flat Fermi levels', () => {
+  const z = solveDiode({ ...c, bias: 0, series: true, recombination: true });
+  assert.equal(z.total, 0);
+  assert.equal(z.charge, 0);
+  for (const r of diodeProfiles({ ...c, bias: 0 }, z)) {
+    assert.ok(Math.abs(r.fn) < 1e-14);
+    assert.ok(Math.abs(r.fp) < 1e-14);
+  }
+});
+test('ideal area scaling and semilog slope', () => {
+  const a = solveDiode(c),
+    b = solveDiode({ ...c, area: 2 * c.area }),
+    d = solveDiode({ ...c, bias: c.bias + 0.01 });
+  close(b.total, 2 * a.total);
+  close(b.charge, 2 * a.charge);
+  close((Math.log(d.total + d.is) - Math.log(a.total + a.is)) / 0.01, 1 / a.vt);
+});
+test('finite profiles obey contacts, injection boundaries and current continuity', () => {
+  const s = solveDiode(c),
+    r = diodeProfiles(c, s),
+    p = r.filter((v) => v.region === 'p neutral'),
+    n = r.filter((v) => v.region === 'n neutral');
+  close(p[0].n!, s.n0);
+  close(p.at(-1)!.n!, s.n0 * Math.exp(s.vj / s.vt));
+  close(n[0].p!, s.p0 * Math.exp(s.vj / s.vt));
+  close(n.at(-1)!.p!, s.p0);
+  for (const v of r) close(v.total, s.diffusion);
+});
+test('stored charge agrees with converging independent midpoint integration', () => {
+  const s = solveDiode(c);
+  for (const [W, L, c0, Q] of [
+    [c.wp, s.ln, s.n0, s.qn],
+    [c.wn, s.lp, s.p0, s.qp],
+  ]) {
+    const integrate = (N: number) => {
+      let sum = 0;
+      for (let i = 0; i < N; i++) sum += shape(((i + 0.5) * W) / N, W, L);
+      return (jq * c.area * c0 * s.factor * sum * W) / N;
+    };
+    const coarse = integrate(1000),
+      fine = integrate(2000);
+    assert.ok(Math.abs(fine - Q) < Math.abs(coarse - Q) / 3.9);
+    close(fine, Q, 1e-6);
+  }
+});
+test('long and short limits connect stored charge to lifetime and transit time', () => {
+  const long = solveDiode({ ...c, wp: 0.002, wn: 0.002 });
+  close(long.qn / long.electron, c.tauN, 1e-10);
+  close(long.qp / long.hole, c.tauP, 1e-10);
+  const short = solveDiode({ ...c, wp: 1e-7, wn: 1e-7 });
+  close(short.qn / short.electron, 1e-14 / (2 * short.dn), 1e-5);
+  close(short.qp / short.hole, 1e-14 / (2 * short.dp), 1e-5);
+});
+test('series solve and empirical extension remain explicit and consistent', () => {
+  const s = solveDiode({ ...c, bias: 0.5, series: true, resistance: 100000 });
+  assert.ok(s.vj < 0.5);
+  assert.ok(Math.abs(s.residual) < 1e-8);
+  const r = solveDiode({ ...c, recombination: true });
+  close(r.recombination, c.area * c.recombDensity * Math.expm1(r.vj / (2 * r.vt)));
+  assert.throws(() => solveDiode({ ...c, bias: 1 }), /limit exceeded/);
+});
+test('lumped switching obeys charge control and ends exactly at zero charge', () => {
+  const s = switching(c);
+  assert.equal(s.at(0).Q, 0);
+  assert.equal(s.at(s.end).Q, 0);
+  close(s.at(s.tOn).Q, s.qAtSwitch);
+  for (const t of [s.tOn / 2, s.tOn + s.storage / 2]) {
+    const h = s.tau * 1e-5,
+      r = s.at(t),
+      derivative = (s.at(t + h).Q - s.at(t - h).Q) / (2 * h);
+    close(derivative, r.I - r.Q / s.tau, 1e-8);
+  }
+  assert.ok(switching(c, 3).storage < s.storage);
+  assert.throws(() => s.at(s.end + s.tau), /Outside/);
+});
 
-test('switching sampling preserves exact endpoint across presets and extraction ratios',()=>{for(const W of [2e-6,200e-6,1000e-6])for(const ratio of [.1,1,3,5]){const s=switching({...c,wp:W,wn:W},ratio);assert.equal(s.rows.at(-1)!.Q,0);assert.ok(s.rows.every(r=>r.Q>=0&&Number.isFinite(r.Q)))}});
+test('switching sampling preserves exact endpoint across presets and extraction ratios', () => {
+  for (const W of [2e-6, 200e-6, 1000e-6])
+    for (const ratio of [0.1, 1, 3, 5]) {
+      const s = switching({ ...c, wp: W, wn: W }, ratio);
+      assert.equal(s.rows.at(-1)!.Q, 0);
+      assert.ok(s.rows.every((r) => r.Q >= 0 && Number.isFinite(r.Q)));
+    }
+});
