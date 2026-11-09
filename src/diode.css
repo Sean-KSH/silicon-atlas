@@ -42,7 +42,7 @@
   background: #8bd7c0;
 }
 .dd-charge b {
-  font: 20px monospace;
+  font: 20px var(--font-mono);
 }
 .dd-lab .pn-controls > label:not(.pn-control) {
   display: block;

@@ -7,12 +7,7 @@
   --accent: #b5c9a4;
   background: #0d1217;
   color: var(--ink);
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
 }
 .wafer-product header {
   padding: 0 42px;
@@ -27,7 +22,7 @@
   border-radius: 3px;
   width: 36px;
   height: 36px;
-  font-family: Georgia, serif;
+  font-family: var(--font-sans);
   font-size: 22px;
 }
 .wafer-product .brand > span {
@@ -104,7 +99,7 @@
 .wafer-product .process-nav .process-number {
   position: static;
   display: block;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   color: #8f9eab;
   margin-bottom: 13px;
@@ -199,9 +194,7 @@
   display: flex;
   justify-content: space-between;
   color: #8ba0b0;
-  font:
-    9px ui-monospace,
-    monospace;
+  font: 9px var(--font-mono);
   letter-spacing: 1.3px;
   margin-bottom: 12px;
 }
@@ -214,18 +207,12 @@
 .figure-label {
   fill: #d2dfe8;
   font-size: 14px;
-  font-family:
-    Inter,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 .figure-sub {
   fill: #8ea3b4;
   font-size: 11px;
-  font-family:
-    Inter,
-    -apple-system,
-    sans-serif;
+  font-family: var(--font-sans);
 }
 .equipment-figure figcaption {
   font-size: 9px;
@@ -377,7 +364,7 @@
 }
 .strip-label:last-child {
   margin-top: 8px;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0;
 }

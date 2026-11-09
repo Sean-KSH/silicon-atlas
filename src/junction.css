@@ -106,7 +106,7 @@
 }
 .pn-control b {
   display: block;
-  font: 21px monospace;
+  font: 21px var(--font-mono);
   margin: 12px 0;
 }
 .pn-control input {
@@ -138,7 +138,7 @@
   align-items: center;
 }
 .pn-heading > span {
-  font: 9px monospace;
+  font: 9px var(--font-mono);
   color: #a9c3d2;
   letter-spacing: 1px;
 }
@@ -148,7 +148,7 @@
 }
 .pn-main > section > svg text {
   fill: #c7d9e1;
-  font: 14px system-ui;
+  font: 14px var(--font-sans);
 }
 .pn-metrics {
   display: grid;
@@ -168,7 +168,7 @@
 }
 .pn-metrics b {
   display: block;
-  font: 20px monospace;
+  font: 20px var(--font-mono);
   color: #cce6dd;
   margin-top: 10px;
 }
@@ -226,7 +226,7 @@
   padding: 22px;
   margin: 20px 0;
   background: #0e1d26;
-  font: 13px/2 monospace;
+  font: 13px/2 var(--font-mono);
   color: #c3dfd6;
   overflow-x: auto;
 }
@@ -242,7 +242,7 @@
 .pn-lab footer {
   display: flex;
   justify-content: space-between;
-  font: 10px monospace;
+  font: 10px var(--font-mono);
   color: #8faab8;
   padding: 20px 0;
 }

@@ -110,9 +110,7 @@
 .eq-controls label > strong,
 .eq-doping > strong {
   display: block;
-  font:
-    24px ui-monospace,
-    monospace;
+  font: 24px var(--font-mono);
   color: #bce6d7;
   margin: 12px 0;
 }
@@ -196,9 +194,7 @@
   margin-top: 7px;
 }
 .eq-badge {
-  font:
-    9px ui-monospace,
-    monospace;
+  font: 9px var(--font-mono);
   border: 1px solid #496475;
   border-radius: 3px;
   padding: 8px;
@@ -219,9 +215,7 @@
   height: auto;
 }
 .eq-energy-scroll svg text {
-  font:
-    10px system-ui,
-    sans-serif;
+  font: 10px var(--font-sans);
   fill: #b6cdd7;
 }
 .eq-energy-scroll svg .eq-svg-title {
@@ -260,9 +254,7 @@
   font-size: 11px;
 }
 .eq-levels strong {
-  font:
-    12px ui-monospace,
-    monospace;
+  font: 12px var(--font-mono);
   color: #c9dce3;
   white-space: nowrap;
 }
@@ -287,9 +279,7 @@
   color: #a2bbc8;
 }
 .eq-metrics strong {
-  font:
-    23px ui-monospace,
-    monospace;
+  font: 23px var(--font-mono);
   color: #c0e9da;
 }
 .eq-metrics small {
@@ -309,9 +299,7 @@
   color: #c1d7df;
 }
 .eq-ion-grid strong {
-  font:
-    22px ui-monospace,
-    monospace;
+  font: 22px var(--font-mono);
 }
 .eq-ion-grid small {
   font-size: 11px;
@@ -335,9 +323,7 @@
   border-top: 1px solid #365360;
   margin-top: 23px;
   padding-top: 20px;
-  font:
-    10px ui-monospace,
-    monospace;
+  font: 10px var(--font-mono);
   color: #a8bdc8;
 }
 .eq-explain {
@@ -386,9 +372,7 @@
 .eq-formula {
   background: #0d1b24;
   padding: 18px;
-  font:
-    13px/2 ui-monospace,
-    monospace;
+  font: 13px/2 var(--font-mono);
   overflow-x: auto;
   color: #c0dce6;
 }

@@ -2,7 +2,7 @@
   background: #0d151c;
   color: #dce7ed;
   min-height: 100vh;
-  font-family: Inter, Arial, sans-serif;
+  font-family: var(--font-sans);
 }
 .fab-lab * {
   box-sizing: border-box;
@@ -27,7 +27,7 @@
   padding: 62px 0 35px;
 }
 .fab-lab .eyebrow {
-  font: 10px monospace;
+  font: 10px var(--font-mono);
   letter-spacing: 2px;
   color: #9eb4c0;
 }
@@ -54,7 +54,7 @@
   color: #dfbd82;
 }
 .fab-hero-badge small {
-  font: 10px/1.9 monospace;
+  font: 10px/1.9 var(--font-mono);
   letter-spacing: 1px;
   color: #b8c6cf;
 }
@@ -116,7 +116,7 @@
 }
 .fab-timeline button span {
   display: block;
-  font: 11px monospace;
+  font: 11px var(--font-mono);
   color: #718d9c;
   margin-bottom: 5px;
 }
@@ -227,7 +227,7 @@
 }
 .fab-control b {
   display: block;
-  font: 14px monospace;
+  font: 14px var(--font-mono);
   color: #e0e9ef;
   margin: 10px 0;
 }
@@ -251,7 +251,7 @@
   color: #a5bdc8;
 }
 .fab-chip {
-  font: 11px monospace;
+  font: 11px var(--font-mono);
   border: 1px solid #49616f;
   padding: 8px;
   color: #b4cad4;
@@ -315,7 +315,7 @@
 }
 .fab-metrics b {
   display: block;
-  font: 20px monospace;
+  font: 20px var(--font-mono);
   color: #dce9e6;
   margin-top: 12px;
 }
@@ -359,7 +359,7 @@
   font: 14px inherit;
 }
 .fab-equation {
-  font-family: monospace;
+  font-family: var(--font-mono);
   padding: 20px;
   background: #0c1922;
   color: #bfe1d9 !important;
@@ -372,7 +372,7 @@
   display: flex;
   justify-content: space-between;
   padding: 30px 0 45px;
-  font: 10px monospace;
+  font: 10px var(--font-mono);
   color: #829caa;
   gap: 20px;
 }
@@ -499,7 +499,7 @@
   border-radius: 0 0 7px 7px;
 }
 .fab-instruction span {
-  font: 10px monospace;
+  font: 10px var(--font-mono);
   letter-spacing: 1.6px;
   color: #e9cb8d;
 }

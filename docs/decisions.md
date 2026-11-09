@@ -56,3 +56,20 @@ visual change.
 ### D-008 Module order and URLs (accepted, 2026-11-08)
 Navigation follows the ten-module plan in `context.md`, defined once in `src/modules.ts`. URL
 hashes are unchanged so existing links still work.
+
+### D-009 Shared app frame and learning guide (accepted, 2026-11-09)
+Each module previously carried its own brand header and the only navigation was a strip of ten
+links. Now every page shares one app bar (modules menu grouped by course stage, previous/next,
+and "On this page" shortcuts that track scrolling), each module opens with goals, reading and
+prerequisites and closes with self-check questions, and the default page is a course guide.
+Lesson text lives in `src/lessons.ts`, separate from every physics kernel; nothing in it feeds a
+calculation. Module content was not restructured: the frame hides each module's duplicated brand
+and moves its reset button into the hero. Self-check questions were chosen so they do not repeat
+the guided-experiment prompt already inside each module.
+
+### D-010 Typography served with the app (accepted, 2026-11-09)
+Modules mixed DM Sans (loaded from Google Fonts but overridden), Inter (never loaded, so the
+system font was used) and several monospace stacks. All text now uses IBM Plex Sans and IBM Plex
+Mono through two CSS variables, bundled with the app (SIL Open Font License 1.1), so the site makes
+no outside requests and looks the same on campus networks and offline.
+

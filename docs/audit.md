@@ -72,11 +72,11 @@ Open, needing a decision or research (recorded in `docs/decisions.md` as pending
 | Code style | Every file was written as a handful of very long lines | Formatted with Prettier; `pnpm format:check` available. |
 | Navigation | Order did not match the ten-module plan (junction was 02) | Registry in `src/modules.ts`, course order, stable URLs. |
 | Bundle | One 990 kB script | Code-split per module; about 230 kB plus the module in view. |
-| Shared UI components | None; each module has its own sliders, plot frames and CSS (`junction.css` is reused by four modules) | Extract shared slider, plot, equation and assumption-panel components before polishing visuals. |
+| Shared UI components | Shared app frame, course guide and lesson intro/outro added 2026-11-09 (D-009). Inside modules, sliders, plot frames and CSS are still per module (`junction.css` is reused by four) | Extract shared slider, plot, equation and assumption-panel components. |
 | Directory structure | Flat `src/` | `context.md` suggests `src/physics`, `src/components`, `src/lessons`, `tests/`; worth doing together with the shared-component work. |
 | Cross-module data | Fabrication JSON feeds the MOS module; otherwise none | Versioned configuration format for junction and bench inputs; shareable URL state for presets. |
 | CI | None | Add a workflow that runs `pnpm format:check`, `pnpm test`, `pnpm build`. |
-| External requests | Google Fonts | Works offline via fallbacks; consider self-hosting fonts for classroom networks. |
+| External requests | None since fonts are bundled (D-010) | |
 
 ## Missing deliverables from `context.md`
 

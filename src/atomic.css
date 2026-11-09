@@ -88,9 +88,7 @@
   scroll-margin-top: 20px;
 }
 .al-section-title > span {
-  font:
-    11px ui-monospace,
-    monospace;
+  font: 11px var(--font-mono);
   color: #8eb6ab;
   letter-spacing: 2px;
 }
@@ -150,9 +148,7 @@
 .al-slider b {
   white-space: nowrap;
   color: #bbdbce;
-  font:
-    13px ui-monospace,
-    monospace;
+  font: 13px var(--font-mono);
 }
 .al-slider input {
   display: block;
@@ -211,9 +207,7 @@
   font-size: 13px;
 }
 .al-plothead > span {
-  font:
-    9px ui-monospace,
-    monospace;
+  font: 9px var(--font-mono);
   letter-spacing: 1px;
   color: #97b0bf;
 }
@@ -233,9 +227,7 @@
 }
 .atomic-lab svg text {
   fill: #b8ccd8;
-  font:
-    12px system-ui,
-    sans-serif;
+  font: 12px var(--font-sans);
 }
 .al-draghint {
   text-align: center;
@@ -309,9 +301,7 @@
   color: #b0c4d2;
 }
 .al-readout strong {
-  font:
-    28px ui-monospace,
-    monospace;
+  font: 28px var(--font-mono);
   color: #b8e4d4;
 }
 .al-readout small {
@@ -372,9 +362,7 @@
   margin-top: 25px;
 }
 .al-formula {
-  font:
-    14px/2 ui-monospace,
-    monospace;
+  font: 14px/2 var(--font-mono);
   color: #c3d9e8;
   background: #0e1923;
   padding: 20px;

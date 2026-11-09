@@ -8,3 +8,8 @@ Runtime dependencies bundled into the built site, from `pnpm licenses list --pro
 | ISC | d3-array 3.2.4, d3-color 3.1.0, d3-format 3.1.2, d3-interpolate 3.0.1, d3-path 3.1.0, d3-scale 4.0.2, d3-shape 3.2.0, d3-time 3.1.0, d3-time-format 4.1.0, d3-timer 3.0.1, internmap 2.0.3 |
 | BSD-3-Clause | d3-ease 3.0.1 |
 | MIT AND ISC AND BSD-3-Clause | victory-vendor 37.4.1 |
+
+Fonts bundled into the build (added 2026-11-09): IBM Plex Sans and IBM Plex Mono via
+`@fontsource/ibm-plex-sans` and `@fontsource/ibm-plex-mono` 5.1.1. The font files are under the
+SIL Open Font License 1.1; the Fontsource packaging is MIT.
+

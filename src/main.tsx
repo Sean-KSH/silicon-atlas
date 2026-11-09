@@ -1,8 +1,16 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { MODULES, moduleFromHash } from './modules';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-sans/400-italic.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import { HOME, moduleFromHash, moduleById } from './modules';
+import { AppBar, LessonIntro, LessonOutro, useScrollReset } from './Shell';
 // Stylesheets are loaded eagerly, in the same order as before code splitting, so a module's
-// appearance never depends on which other modules were visited first.
+// appearance never depends on which other modules were visited first. shell.css comes last:
+// it holds the shared tokens and the frame around every module.
 import './junction.css';
 import './bench.css';
 import './photonics.css';
@@ -15,8 +23,10 @@ import './atomic.css';
 import './growth.css';
 import './product.css';
 import './style.css';
+import './shell.css';
 
-// Each module is a separate chunk, so the first page load only downloads the module in view.
+const Home = lazy(() => import('./Home'));
+// Each module is a separate chunk, so the first page load only downloads the page in view.
 const views: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   wafer: lazy(() => import('./Wafer')),
   atomic: lazy(() => import('./AtomicLab')),
@@ -30,45 +40,63 @@ const views: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   bench: lazy(() => import('./BenchLab')),
 };
 
-function Modules() {
-  const [module, setModule] = useState(() => moduleFromHash(location.hash));
+function App() {
+  const [current, setCurrent] = useState(() => moduleFromHash(location.hash));
+  const frame = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const update = () => setModule(moduleFromHash(location.hash));
+    const update = () => setCurrent(moduleFromHash(location.hash));
     window.addEventListener('hashchange', update);
     return () => window.removeEventListener('hashchange', update);
   }, []);
-  // Keep the current module visible in the phone-width scrolling navigation.
+  useScrollReset(current);
   useEffect(() => {
-    document
-      .querySelector('.module-nav a[aria-current]')
-      ?.scrollIntoView({ block: 'nearest', inline: 'center' });
-  }, [module]);
-  const View = views[module];
+    const m = moduleById(current);
+    document.title = m
+      ? `${m.number} ${m.label} · Silicon Atlas`
+      : 'Silicon Atlas · Semiconductor device labs';
+  }, [current]);
+  const View = views[current];
   return (
     <>
-      <nav className="module-nav" aria-label="Modules">
-        {MODULES.map((m) => (
-          <a
-            key={m.id}
-            href={`#${m.id}`}
-            title={m.summary}
-            aria-current={module === m.id ? 'page' : undefined}
-          >
-            {m.number} / {m.label}
-          </a>
-        ))}
-      </nav>
-      <Suspense
-        fallback={
-          <p className="module-loading" role="status">
-            Loading module…
-          </p>
-        }
+      <a
+        className="skip-link"
+        href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          frame.current?.focus();
+        }}
       >
-        <View />
-      </Suspense>
+        Skip to content
+      </a>
+      <AppBar current={current} frame={frame} />
+      <div
+        id="main"
+        ref={frame as React.RefObject<HTMLDivElement>}
+        tabIndex={-1}
+        className={current === HOME ? 'home-frame' : 'module-frame'}
+      >
+        <Suspense
+          fallback={
+            <p className="module-loading" role="status">
+              Loading…
+            </p>
+          }
+        >
+          {current === HOME ? (
+            <Home />
+          ) : (
+            <>
+              <LessonIntro key={`in-${current}`} id={current} />
+              <div className="module-body" data-module={current}>
+                <View />
+              </div>
+              <LessonOutro key={`out-${current}`} id={current} />
+            </>
+          )}
+        </Suspense>
+      </div>
     </>
   );
 }
 
-createRoot(document.getElementById('root')!).render(<Modules />);
+createRoot(document.getElementById('root')!).render(<App />);

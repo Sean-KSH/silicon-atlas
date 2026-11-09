@@ -38,7 +38,11 @@ pnpm install
 pnpm dev          # http://127.0.0.1:5173
 ```
 
-Each module has its own URL hash, for example `http://127.0.0.1:5173/#junction`.
+The app opens on a course guide: a map of the ten modules, two suggested course paths, how a
+lab works and ten-minute demonstrations for instructors. Each module has its own URL hash, for
+example `http://127.0.0.1:5173/#junction`, and is framed by the same app bar (modules menu,
+previous/next, and "On this page" shortcuts), a lesson intro (goals, reading, prerequisites) and
+self-check questions with hidden answers.
 
 | Command | What it does |
 | --- | --- |
@@ -56,8 +60,12 @@ configured yet.
 ```
 src/
   materials.ts        shared constants and Si/GaAs/SiO2 reference parameters
-  modules.ts          the ten-module registry (order, URL, summary)
-  main.tsx            navigation shell; loads each module on demand
+  modules.ts          the ten-module registry (order, URL, stage, summary)
+  lessons.ts          learning-guide text: goals, reading, section shortcuts, demos, questions
+  main.tsx            app entry; loads each module on demand
+  Shell.tsx           app bar, modules menu, section shortcuts, lesson intro and outro
+  Home.tsx            course guide and course map
+  shell.css           shared design tokens and the frame around every module
   <model>.ts          physics kernels, independent of React (SI units internally)
   <model>.test.ts     validation tests for each kernel
   <Module>Lab.tsx     module interfaces (Wafer.tsx for module 01)

@@ -1,0 +1,699 @@
+/*
+ * Shared frame: design tokens, the app bar, the lesson guide around each module and global
+ * accessibility rules. Loaded after every module stylesheet.
+ *
+ * Colour roles: electron (cool) marks the current location and interactive emphasis; hole
+ * (warm) is used only where something is a caution or a contrasting second series. Stage
+ * colours appear only as small markers in navigation and on the course map.
+ */
+:root {
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --page: #0b1118;
+  --surface: #101922;
+  --raised: #15212c;
+  --rule: #223140;
+  --rule-strong: #30445a;
+  --text: #e4ebf1;
+  --muted: #9aacbb;
+  --faint: #71879a;
+  --electron: #6fcbdc;
+  --electron-dim: #1d3c47;
+  --hole: #e8a47e;
+
+  --stage-material: #cdb88c;
+  --stage-carriers: #6fcbdc;
+  --stage-process: #a9b8cc;
+  --stage-devices: #8ed3b4;
+  --stage-light: #e7c76c;
+  --stage-measure: #c4a3dc;
+
+  --bar-h: 52px;
+  --sections-h: 40px;
+  --frame-max: 1476px;
+  --gutter: clamp(16px, 3vw, 32px);
+
+  font-family: var(--font-sans);
+  background: var(--page);
+  color: var(--text);
+}
+body {
+  background: var(--page);
+  font-family: var(--font-sans);
+}
+.stage-material {
+  --stage: var(--stage-material);
+}
+.stage-carriers {
+  --stage: var(--stage-carriers);
+}
+.stage-process {
+  --stage: var(--stage-process);
+}
+.stage-devices {
+  --stage: var(--stage-devices);
+}
+.stage-light {
+  --stage: var(--stage-light);
+}
+.stage-measure {
+  --stage: var(--stage-measure);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.skip-link {
+  position: absolute;
+  left: 12px;
+  top: -60px;
+  z-index: 100;
+  padding: 10px 14px;
+  background: var(--electron);
+  color: #06151a;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 10px;
+}
+#main:focus {
+  outline: none;
+}
+
+/* Consistent keyboard focus everywhere, including inside modules. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--electron);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Section shortcuts land below the sticky bar. */
+.module-frame h2,
+.module-frame summary,
+.module-frame .process-nav {
+  scroll-margin-top: calc(var(--bar-h) + var(--sections-h) + 16px);
+}
+
+/* ---------- App bar ---------- */
+header.shell-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: block;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  background: rgba(11, 17, 24, 0.94);
+  border-bottom: 1px solid var(--rule);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.shell-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: var(--bar-h);
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+.shell-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  flex: none;
+}
+.shell-mark {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  font: 500 13px/1 var(--font-mono);
+  color: var(--electron);
+  background: linear-gradient(180deg, #12222c, #0d171f);
+}
+.shell-name {
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.1px;
+}
+button.shell-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  font: 500 13px var(--font-sans);
+  color: var(--text);
+  background: var(--raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+}
+button.shell-menu-button[aria-expanded='true'],
+button.shell-menu-button:hover {
+  border-color: var(--electron);
+  background: #15262f;
+}
+p.shell-current {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+  margin: 0 0 0 6px;
+  padding-left: 16px;
+  border-left: 1px solid var(--rule);
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--text);
+}
+.shell-current-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.shell-current-home {
+  color: var(--muted);
+  font-weight: 500;
+}
+.shell-num {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.86em;
+  color: var(--electron);
+  letter-spacing: 0;
+}
+.shell-step {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+  flex: none;
+}
+.shell-step a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 13px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.shell-step a:hover {
+  color: var(--text);
+  border-color: var(--rule-strong);
+  background: var(--raised);
+}
+.shell-step a span[aria-hidden] {
+  font-size: 17px;
+  line-height: 1;
+  color: var(--electron);
+}
+
+/* On this page */
+.shell-sections {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--sections-h);
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-top: 1px solid rgba(34, 49, 64, 0.6);
+}
+.shell-sections::-webkit-scrollbar {
+  display: none;
+}
+.shell-sections button {
+  flex: none;
+  height: 28px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted);
+  font: 400 13px var(--font-sans);
+  white-space: nowrap;
+  position: relative;
+}
+.shell-sections button:hover {
+  color: var(--text);
+  background: var(--raised);
+}
+.shell-sections button[aria-current] {
+  color: var(--text);
+  font-weight: 500;
+}
+.shell-sections button[aria-current]::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--electron);
+}
+.shell-sections .shell-sections-top {
+  color: var(--faint);
+}
+
+/* Modules menu */
+.shell-menu {
+  position: absolute;
+  top: calc(var(--bar-h) - 4px);
+  left: max(var(--gutter), calc((100vw - var(--frame-max)) / 2 - var(--gutter) + 140px));
+  width: min(920px, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100vh - var(--bar-h) - 16px);
+  overflow-y: auto;
+  padding: 18px;
+  background: #0f1820;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+a.shell-menu-home {
+  display: block;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+  border: 1px solid var(--rule);
+}
+a.shell-menu-home:hover,
+a.shell-menu-home[aria-current] {
+  border-color: var(--electron);
+}
+.shell-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px 18px;
+}
+.shell-menu-stage h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--muted);
+}
+.shell-menu-stage h2::before {
+  content: '';
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--stage);
+}
+.shell-menu-stage a {
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  gap: 4px;
+  padding: 8px;
+  margin: 0 -8px;
+  border-radius: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+.shell-menu-stage a:hover {
+  background: var(--raised);
+}
+.shell-menu-stage a[aria-current] {
+  background: var(--electron-dim);
+}
+.shell-menu-stage strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+.shell-menu-summary {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* ---------- Module frame ---------- */
+.module-frame {
+  background: var(--page);
+}
+/* The app bar now carries the brand, so each module's own header keeps only its reset button. */
+#main .module-body > div > header {
+  height: auto;
+  min-height: 0;
+  padding: 0 var(--gutter);
+  margin: 0 auto;
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  background: transparent;
+  border: 0;
+  justify-content: flex-end;
+  position: relative;
+  z-index: 2;
+}
+#main .module-body > div > header .brand,
+#main .module-body > div > header .course {
+  display: none;
+}
+#main .module-body > div > header > button {
+  margin-top: 18px;
+}
+
+/* Lesson intro */
+.guide-intro {
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 26px var(--gutter) 22px;
+  border-bottom: 1px solid var(--rule);
+}
+.guide-intro-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.guide-intro h2 {
+  margin: 0;
+  max-width: 62ch;
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  color: var(--text);
+}
+.guide-intro-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.guide-intro-kicker::before {
+  content: '';
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--stage);
+}
+button.guide-toggle {
+  flex: none;
+  padding: 6px 10px;
+  font-size: 13px;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: transparent;
+}
+button.guide-toggle:hover {
+  color: var(--text);
+  border-color: var(--rule-strong);
+}
+.guide-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 36px;
+  margin: 16px 0 0;
+}
+.guide-facts div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.guide-facts dt {
+  font-size: 13px;
+  color: var(--faint);
+}
+.guide-facts dd {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 14px;
+  color: var(--text);
+}
+a.guide-module-link {
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-strong);
+}
+a.guide-module-link:hover {
+  border-bottom-color: var(--electron);
+}
+.guide-goals {
+  margin-top: 18px;
+}
+.guide-goals h3 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.guide-goals ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.guide-goals li {
+  padding-top: 10px;
+  border-top: 2px solid var(--rule-strong);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: #d5dee6;
+  max-width: 52ch;
+}
+
+/* Lesson outro */
+.guide-outro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 32px;
+  max-width: calc(var(--frame-max) + 2 * var(--gutter));
+  margin: 0 auto;
+  padding: 36px var(--gutter) 64px;
+  border-top: 1px solid var(--rule);
+}
+.guide-check h2 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+p.guide-note {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.guide-check ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: q;
+}
+.guide-check li {
+  counter-increment: q;
+  position: relative;
+  padding: 14px 0 14px 34px;
+  border-top: 1px solid var(--rule);
+}
+.guide-check li::before {
+  content: counter(q);
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--rule-strong);
+  font: 500 12px var(--font-mono);
+  color: var(--muted);
+}
+.guide-check li > p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+.guide-check details {
+  margin-top: 8px;
+}
+.guide-check summary {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--electron);
+  cursor: pointer;
+  list-style: none;
+}
+.guide-check summary::-webkit-details-marker {
+  display: none;
+}
+.guide-check summary::before {
+  content: '+ ';
+}
+.guide-check details[open] summary::before {
+  content: '− ';
+}
+.guide-check details p {
+  margin: 8px 0 0;
+  padding: 10px 14px;
+  border-left: 2px solid var(--electron);
+  background: var(--surface);
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 70ch;
+  color: #d5dee6;
+}
+.guide-next {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: start;
+}
+a.guide-next-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 20px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  text-decoration: none;
+}
+a.guide-next-card:hover {
+  border-color: var(--electron);
+}
+.guide-next-card strong {
+  font-size: 18px;
+  font-weight: 600;
+}
+.guide-next-card > span:last-child {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.guide-next-label {
+  font-size: 13px;
+  color: var(--electron);
+}
+a.guide-prev-link {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+}
+a.guide-prev-link:hover {
+  color: var(--text);
+}
+
+.module-loading {
+  margin: 4rem auto;
+  max-width: 40rem;
+  padding: 0 16px;
+  color: var(--muted);
+  font: 500 0.95rem/1.5 var(--font-sans);
+}
+
+/* ---------- Narrow screens ---------- */
+@media (max-width: 1100px) {
+  .shell-step-label {
+    display: none;
+  }
+  .shell-menu-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  :root {
+    --bar-h: 50px;
+  }
+  .shell-row {
+    gap: 10px;
+  }
+  .shell-name {
+    display: none;
+  }
+  p.shell-current {
+    margin-left: 0;
+    padding-left: 10px;
+    font-size: 14px;
+  }
+  .shell-step a {
+    padding: 0 10px;
+  }
+  .shell-menu {
+    left: var(--gutter);
+    right: var(--gutter);
+    width: auto;
+  }
+  .shell-menu-grid {
+    grid-template-columns: 1fr;
+  }
+  .guide-intro-head {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .guide-intro h2 {
+    font-size: 17px;
+  }
+  .guide-goals ul {
+    grid-template-columns: 1fr;
+  }
+  .guide-outro {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Module hero: the app bar now names the module, so the hero title can be smaller and the
+   reset button moves up beside it instead of taking its own row. */
+.module-body {
+  position: relative;
+}
+#main .module-body > div > header {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: auto;
+  padding: 0 var(--gutter);
+  max-width: none;
+}
+#main .module-body h1 {
+  font-size: clamp(30px, 3.3vw, 44px);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}

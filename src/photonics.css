@@ -62,7 +62,7 @@
   display: block;
 }
 .op-budget b {
-  font: 12px monospace;
+  font: 12px var(--font-mono);
   text-align: right;
 }
 .op-turnon {

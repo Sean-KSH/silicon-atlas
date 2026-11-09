@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 :root {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   color: #e1e8f0;
   background: #0b1018;
   font-synthesis: none;
@@ -72,7 +71,7 @@ main {
   margin-bottom: 34px;
 }
 h1 {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-sans);
   font-size: 44px;
   line-height: 1.15;
   font-weight: 600;
@@ -185,9 +184,7 @@ input[type='range'] {
   margin-top: 12px;
 }
 .junction text {
-  font:
-    14px 'DM Sans',
-    sans-serif;
+  font: 14px var(--font-sans);
   fill: #c3d2e4;
 }
 .caption {
@@ -313,7 +310,7 @@ summary {
   font-weight: 500;
 }
 .formula {
-  font-family: monospace;
+  font-family: var(--font-mono);
   background: #0c1522;
   padding: 14px;
   line-height: 1.8;
@@ -561,12 +558,7 @@ summary::marker {
 
 /* Compact research-workbench layout */
 :root {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
   background: #0c0f14;
   color: #dfe4ec;
 }
@@ -686,7 +678,7 @@ h1 {
   gap: 9px;
 }
 .modelbar b {
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-mono);
   color: #d6dfea;
   font-weight: 400;
 }
@@ -738,7 +730,7 @@ label {
   color: #a8b5c5;
 }
 label strong {
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-mono);
   font-size: 21px;
   font-weight: 400;
   color: #e2e9f1;
@@ -780,12 +772,7 @@ input[type='range'] {
   margin-top: 0;
 }
 .junction text {
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: var(--font-sans);
 }
 .caption {
   font-size: 10px;
@@ -811,16 +798,13 @@ input[type='range'] {
   color: #91a1b6;
 }
 .metrics strong {
-  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-family: var(--font-mono);
   font-size: 23px;
   font-weight: 400;
   margin-top: 10px;
 }
 .metrics small {
-  font:
-    11px Inter,
-    -apple-system,
-    sans-serif;
+  font: 11px var(--font-sans);
   color: #8fa1b7;
 }
 .resultheading {
@@ -1006,21 +990,6 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 }
-.module-nav {
-  display: flex;
-  gap: 24px;
-  padding: 10px 32px;
-  background: #090d12;
-  border-bottom: 1px solid #283341;
-}
-.module-nav a {
-  color: #93a7bd;
-  text-decoration: none;
-  font-size: 11px;
-}
-.module-nav a[aria-current] {
-  color: #c4e2ff;
-}
 .process-nav {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -1075,7 +1044,7 @@ textarea:focus-visible {
 }
 .process-section text {
   fill: #cad8e8;
-  font: 14px sans-serif;
+  font: 14px var(--font-sans);
 }
 .change-tag {
   color: #9fcbbf;
@@ -1120,56 +1089,7 @@ button:disabled {
   .process-panel {
     gap: 16px;
   }
-  .module-nav {
-    padding: 10px 16px;
-  }
   .wafer-chart {
     height: 340px;
-  }
-}
-
-.module-loading {
-  margin: 4rem auto;
-  max-width: 40rem;
-  padding: 0 16px;
-  color: #9fb0bd;
-  font:
-    500 0.95rem/1.5 system-ui,
-    sans-serif;
-}
-
-/* Module navigation: the current module is marked by weight and an underline, not colour alone. */
-.module-nav a {
-  padding: 2px 0;
-  border-bottom: 1px solid transparent;
-  white-space: nowrap;
-}
-.module-nav a[aria-current] {
-  font-weight: 600;
-  border-bottom-color: currentColor;
-}
-.module-nav a:hover {
-  color: #c4e2ff;
-}
-.module-nav a:focus-visible {
-  outline: 2px solid #8cc8ff;
-  outline-offset: 3px;
-  border-radius: 2px;
-}
-/* Phones: one scrollable row instead of four wrapped rows above every module. */
-@media (max-width: 720px) {
-  .module-nav {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 18px;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-  .module-nav::-webkit-scrollbar {
-    display: none;
-  }
-  .module-nav a {
-    font-size: 12px;
-    padding: 6px 0;
   }
 }

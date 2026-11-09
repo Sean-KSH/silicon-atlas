@@ -58,9 +58,7 @@
   line-height: 1.5;
 }
 .growth-status {
-  font:
-    10px ui-monospace,
-    monospace;
+  font: 10px var(--font-mono);
   color: #c3d8c1;
 }
 .growth-drawing {
@@ -104,9 +102,7 @@
 }
 .playback > span {
   margin-left: auto;
-  font:
-    11px ui-monospace,
-    monospace;
+  font: 11px var(--font-mono);
   color: #b6cbb9;
 }
 .playback button {
