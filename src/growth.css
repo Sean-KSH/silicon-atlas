@@ -3,7 +3,7 @@
 }
 .growth-intro {
   font-size: 13px;
-  color: #9bafbd;
+  color: var(--c-9bafbd);
   max-width: 920px;
   line-height: 1.8;
 }
@@ -23,18 +23,18 @@
 }
 .growth-detail {
   display: block;
-  font-size: 10px;
-  color: #8ea6b8;
+  font-size: 12px;
+  color: var(--c-8ea6b8);
   margin-top: 9px;
 }
 .growth-fixed {
   display: grid;
   gap: 12px;
   padding: 15px 0;
-  border-top: 1px solid #35414c;
-  border-bottom: 1px solid #35414c;
-  font-size: 10px;
-  color: #9eb1c1;
+  border-top: 1px solid var(--c-35414c);
+  border-bottom: 1px solid var(--c-35414c);
+  font-size: 12px;
+  color: var(--c-9eb1c1);
 }
 .growth-fixed > span {
   display: flex;
@@ -42,29 +42,29 @@
   gap: 12px;
 }
 .growth-fixed b {
-  color: #d0dedf;
+  color: var(--c-d0dedf);
   font-weight: 500;
 }
 .growth-fixed small {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
-  color: #95a49e;
+  color: var(--c-95a49e);
 }
 .growth-grid .presets {
   gap: 7px;
 }
 .growth-grid .presets button {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.5;
 }
 .growth-status {
-  font: 10px var(--font-mono);
-  color: #c3d8c1;
+  font: 12px var(--font-mono);
+  color: var(--c-c3d8c1);
 }
 .growth-drawing {
   margin-top: 22px;
-  background: radial-gradient(ellipse at 45% 60%, #233646, #101a25 70%);
-  border: 1px solid #344754;
+  background: radial-gradient(ellipse at 45% 60%, var(--c-233646), var(--c-101a25) 70%);
+  border: 1px solid var(--c-344754);
   border-radius: 4px;
 }
 .growth-drawing svg {
@@ -74,7 +74,7 @@
 }
 .growth-stage .caption {
   margin-top: 10px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .playback {
   display: flex;
@@ -90,30 +90,30 @@
   border: 0 !important;
   padding: 0 !important;
   margin: 0 !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
 }
 .playback select {
-  background: #1d2a35;
-  border: 1px solid #425262;
+  background: var(--c-1d2a35);
+  border: 1px solid var(--c-425262);
   border-radius: 4px;
   padding: 7px;
-  color: #cedbe3;
-  font: 10px inherit;
+  color: var(--c-cedbe3);
+  font: 12px inherit;
 }
 .playback > span {
   margin-left: auto;
-  font: 11px var(--font-mono);
-  color: #b6cbb9;
+  font: 12px var(--font-mono);
+  color: var(--c-b6cbb9);
 }
 .playback button {
-  font-size: 11px;
+  font-size: 12px;
 }
 .growth-stage .time-scrub {
   border: 0;
   padding: 0;
   margin: 14px 0;
-  color: #90a7ba;
-  font-size: 10px;
+  color: var(--c-90a7ba);
+  font-size: 12px;
 }
 .growth-stage .time-scrub input {
   display: block;
@@ -129,12 +129,12 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  font-size: 10px;
-  color: #a2b6c6;
+  font-size: 12px;
+  color: var(--c-a2b6c6);
 }
 .heat-budget b {
   font-weight: 400;
-  color: #c1cfda;
+  color: var(--c-c1cfda);
 }
 .heat-track {
   height: 9px;
@@ -144,14 +144,14 @@
   margin: 10px 0;
 }
 .heat-track > span:first-child {
-  background: #80b4a8;
+  background: var(--c-80b4a8);
 }
 .heat-track > span:last-child {
-  background: #c69b66;
+  background: var(--c-c69b66);
 }
 .heat-budget small {
-  font-size: 9px;
-  color: #9eb1c2;
+  font-size: 12px;
+  color: var(--c-9eb1c2);
   line-height: 1.7;
 }
 .growth-equations {
@@ -160,19 +160,19 @@
 }
 .growth-equations p {
   font-size: 12px;
-  color: #aabac6;
+  color: var(--c-aabac6);
   line-height: 1.85;
 }
 .growth-equations a {
-  color: #a2cbea;
+  color: var(--c-a2cbea);
 }
 .growth-equations .formula {
   margin-top: 17px;
 }
 .growth-grid .note {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.8;
-  color: #8fa5b7;
+  color: var(--c-8fa5b7);
 }
 .growth-stage > .note {
   margin-bottom: 0;
@@ -207,7 +207,7 @@
     gap: 10px;
   }
   .growth-status {
-    font-size: 10px;
+    font-size: 12px;
   }
   .playback > span {
     margin-left: 0;
@@ -218,8 +218,8 @@
   white-space: nowrap;
 }
 .growth-jump:hover {
-  background: #2a3b30 !important;
-  color: #e0eed7 !important;
+  background: var(--c-2a3b30) !important;
+  color: var(--c-e0eed7) !important;
 }
 .growth-lab {
   scroll-margin-top: 22px;
@@ -236,14 +236,14 @@
 }
 .crystal-drag:hover .crystal-hit,
 .crystal-drag:focus-visible .crystal-hit {
-  stroke: #a7e0ce;
+  stroke: var(--c-a7e0ce);
   stroke-width: 1.5;
   stroke-dasharray: 5 4;
-  fill: #8bd6bc0c;
+  fill: var(--c-8bd6bc0c);
 }
 .wafer-drag:focus-visible > rect,
 .wafer-drag:hover > rect {
-  stroke: #a7e0ce;
+  stroke: var(--c-a7e0ce);
   stroke-dasharray: 5 4;
 }
 .drag-instruction {
@@ -252,25 +252,25 @@
   gap: 12px;
   padding: 13px 15px;
   margin-top: 12px;
-  background: #18302e;
-  border: 1px solid #35554e;
+  background: var(--c-18302e);
+  border: 1px solid var(--c-35554e);
   border-radius: 5px;
 }
 .drag-icon {
   font-size: 26px;
-  color: #b4ddcb;
+  color: var(--c-b4ddcb);
 }
 .drag-instruction b,
 .wafer-interaction b {
   display: block;
   font-size: 12px;
-  color: #cbe8db;
+  color: var(--c-cbe8db);
 }
 .drag-instruction span:not(.drag-icon) {
   display: block;
   margin-top: 5px;
-  font-size: 11px;
-  color: #a4bdb8;
+  font-size: 12px;
+  color: var(--c-a4bdb8);
   line-height: 1.6;
 }
 .wafer-interaction {
@@ -279,12 +279,12 @@
   justify-content: space-between;
   gap: 15px;
   padding: 15px 20px;
-  background: #18302e;
-  border-top: 1px solid #35554e;
+  background: var(--c-18302e);
+  border-top: 1px solid var(--c-35554e);
 }
 .wafer-interaction p {
-  font-size: 11px;
-  color: #a4bdb8;
+  font-size: 12px;
+  color: var(--c-a4bdb8);
   margin: 7px 0 0;
   line-height: 1.6;
 }

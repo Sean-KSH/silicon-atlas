@@ -11,6 +11,7 @@ import { AppBar, LessonIntro, LessonOutro, useScrollReset } from './Shell';
 // Stylesheets are loaded eagerly, in the same order as before code splitting, so a module's
 // appearance never depends on which other modules were visited first. shell.css comes last:
 // it holds the shared tokens and the frame around every module.
+import './theme-colors.css';
 import './junction.css';
 import './bench.css';
 import './photonics.css';
@@ -39,6 +40,37 @@ const views: Record<string, React.LazyExoticComponent<React.ComponentType>> = {
   photonics: lazy(() => import('./PhotonicsLab')),
   bench: lazy(() => import('./BenchLab')),
 };
+
+/** Keeps a module failure (for example an impossible value typed into a link) from blanking the app. */
+class ModuleBoundary extends React.Component<
+  { id: string; children: React.ReactNode },
+  { error: Error | null }
+> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <div className="module-error" role="alert">
+        <h2>This setup could not be shown</h2>
+        <p>
+          A setting in the link is outside what this module supports ({this.state.error.message}).
+        </p>
+        <a
+          href={`#${this.props.id}`}
+          onClick={() => {
+            history.replaceState(null, '', `#${this.props.id}`);
+            location.reload();
+          }}
+        >
+          Open the module with its default settings
+        </a>
+      </div>
+    );
+  }
+}
 
 function App() {
   const [current, setCurrent] = useState(() => moduleFromHash(location.hash));
@@ -88,7 +120,9 @@ function App() {
             <>
               <LessonIntro key={`in-${current}`} id={current} />
               <div className="module-body" data-module={current}>
-                <View />
+                <ModuleBoundary key={current} id={current}>
+                  <View />
+                </ModuleBoundary>
               </div>
               <LessonOutro key={`out-${current}`} id={current} />
             </>

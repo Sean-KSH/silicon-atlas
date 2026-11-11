@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -43,12 +44,12 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
       .map((p, i) => `${i ? 'L' : 'M'}${start + (width * p[key]) / max},${y(p.energy)}`)
       .join(' ');
   const levels = [
-    { e: s.ec, name: 'Ec', color: '#8ddfc7' },
-    { e: s.ed, name: 'Ed', color: '#6ab3ef' },
-    { e: s.ef, name: 'EF', color: '#ffffff' },
-    { e: s.ei, name: 'Ei', color: '#c3afdf' },
-    { e: s.ea, name: 'Ea', color: '#edb783' },
-    { e: 0, name: 'Ev', color: '#edb783' },
+    { e: s.ec, name: 'Ec', color: 'var(--c-8ddfc7)' },
+    { e: s.ed, name: 'Ed', color: 'var(--c-6ab3ef)' },
+    { e: s.ef, name: 'EF', color: 'var(--c-ffffff)' },
+    { e: s.ei, name: 'Ei', color: 'var(--c-c3afdf)' },
+    { e: s.ea, name: 'Ea', color: 'var(--c-edb783)' },
+    { e: 0, name: 'Ev', color: 'var(--c-edb783)' },
   ];
   return (
     <>
@@ -60,8 +61,8 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
         >
           <defs>
             <linearGradient id="eq-cb" x2="0" y2="1">
-              <stop stopColor="#5db49c" stopOpacity=".2" />
-              <stop offset="1" stopColor="#5db49c" stopOpacity=".04" />
+              <stop stopColor="var(--c-5db49c)" stopOpacity=".2" />
+              <stop offset="1" stopColor="var(--c-5db49c)" stopOpacity=".04" />
             </linearGradient>
           </defs>
           {[
@@ -85,14 +86,21 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
           </text>
           {[0, s.ec / 2, s.ec].map((e) => (
             <g key={e}>
-              <line x1="45" x2="932" y1={y(e)} y2={y(e)} stroke="#314958" strokeDasharray="3 5" />
+              <line
+                x1="45"
+                x2="932"
+                y1={y(e)}
+                y2={y(e)}
+                stroke="var(--c-314958)"
+                strokeDasharray="3 5"
+              />
               <text x="4" y={y(e) + 4}>
                 {(e / Q).toFixed(3)}
               </text>
             </g>
           ))}
           <rect x="64" y="65" width="145" height={y(s.ec) - 65} fill="url(#eq-cb)" />
-          <rect x="64" y={y(0)} width="145" height={395 - y(0)} fill="#e8af7820" />
+          <rect x="64" y={y(0)} width="145" height={395 - y(0)} fill="var(--c-e8af7820)" />
           {levels.map((l) => (
             <line
               key={l.name}
@@ -121,19 +129,34 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
             Ev = 0 reference
           </text>
           {[260, 480, 700].map((x) => (
-            <line key={x} x1={x} x2={x} y1="65" y2="395" stroke="#697b89" />
+            <line key={x} x1={x} x2={x} y1="65" y2="395" stroke="var(--c-697b89)" />
           ))}
-          <path d={path('gc', 260, 160, maxDOS)} stroke="#8ddfc7" fill="none" strokeWidth="2" />
-          <path d={path('gv', 260, 160, maxDOS)} stroke="#edb783" fill="none" strokeWidth="2" />
+          <path
+            d={path('gc', 260, 160, maxDOS)}
+            stroke="var(--c-8ddfc7)"
+            fill="none"
+            strokeWidth="2"
+          />
+          <path
+            d={path('gv', 260, 160, maxDOS)}
+            stroke="var(--c-edb783)"
+            fill="none"
+            strokeWidth="2"
+          />
           <text x="260" y="416">
             0 → {sci((maxDOS * Q) / 1e6)}
           </text>
           <text x="260" y="436">
             states / (eV·cm³)
           </text>
-          <path d={path('f', 480, 160, 1)} stroke="#8ddfc7" fill="none" strokeWidth="2" />
-          <path d={path('hole', 480, 160, 1)} stroke="#edb783" fill="none" strokeWidth="2" />
-          <line x1="560" x2="560" y1="65" y2="395" stroke="#4b5a66" strokeDasharray="2 4" />
+          <path d={path('f', 480, 160, 1)} stroke="var(--c-8ddfc7)" fill="none" strokeWidth="2" />
+          <path
+            d={path('hole', 480, 160, 1)}
+            stroke="var(--c-edb783)"
+            fill="none"
+            strokeWidth="2"
+          />
+          <line x1="560" x2="560" y1="65" y2="395" stroke="var(--c-4b5a66)" strokeDasharray="2 4" />
           <circle cx="560" cy={y(s.ef)} r="4" fill="white" />
           <text x="480" y="416">
             0
@@ -149,13 +172,13 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
           </text>
           <path
             d={path('electrons', 700, 200, maxN || 1)}
-            stroke="#8ddfc7"
+            stroke="var(--c-8ddfc7)"
             fill="none"
             strokeWidth="2"
           />
           <path
             d={path('holes', 700, 200, maxP || 1)}
-            stroke="#edb783"
+            stroke="var(--c-edb783)"
             fill="none"
             strokeWidth="2"
           />
@@ -178,19 +201,19 @@ function EnergyView({ s }: { s: EquilibriumResult }) {
       </div>
       <div className="eq-key">
         <span>
-          <i style={{ background: '#8ddfc7' }} />
+          <i style={{ background: 'var(--c-8ddfc7)' }} />
           Conduction / electrons
         </span>
         <span>
-          <i style={{ background: '#edb783' }} />
+          <i style={{ background: 'var(--c-edb783)' }} />
           Valence / holes
         </span>
         <span>
-          <i style={{ background: '#fff' }} />
+          <i style={{ background: 'var(--c-ffffff)' }} />
           Fermi level EF
         </span>
         <span>
-          <i style={{ background: '#c3afdf' }} />
+          <i style={{ background: 'var(--c-c3afdf)' }} />
           Intrinsic level Ei
         </span>
       </div>
@@ -239,13 +262,13 @@ const experiments = [
   },
 ];
 export default function EquilibriumLab() {
-  const [material, setMaterial] = useState<EquilibriumInput['material']>('Si'),
-    [temperature, setTemperature] = useState(300),
-    [ld, setLd] = useState(15),
-    [la, setLa] = useState(14),
-    [donorsOn, setDonorsOn] = useState(true),
-    [acceptorsOn, setAcceptorsOn] = useState(false),
-    [statistics, setStatistics] = useState<'MB' | 'FD'>('MB'),
+  const [material, setMaterial] = useLinkedState<EquilibriumInput['material']>('material', 'Si'),
+    [temperature, setTemperature] = useLinkedState('T', 300),
+    [ld, setLd] = useLinkedState('logND', 15),
+    [la, setLa] = useLinkedState('logNA', 14),
+    [donorsOn, setDonorsOn] = useLinkedState('donors', true),
+    [acceptorsOn, setAcceptorsOn] = useLinkedState('acceptors', false),
+    [statistics, setStatistics] = useLinkedState<'MB' | 'FD'>('stats', 'MB'),
     [deep, setDeep] = useState(false),
     [exp, setExp] = useState(0),
     [prediction, setPrediction] = useState(''),
@@ -326,14 +349,16 @@ export default function EquilibriumLab() {
         <a className="brand" href="#equilibrium">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Equilibrium statistics</span>
+            Silicon Atlas<span className="brand-sub">Equilibrium statistics</span>
           </span>
         </a>
-        <button onClick={reset}>Reset explorer</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="eq-hero">
-          <div className="eyebrow">NEAMEN / CHAPTERS 3—4</div>
+          <div className="eyebrow">Neamen / Chapters 3—4</div>
           <h1>
             Equilibrium
             <br />
@@ -365,7 +390,7 @@ export default function EquilibriumLab() {
         </div>
         <div className="eq-workspace">
           <aside className="eq-card eq-controls">
-            <div className="eyebrow">UNIFORM BULK SAMPLE</div>
+            <div className="eyebrow">Uniform bulk sample</div>
             <h2>Material & conditions</h2>
             <label>
               Material
@@ -510,11 +535,11 @@ export default function EquilibriumLab() {
                 <section className="eq-card">
                   <div className="eq-heading">
                     <div>
-                      <div className="eyebrow">SYNCHRONIZED ENERGY SPACE</div>
+                      <div className="eyebrow">Synchronized energy space</div>
                       <h2>States, occupation, and carriers.</h2>
                     </div>
                     <span className="eq-badge">
-                      {statistics === 'MB' ? 'BOLTZMANN CARRIERS' : 'FD INTEGRATED CARRIERS'}
+                      {statistics === 'MB' ? 'Boltzmann carriers' : 'FD integrated carriers'}
                     </span>
                   </div>
                   <EnergyView s={s} />
@@ -552,13 +577,13 @@ export default function EquilibriumLab() {
                         label: 'Ionized donors ND⁺',
                         value: s.nd,
                         total: s.donors,
-                        color: '#8ddfc7',
+                        color: 'var(--c-8ddfc7)',
                       },
                       {
                         label: 'Ionized acceptors NA⁻',
                         value: s.na,
                         total: s.acceptors,
-                        color: '#edb783',
+                        color: 'var(--c-edb783)',
                       },
                     ].map((i) => (
                       <div key={i.label}>
@@ -628,7 +653,7 @@ export default function EquilibriumLab() {
                 <section className="eq-card">
                   <div className="eq-heading">
                     <div>
-                      <div className="eyebrow">TEMPERATURE INVESTIGATION</div>
+                      <div className="eyebrow">Temperature investigation</div>
                       <h2>Freeze-out → extrinsic → intrinsic.</h2>
                     </div>
                   </div>
@@ -668,17 +693,17 @@ export default function EquilibriumLab() {
                   <div className="eq-chart">
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={sweep} margin={{ top: 12, right: 30, bottom: 25, left: 20 }}>
-                        <CartesianGrid stroke="#293e4b" strokeDasharray="3 5" />
+                        <CartesianGrid stroke="var(--c-293e4b)" strokeDasharray="3 5" />
                         <XAxis
                           dataKey="temperature"
                           type="number"
                           domain={[40, 800]}
-                          tick={{ fill: '#a6bdca', fontSize: 11 }}
+                          tick={{ fill: 'var(--c-a6bdca)', fontSize: 12 }}
                           label={{
                             value: 'Temperature (K)',
                             position: 'bottom',
                             offset: 5,
-                            fill: '#a6bdca',
+                            fill: 'var(--c-a6bdca)',
                           }}
                         />
                         <YAxis
@@ -706,7 +731,7 @@ export default function EquilibriumLab() {
                               : [0, 1]
                           }
                           width={68}
-                          tick={{ fill: '#a6bdca', fontSize: 11 }}
+                          tick={{ fill: 'var(--c-a6bdca)', fontSize: 12 }}
                           tickFormatter={(v) =>
                             sweepTab === 'carriers'
                               ? Number(v).toExponential(0)
@@ -714,7 +739,10 @@ export default function EquilibriumLab() {
                           }
                         />
                         <Tooltip
-                          contentStyle={{ background: '#162531', border: '1px solid #496675' }}
+                          contentStyle={{
+                            background: 'var(--c-162531)',
+                            border: '1px solid #496675',
+                          }}
                           formatter={(v, name) => [
                             sweepTab === 'carriers'
                               ? `${sci(Number(v))} cm⁻³`
@@ -723,16 +751,20 @@ export default function EquilibriumLab() {
                           ]}
                           labelFormatter={(v) => `${v} K`}
                         />
-                        <ReferenceLine x={temperature} stroke="#fff" strokeDasharray="5 4" />
+                        <ReferenceLine
+                          x={temperature}
+                          stroke="var(--c-ffffff)"
+                          strokeDasharray="5 4"
+                        />
                         {(sweepTab === 'carriers'
                           ? [
-                              { key: 'n', name: 'n', color: '#8ddfc7' },
-                              { key: 'p', name: 'p', color: '#edb783' },
-                              { key: 'ni', name: 'ni', color: '#b7a1db' },
+                              { key: 'n', name: 'n', color: 'var(--c-8ddfc7)' },
+                              { key: 'p', name: 'p', color: 'var(--c-edb783)' },
+                              { key: 'ni', name: 'ni', color: 'var(--c-b7a1db)' },
                             ]
                           : [
-                              { key: 'donor', name: 'ND⁺ / ND', color: '#8ddfc7' },
-                              { key: 'acceptor', name: 'NA⁻ / NA', color: '#edb783' },
+                              { key: 'donor', name: 'ND⁺ / ND', color: 'var(--c-8ddfc7)' },
+                              { key: 'acceptor', name: 'NA⁻ / NA', color: 'var(--c-edb783)' },
                             ]
                         ).map((l) => (
                           <Line
@@ -756,14 +788,14 @@ export default function EquilibriumLab() {
                     </p>
                   )}
                   <div className="eq-key">
-                    <span style={{ color: '#8ddfc7' }}>
+                    <span style={{ color: 'var(--c-8ddfc7)' }}>
                       {sweepTab === 'carriers' ? 'n · electrons' : 'Ionized donor fraction'}
                     </span>
-                    <span style={{ color: '#edb783' }}>
+                    <span style={{ color: 'var(--c-edb783)' }}>
                       {sweepTab === 'carriers' ? 'p · holes' : 'Ionized acceptor fraction'}
                     </span>
                     {sweepTab === 'carriers' && (
-                      <span style={{ color: '#b7a1db' }}>ni · intrinsic</span>
+                      <span style={{ color: 'var(--c-b7a1db)' }}>ni · intrinsic</span>
                     )}
                   </div>
                   {sweep.some((p) => p.error) && (
@@ -787,7 +819,7 @@ export default function EquilibriumLab() {
           </div>
         </div>
         <section className="eq-card eq-experiments">
-          <div className="eyebrow">GUIDED EXPERIMENTS</div>
+          <div className="eyebrow">Guided experiments</div>
           <h2>Predict before changing the sample.</h2>
           <div className="eq-actions">
             {experiments.map((e, i) => (
@@ -966,7 +998,7 @@ export default function EquilibriumLab() {
           </p>
         </details>
         <footer>
-          EQUILIBRIUM SEMICONDUCTORS{' '}
+          Equilibrium semiconductors{' '}
           <span>Neutrality solved · Ionization included · Transport limits explicit</span>
         </footer>
       </main>

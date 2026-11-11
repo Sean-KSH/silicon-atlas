@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -90,28 +91,28 @@ function Plot({
         <b>{label}</b>
         <span>
           {space === 'wavevector'
-            ? 'WAVEVECTOR SPACE'
+            ? 'Wavevector space'
             : space === 'energy'
-              ? 'ENERGY SWEEP'
-              : 'REAL SPACE'}
+              ? 'Energy sweep'
+              : 'Real space'}
         </span>
       </div>
       <div className="al-chart">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 15, right: 20, bottom: 30, left: 12 }}>
-            <CartesianGrid stroke="#2b3847" strokeDasharray="3 5" />
+            <CartesianGrid stroke="var(--c-2b3847)" strokeDasharray="3 5" />
             <XAxis
               dataKey={x}
               type="number"
               domain={['dataMin', 'dataMax']}
               tickFormatter={fmt}
-              tick={{ fill: '#aabccc', fontSize: 11 }}
+              tick={{ fill: 'var(--c-aabccc)', fontSize: 12 }}
               label={{
                 value: xlabel,
                 position: 'bottom',
                 offset: 10,
-                fill: '#b4c8d5',
-                fontSize: 12,
+                fill: 'var(--c-b4c8d5)',
+                fontSize: 13,
               }}
             />
             <YAxis
@@ -121,17 +122,21 @@ function Plot({
                 log ? [Math.min(0.1, ...data.map((row) => row[ys[0].key])), 1] : ['auto', 'auto']
               }
               tickFormatter={(v) => (log ? Number(v).toExponential(0) : fmt(v))}
-              tick={{ fill: '#aabccc', fontSize: 11 }}
+              tick={{ fill: 'var(--c-aabccc)', fontSize: 12 }}
             />
             <Tooltip
-              contentStyle={{ background: '#14212e', border: '1px solid #546c7b', fontSize: 12 }}
+              contentStyle={{
+                background: 'var(--c-14212e)',
+                border: '1px solid #546c7b',
+                fontSize: 13,
+              }}
               formatter={(v, name) => [Number(v).toPrecision(5), name]}
               labelFormatter={(v) => `${x} = ${Number(v).toPrecision(4)}`}
             />
             {marker !== undefined && (
-              <ReferenceLine x={marker} stroke="#f1c38c" strokeDasharray="4 4" />
+              <ReferenceLine x={marker} stroke="var(--c-f1c38c)" strokeDasharray="4 4" />
             )}
-            {!log && <ReferenceLine y={0} stroke="#506575" />}
+            {!log && <ReferenceLine y={0} stroke="var(--c-506575)" />}
             {ys.map((y) => (
               <Line
                 key={y.key}
@@ -151,7 +156,7 @@ function Plot({
 }
 function Crystal({ deep }: { deep: boolean }) {
   const [angles, setAngles] = useState([-0.5, 0.6]),
-    [plane, setPlane] = useState('none'),
+    [plane, setPlane] = useLinkedState('plane', 'none'),
     [neighbors, setNeighbors] = useState(true);
   const origin = useRef(angles);
   const drag = useSvgDrag(
@@ -197,7 +202,7 @@ function Crystal({ deep }: { deep: boolean }) {
   return (
     <section className="al-section" id="atomic-crystal">
       <div className="al-section-title">
-        <span>01 / CRYSTAL STRUCTURE</span>
+        <span>01 / Crystal structure</span>
         <h2>Order in three dimensions.</h2>
         <p>A periodic arrangement of atoms gives silicon its diamond-cubic structure.</p>
       </div>
@@ -251,7 +256,7 @@ function Crystal({ deep }: { deep: boolean }) {
         <div className="al-card">
           <div className="al-plothead">
             <b>Diamond-cubic silicon</b>
-            <span>GEOMETRIC LATTICE</span>
+            <span>Geometric lattice</span>
           </div>
           <svg
             viewBox="0 0 660 410"
@@ -261,9 +266,9 @@ function Crystal({ deep }: { deep: boolean }) {
           >
             <defs>
               <radialGradient id="al-sphere">
-                <stop stopColor="#edfff6" />
-                <stop offset=".4" stopColor="#9acdbd" />
-                <stop offset="1" stopColor="#315c56" />
+                <stop stopColor="var(--c-edfff6)" />
+                <stop offset=".4" stopColor="var(--c-9acdbd)" />
+                <stop offset="1" stopColor="var(--c-315c56)" />
               </radialGradient>
             </defs>
             <g
@@ -303,7 +308,7 @@ function Crystal({ deep }: { deep: boolean }) {
                       y1={a[1]}
                       x2={b[0]}
                       y2={b[1]}
-                      stroke="#5e7184"
+                      stroke="var(--c-5e7184)"
                       strokeDasharray="4 4"
                     />
                   );
@@ -320,7 +325,7 @@ function Crystal({ deep }: { deep: boolean }) {
                     y1={a[1]}
                     x2={b[0]}
                     y2={b[1]}
-                    stroke={hi ? '#f5c184' : '#6b96a6'}
+                    stroke={hi ? 'var(--c-f5c184)' : 'var(--c-6b96a6)'}
                     strokeWidth={hi ? 5 : 2}
                     opacity={neighbors && !hi ? 0.35 : 0.9}
                   />
@@ -329,8 +334,8 @@ function Crystal({ deep }: { deep: boolean }) {
               {planes[plane] && (
                 <polygon
                   points={planes[plane].map((p) => project(p).slice(0, 2).join(',')).join(' ')}
-                  fill="#d4ae7233"
-                  stroke="#f1c18b"
+                  fill="var(--c-d4ae7233)"
+                  stroke="var(--c-f1c18b)"
                   strokeWidth="2"
                 />
               )}
@@ -343,8 +348,8 @@ function Crystal({ deep }: { deep: boolean }) {
                       cx={q[0]}
                       cy={q[1]}
                       r={i === selected && neighbors ? 13 : 10}
-                      fill={p.basis ? 'url(#al-sphere)' : '#8baecb'}
-                      stroke={neighbors && near.has(i) ? '#f5c184' : '#c9e2e5'}
+                      fill={p.basis ? 'url(#al-sphere)' : 'var(--c-8baecb)'}
+                      stroke={neighbors && near.has(i) ? 'var(--c-f5c184)' : 'var(--c-c9e2e5)'}
                       strokeWidth={neighbors && near.has(i) ? 2 : 1}
                       opacity={neighbors && !near.has(i) ? 0.55 : 1}
                     />
@@ -357,7 +362,7 @@ function Crystal({ deep }: { deep: boolean }) {
                   b = project(p);
                 return (
                   <g key={name}>
-                    <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="#c1d2dd" />
+                    <line x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="var(--c-c1d2dd)" />
                     <text x={b[0] + 5} y={b[1]}>
                       {name}
                     </text>
@@ -371,15 +376,15 @@ function Crystal({ deep }: { deep: boolean }) {
           </div>
           <div className="al-key">
             <span>
-              <i style={{ background: '#8baecb' }} />
+              <i style={{ background: 'var(--c-8baecb)' }} />
               FCC sites + (0,0,0)
             </span>
             <span>
-              <i style={{ background: '#9acdbd' }} />
+              <i style={{ background: 'var(--c-9acdbd)' }} />
               FCC sites + (¼,¼,¼)
             </span>
             <span>
-              <i style={{ background: '#f5c184' }} />
+              <i style={{ background: 'var(--c-f5c184)' }} />
               Selected tetrahedron / plane
             </span>
           </div>
@@ -413,16 +418,16 @@ function Crystal({ deep }: { deep: boolean }) {
 export default function AtomicLab() {
   const [deep, setDeep] = useState(false),
     [resetKey, setResetKey] = useState(0),
-    [L, setL] = useState(5),
-    [mass, setMass] = useState(1),
-    [n, setN] = useState(1),
-    [V, setV] = useState(1),
-    [d, setD] = useState(1),
-    [E, setE] = useState(0.3),
-    [t, setT] = useState(0.3),
-    [N, setNsites] = useState(12),
-    [u, setU] = useState(0),
-    [gap, setGap] = useState('direct'),
+    [L, setL] = useLinkedState('L', 5),
+    [mass, setMass] = useLinkedState('mass', 1),
+    [n, setN] = useLinkedState('n', 1),
+    [V, setV] = useLinkedState('V', 1),
+    [d, setD] = useLinkedState('d', 1),
+    [E, setE] = useLinkedState('E', 0.3),
+    [t, setT] = useLinkedState('t', 0.3),
+    [N, setNsites] = useLinkedState('N', 12),
+    [u, setU] = useLinkedState('u', 0),
+    [gap, setGap] = useLinkedState('gap', 'direct'),
     [experiment, setExperiment] = useState(0),
     [prediction, setPrediction] = useState(''),
     [reveal, setReveal] = useState(false);
@@ -566,14 +571,16 @@ export default function AtomicLab() {
         <a className="brand" href="#atomic">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Quantum foundations</span>
+            Silicon Atlas<span className="brand-sub">Quantum foundations</span>
           </span>
         </a>
-        <button onClick={reset}>Reset lab</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="al-hero">
-          <div className="eyebrow">NEAMEN / CHAPTERS 1—3</div>
+          <div className="eyebrow">Neamen / Chapters 1—3</div>
           <h1>
             From atomic structure
             <br />
@@ -587,7 +594,7 @@ export default function AtomicLab() {
             <button className={deep ? 'active' : ''} onClick={() => setDeep(true)}>
               Deeper physics
             </button>
-            <button onClick={exportData}>↓ Export calculated data · CSV</button>
+            <button onClick={exportData}>↓ Calculated data CSV</button>
           </div>
         </div>
         <nav className="al-sectionnav">
@@ -604,7 +611,7 @@ export default function AtomicLab() {
         <Crystal key={resetKey} deep={deep} />
         <section className="al-section" id="atomic-quantum">
           <div className="al-section-title">
-            <span>02 / QUANTUM FOUNDATIONS</span>
+            <span>02 / Quantum foundations</span>
             <h2>Boundaries select the states.</h2>
             <p>
               First confine one particle, then replace confinement with a scattering experiment.
@@ -659,7 +666,7 @@ export default function AtomicLab() {
             <div className="al-card">
               <div className="al-plothead">
                 <b>Potential energy U(x) + allowed energies</b>
-                <span>REAL SPACE · eV vs nm</span>
+                <span>Real space · eV vs nm</span>
               </div>
               <svg
                 className="al-well"
@@ -667,9 +674,9 @@ export default function AtomicLab() {
                 role="group"
                 aria-label="Infinite well energy diagram. Click energy levels to select state."
               >
-                <rect x="70" y="20" width="45" height="210" fill="#ad79542c" />
-                <rect x="550" y="20" width="45" height="210" fill="#ad79542c" />
-                <path d="M115 24V230H550V24" stroke="#e6b880" strokeWidth="3" fill="none" />
+                <rect x="70" y="20" width="45" height="210" fill="var(--c-ad79542c)" />
+                <rect x="550" y="20" width="45" height="210" fill="var(--c-ad79542c)" />
+                <path d="M115 24V230H550V24" stroke="var(--c-e6b880)" strokeWidth="3" fill="none" />
                 <text x="80" y="17">
                   U = ∞
                 </text>
@@ -708,7 +715,7 @@ export default function AtomicLab() {
                     >
                       <path
                         d={`M120 ${y}H545`}
-                        stroke={n === j ? '#98dcc7' : '#617c92'}
+                        stroke={n === j ? 'var(--c-98dcc7)' : 'var(--c-617c92)'}
                         strokeWidth={n === j ? 3 : 1}
                       />
                       <rect x="120" y={y - 10} width="425" height="20" fill="transparent" />
@@ -733,14 +740,14 @@ export default function AtomicLab() {
                 <Plot
                   data={well}
                   x="x"
-                  ys={[{ key: 'psi', color: '#98dcc7', name: 'ψ (nm⁻½)' }]}
+                  ys={[{ key: 'psi', color: 'var(--c-98dcc7)', name: 'ψ (nm⁻½)' }]}
                   label="Wavefunction ψ (nm⁻½)"
                   xlabel="Position x (nm)"
                 />
                 <Plot
                   data={well}
                   x="x"
-                  ys={[{ key: 'density', color: '#e6b880', name: '|ψ|² (nm⁻¹)' }]}
+                  ys={[{ key: 'density', color: 'var(--c-e6b880)', name: '|ψ|² (nm⁻¹)' }]}
                   label="Probability density |ψ|² (nm⁻¹)"
                   xlabel="Position x (nm)"
                 />
@@ -818,7 +825,7 @@ export default function AtomicLab() {
             <div className="al-card">
               <div className="al-plothead">
                 <b>Barrier scattering · U(x), E (eV)</b>
-                <span>REAL SPACE</span>
+                <span>Real space</span>
               </div>
               <svg
                 viewBox="0 0 680 230"
@@ -830,12 +837,12 @@ export default function AtomicLab() {
                     d === 0 ? 'M65 185H620' : `M65 185H210V${185 - V * 37}H${210 + d * 90}V185H620`
                   }
                   fill="none"
-                  stroke="#e6b880"
+                  stroke="var(--c-e6b880)"
                   strokeWidth="3"
                 />
                 <path
                   d={`M65 ${185 - E * 37}H620`}
-                  stroke="#98dcc7"
+                  stroke="var(--c-98dcc7)"
                   strokeWidth="2"
                   strokeDasharray="6 4"
                 />
@@ -848,7 +855,11 @@ export default function AtomicLab() {
                 <text x="70" y="25">
                   E → incident energy
                 </text>
-                <path d="M85 160H175L165 154M175 160L165 166" stroke="#98dcc7" fill="none" />
+                <path
+                  d="M85 160H175L165 154M175 160L165 166"
+                  stroke="var(--c-98dcc7)"
+                  fill="none"
+                />
                 <text x="65" y="208">
                   −1.6
                 </text>
@@ -868,8 +879,8 @@ export default function AtomicLab() {
                 )}
               </svg>
               <div className="al-flux">
-                <span style={{ flex: barrier, background: '#70bea8' }} />
-                <span style={{ flex: 1 - barrier, background: '#927caa' }} />
+                <span style={{ flex: barrier, background: 'var(--c-70bea8)' }} />
+                <span style={{ flex: 1 - barrier, background: 'var(--c-927caa)' }} />
               </div>
               <p className="al-note">
                 Computed flux fractions: green T, purple R. T + R = 1 for this lossless, equal-mass
@@ -879,7 +890,7 @@ export default function AtomicLab() {
               <Plot
                 data={ts}
                 x="energy"
-                ys={[{ key: 'T', color: '#98dcc7', name: 'Transmission T' }]}
+                ys={[{ key: 'T', color: 'var(--c-98dcc7)', name: 'Transmission T' }]}
                 label="Transmission T · logarithmic axis"
                 xlabel="Incident energy E (eV)"
                 space="energy"
@@ -912,7 +923,7 @@ export default function AtomicLab() {
         </section>
         <section className="al-section" id="atomic-bands">
           <div className="al-section-title">
-            <span>03 / BANDS · 1D TIGHT-BINDING TOY MODEL</span>
+            <span>03 / Bands · 1D tight-binding toy model</span>
             <h2>Many states. One band.</h2>
             <p>
               Couple identical orbitals in a chain. Follow energy, slope, and curvature in
@@ -976,7 +987,7 @@ export default function AtomicLab() {
             <div className="al-card">
               <div className="al-plothead">
                 <b>One orbital per site → N split levels</b>
-                <span>CALCULATED · OPEN CHAIN</span>
+                <span>Calculated · open chain</span>
               </div>
               <svg
                 viewBox="0 0 680 240"
@@ -992,11 +1003,15 @@ export default function AtomicLab() {
                 <text x="540" y="24">
                   Infinite chain
                 </text>
-                <line x1="70" x2="200" y1="120" y2="120" stroke="#9bc5d8" strokeWidth="3" />
+                <line x1="70" x2="200" y1="120" y2="120" stroke="var(--c-9bc5d8)" strokeWidth="3" />
                 <text x="75" y="145">
                   E₀ = 0
                 </text>
-                <path d="M230 120H290M280 114L290 120L280 126" fill="none" stroke="#afbed1" />
+                <path
+                  d="M230 120H290M280 114L290 120L280 126"
+                  fill="none"
+                  stroke="var(--c-afbed1)"
+                />
                 {chainLevels(N, t * qe).map((e, i) => (
                   <line
                     key={i}
@@ -1004,7 +1019,7 @@ export default function AtomicLab() {
                     x2="460"
                     y1={120 - (e / qe) * 42}
                     y2={120 - (e / qe) * 42}
-                    stroke="#a99cd6"
+                    stroke="var(--c-a99cd6)"
                     opacity=".8"
                   />
                 ))}
@@ -1013,8 +1028,8 @@ export default function AtomicLab() {
                   y={120 - 2 * t * 42}
                   width="65"
                   height={Math.max(0.8, 4 * t * 42)}
-                  fill="#a99cd655"
-                  stroke="#a99cd6"
+                  fill="var(--c-a99cd655)"
+                  stroke="var(--c-a99cd6)"
                 />
                 <text x="535" y="220">
                   Width = {fmt(4 * t)} eV
@@ -1034,7 +1049,7 @@ export default function AtomicLab() {
               <Plot
                 data={bands}
                 x="u"
-                ys={[{ key: 'energy', color: '#b4a0e2', name: 'Energy (eV)' }]}
+                ys={[{ key: 'energy', color: 'var(--c-b4a0e2)', name: 'Energy (eV)' }]}
                 label="Dispersion E(k) (eV)"
                 xlabel="Wavevector kaₜ / π (dimensionless)"
                 space="wavevector"
@@ -1044,7 +1059,9 @@ export default function AtomicLab() {
                 <Plot
                   data={bands}
                   x="u"
-                  ys={[{ key: 'velocity', color: '#98dcc7', name: 'Group velocity (10⁵ m/s)' }]}
+                  ys={[
+                    { key: 'velocity', color: 'var(--c-98dcc7)', name: 'Group velocity (10⁵ m/s)' },
+                  ]}
                   label="Group velocity (10⁵ m/s)"
                   xlabel="kaₜ / π"
                   space="wavevector"
@@ -1053,7 +1070,7 @@ export default function AtomicLab() {
                 <Plot
                   data={bands}
                   x="u"
-                  ys={[{ key: 'curvature', color: '#e6b880', name: 'Curvature (eV nm²)' }]}
+                  ys={[{ key: 'curvature', color: 'var(--c-e6b880)', name: 'Curvature (eV nm²)' }]}
                   label="Curvature d²E/dk² (eV·nm²)"
                   xlabel="kaₜ / π"
                   space="wavevector"
@@ -1089,7 +1106,7 @@ export default function AtomicLab() {
           <div className="al-card al-gap">
             <div className="al-plothead">
               <b>Direct vs indirect gaps</b>
-              <span>SEPARATE SCHEMATIC · NOT TIGHT-BINDING OUTPUT</span>
+              <span>Separate schematic · not tight-binding output</span>
             </div>
             <div className="al-actions">
               <button className={gap === 'direct' ? 'active' : ''} onClick={() => setGap('direct')}>
@@ -1107,27 +1124,32 @@ export default function AtomicLab() {
               role="img"
               aria-label={`${gap} bandgap schematic, energy versus wavevector`}
             >
-              <path d="M80 20V205H625" stroke="#718497" fill="none" />
+              <path d="M80 20V205H625" stroke="var(--c-718497)" fill="none" />
               <text x="22" y="30">
                 Energy
               </text>
               <text x="520" y="227">
                 Wavevector k →
               </text>
-              <path d="M130 197Q340 90 550 197" stroke="#b4a0e2" fill="none" strokeWidth="3" />
+              <path
+                d="M130 197Q340 90 550 197"
+                stroke="var(--c-b4a0e2)"
+                fill="none"
+                strokeWidth="3"
+              />
               <path
                 d={gap === 'direct' ? 'M170 40Q340 155 510 40' : 'M290 40Q460 155 630 40'}
-                stroke="#98dcc7"
+                stroke="var(--c-98dcc7)"
                 fill="none"
                 strokeWidth="3"
               />
               <path
                 d={`M340 143L${gap === 'direct' ? 340 : 460} 98`}
-                stroke="#e6b880"
+                stroke="var(--c-e6b880)"
                 strokeDasharray="5 4"
               />
-              <circle cx="340" cy="143.5" r="5" fill="#b4a0e2" />
-              <circle cx={gap === 'direct' ? 340 : 460} cy="97.5" r="5" fill="#98dcc7" />
+              <circle cx="340" cy="143.5" r="5" fill="var(--c-b4a0e2)" />
+              <circle cx={gap === 'direct' ? 340 : 460} cy="97.5" r="5" fill="var(--c-98dcc7)" />
               <text x="95" y="120">
                 CB
               </text>
@@ -1148,7 +1170,7 @@ export default function AtomicLab() {
           </div>
         </section>
         <section className="al-card al-experiments">
-          <div className="eyebrow">THREE GUIDED EXPERIMENTS</div>
+          <div className="eyebrow">Three guided experiments</div>
           <h2>Predict. Adjust. Explain.</h2>
           <div className="al-actions">
             {experiments.map((e, i) => (

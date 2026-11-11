@@ -1,7 +1,7 @@
 .eq-lab {
-  background: #0c141b;
+  background: var(--c-0c141b);
   min-height: 100vh;
-  color: #d6e3ea;
+  color: var(--c-d6e3ea);
 }
 .eq-lab main {
   max-width: 1500px;
@@ -9,7 +9,7 @@
   padding: 42px;
 }
 .eq-lab header {
-  background: #101c25;
+  background: var(--c-101c25);
 }
 .eq-hero {
   padding: 26px 0 28px;
@@ -23,7 +23,7 @@
 }
 .eq-hero > p {
   font-size: 16px;
-  color: #9fb8c5;
+  color: var(--c-9fb8c5);
 }
 .eq-actions {
   display: flex;
@@ -34,27 +34,27 @@
 .eq-lab button {
   font-size: 12px;
   padding: 10px 13px;
-  border: 1px solid #3e5665;
+  border: 1px solid var(--c-3e5665);
   border-radius: 5px;
-  color: #dce9ec;
-  background: #1c2c36;
+  color: var(--c-dce9ec);
+  background: var(--c-1c2c36);
   cursor: pointer;
 }
 .eq-lab button:hover {
-  border-color: #97d8c3;
-  background: #26423f;
+  border-color: var(--c-97d8c3);
+  background: var(--c-26423f);
 }
 .eq-lab button.selected {
-  background: #2b4c44;
-  border-color: #81bfae;
-  color: #e2fff2;
+  background: var(--c-2b4c44);
+  border-color: var(--c-81bfae);
+  color: var(--c-e2fff2);
 }
 .eq-lab button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 .eq-lab :focus-visible {
-  outline: 2px solid #a6deca;
+  outline: 2px solid var(--c-a6deca);
   outline-offset: 3px;
 }
 .eq-workspace {
@@ -63,8 +63,8 @@
   gap: 20px;
 }
 .eq-card {
-  background: #13222c;
-  border: 1px solid #304853;
+  background: var(--c-13222c);
+  border: 1px solid var(--c-304853);
   border-radius: 8px;
   padding: 24px;
   min-width: 0;
@@ -90,7 +90,7 @@
 .eq-lab p {
   font-size: 13px;
   line-height: 1.8;
-  color: #abc1cd;
+  color: var(--c-abc1cd);
 }
 .eq-controls > label {
   display: block;
@@ -100,9 +100,9 @@
 .eq-controls select {
   display: block;
   width: 100%;
-  background: #1b303c;
-  color: #cbe1eb;
-  border: 1px solid #466371;
+  background: var(--c-1b303c);
+  color: var(--c-cbe1eb);
+  border: 1px solid var(--c-466371);
   padding: 10px;
   border-radius: 5px;
   margin-top: 10px;
@@ -111,7 +111,7 @@
 .eq-doping > strong {
   display: block;
   font: 24px var(--font-mono);
-  color: #bce6d7;
+  color: var(--c-bce6d7);
   margin: 12px 0;
 }
 .eq-controls strong small {
@@ -119,15 +119,15 @@
 }
 .eq-controls input[type='range'] {
   width: 100%;
-  accent-color: #9dd1bf;
+  accent-color: var(--c-9dd1bf);
   margin: 12px 0;
 }
 .eq-controls small {
-  font-size: 10px;
-  color: #90acba;
+  font-size: 12px;
+  color: var(--c-90acba);
 }
 .eq-doping {
-  border-top: 1px solid #354e5a;
+  border-top: 1px solid var(--c-354e5a);
   padding-top: 16px;
   margin: 18px 0;
 }
@@ -135,11 +135,11 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .eq-check input {
   width: auto;
-  accent-color: #92d0b8;
+  accent-color: var(--c-92d0b8);
 }
 .eq-presets {
   display: grid;
@@ -147,37 +147,37 @@
 }
 .eq-presets button {
   text-align: left;
-  font-size: 11px;
+  font-size: 12px;
 }
 .eq-note {
-  font-size: 11px !important;
-  background: #1b3038;
+  font-size: 12px !important;
+  background: var(--c-1b3038);
   padding: 13px 15px;
-  border-left: 2px solid #608b8a;
+  border-left: 2px solid var(--c-608b8a);
   line-height: 1.85 !important;
-  color: #a5bdc5 !important;
+  color: var(--c-a5bdc5) !important;
   margin: 18px 0;
 }
 .eq-valid {
   padding: 17px 21px;
-  background: #18372f;
-  border: 1px solid #396656;
+  background: var(--c-18372f);
+  border: 1px solid var(--c-396656);
   border-radius: 7px;
 }
 .eq-valid > b {
   font-size: 13px;
-  color: #b8e6d0;
+  color: var(--c-b8e6d0);
 }
 .eq-valid p {
   font-size: 12px;
   margin-bottom: 0;
 }
 .eq-warning {
-  background: #362e20;
-  border-color: #78613c;
+  background: var(--c-362e20);
+  border-color: var(--c-78613c);
 }
 .eq-warning > b {
-  color: #f1ce99;
+  color: var(--c-f1ce99);
 }
 .eq-warning button {
   margin: 10px;
@@ -194,18 +194,18 @@
   margin-top: 7px;
 }
 .eq-badge {
-  font: 9px var(--font-mono);
-  border: 1px solid #496475;
+  font: 12px var(--font-mono);
+  border: 1px solid var(--c-496475);
   border-radius: 3px;
   padding: 8px;
-  color: #b6c9d3;
-  letter-spacing: 0.5px;
+  color: var(--c-b6c9d3);
+  letter-spacing: 0.01em;
   white-space: nowrap;
 }
 .eq-energy-scroll {
   overflow-x: auto;
-  background: radial-gradient(ellipse at 30% 20%, #213541, #10202a);
-  border: 1px solid #354b58;
+  background: radial-gradient(ellipse at 30% 20%, var(--c-213541), var(--c-10202a));
+  border: 1px solid var(--c-354b58);
   border-radius: 6px;
 }
 .eq-energy-scroll svg {
@@ -215,19 +215,19 @@
   height: auto;
 }
 .eq-energy-scroll svg text {
-  font: 10px var(--font-sans);
-  fill: #b6cdd7;
+  font: 12px var(--font-sans);
+  fill: var(--c-b6cdd7);
 }
 .eq-energy-scroll svg .eq-svg-title {
   font-size: 12px;
-  fill: #d8e7ed;
+  fill: var(--c-d8e7ed);
 }
 .eq-key {
   display: flex;
   gap: 17px;
   flex-wrap: wrap;
-  font-size: 10px;
-  color: #b5c9d2;
+  font-size: 12px;
+  color: var(--c-b5c9d2);
   margin-top: 16px;
 }
 .eq-key i {
@@ -244,22 +244,22 @@
 }
 .eq-levels > div {
   padding: 12px 8px;
-  background: #0f1c24;
-  border: 1px solid #304852;
+  background: var(--c-0f1c24);
+  border: 1px solid var(--c-304852);
   border-radius: 4px;
   display: grid;
   gap: 9px;
 }
 .eq-levels span {
-  font-size: 11px;
+  font-size: 12px;
 }
 .eq-levels strong {
   font: 12px var(--font-mono);
-  color: #c9dce3;
+  color: var(--c-c9dce3);
   white-space: nowrap;
 }
 .eq-levels small {
-  font-size: 9px;
+  font-size: 12px;
 }
 .eq-metrics {
   display: grid;
@@ -270,22 +270,22 @@
   display: grid;
   gap: 12px;
   padding: 18px 15px;
-  background: #192c36;
-  border: 1px solid #3a5560;
+  background: var(--c-192c36);
+  border: 1px solid var(--c-3a5560);
   border-radius: 6px;
 }
 .eq-metrics span {
-  font-size: 11px;
-  color: #a2bbc8;
+  font-size: 12px;
+  color: var(--c-a2bbc8);
 }
 .eq-metrics strong {
   font: 23px var(--font-mono);
-  color: #c0e9da;
+  color: var(--c-c0e9da);
 }
 .eq-metrics small {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
-  color: #91abb8;
+  color: var(--c-91abb8);
 }
 .eq-ion-grid {
   display: grid;
@@ -296,18 +296,18 @@
   display: grid;
   gap: 10px;
   font-size: 12px;
-  color: #c1d7df;
+  color: var(--c-c1d7df);
 }
 .eq-ion-grid strong {
   font: 22px var(--font-mono);
 }
 .eq-ion-grid small {
-  font-size: 11px;
-  color: #9db9c5;
+  font-size: 12px;
+  color: var(--c-9db9c5);
 }
 .eq-ion-track {
   height: 9px;
-  background: #2c4150;
+  background: var(--c-2c4150);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -320,28 +320,28 @@
   justify-content: space-between;
   gap: 15px;
   flex-wrap: wrap;
-  border-top: 1px solid #365360;
+  border-top: 1px solid var(--c-365360);
   margin-top: 23px;
   padding-top: 20px;
-  font: 10px var(--font-mono);
-  color: #a8bdc8;
+  font: 12px var(--font-mono);
+  color: var(--c-a8bdc8);
 }
 .eq-explain {
   padding: 14px 18px;
-  background: #19352f;
-  border: 1px solid #355b4f;
+  background: var(--c-19352f);
+  border: 1px solid var(--c-355b4f);
   border-radius: 5px;
 }
 .eq-explain h3 {
-  color: #c0e8d7;
+  color: var(--c-c0e8d7);
   margin: 0;
 }
 .eq-explain p {
   margin-bottom: 0;
 }
 .eq-details {
-  font-size: 11px !important;
-  color: #9eb9c6 !important;
+  font-size: 12px !important;
+  color: var(--c-9eb9c6) !important;
 }
 .eq-chart {
   height: 320px;
@@ -353,9 +353,9 @@
   width: 100%;
   min-height: 85px;
   padding: 14px;
-  background: #0e1c26;
-  color: #d0e0e7;
-  border: 1px solid #456171;
+  background: var(--c-0e1c26);
+  color: var(--c-d0e0e7);
+  border: 1px solid var(--c-456171);
   border-radius: 5px;
   box-sizing: border-box;
 }
@@ -370,11 +370,11 @@
   margin-top: 25px;
 }
 .eq-formula {
-  background: #0d1b24;
+  background: var(--c-0d1b24);
   padding: 18px;
   font: 13px/2 var(--font-mono);
   overflow-x: auto;
-  color: #c0dce6;
+  color: var(--c-c0dce6);
 }
 .eq-table-scroll {
   overflow-x: auto;
@@ -385,20 +385,20 @@
   border-collapse: collapse;
   text-align: left;
   font-size: 12px;
-  color: #b5cbd7;
+  color: var(--c-b5cbd7);
 }
 .eq-lab th,
 .eq-lab td {
   padding: 14px;
-  border-bottom: 1px solid #38525f;
+  border-bottom: 1px solid var(--c-38525f);
   line-height: 1.7;
 }
 .eq-lab th {
-  color: #d5e4eb;
+  color: var(--c-d5e4eb);
 }
 .eq-lab footer {
-  font-size: 10px;
-  color: #90aeba;
+  font-size: 12px;
+  color: var(--c-90aeba);
   margin-top: 30px;
 }
 @media (max-width: 1150px) {

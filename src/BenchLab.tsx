@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import { Chart } from './PhotonicsLab';
 import {
   BenchSettings,
@@ -83,15 +84,20 @@ function RingDiagram({ values, probe }: { values: number[]; probe: BenchSettings
       role="img"
       aria-label="Five inverter stages in a feedback loop with capacitive nodes and optional external buffer"
     >
-      <path d="M40 80 H755 V158 H40 V80" fill="none" stroke="#8ca7b8" strokeWidth="2" />
+      <path d="M40 80 H755 V158 H40 V80" fill="none" stroke="var(--c-8ca7b8)" strokeWidth="2" />
       {[0, 1, 2, 3, 4].map((i) => (
         <g key={i} transform={`translate(${65 + i * 140} 0)`}>
-          <path d="M0 55 L0 105 L48 80 Z" fill="#29473f" stroke="#8bd8be" strokeWidth="2" />
-          <circle cx="53" cy="80" r="5" fill="#12232b" stroke="#8bd8be" />
-          <circle cx="90" cy="80" r="4" fill="#edc58c" />
+          <path
+            d="M0 55 L0 105 L48 80 Z"
+            fill="var(--c-29473f)"
+            stroke="var(--c-8bd8be)"
+            strokeWidth="2"
+          />
+          <circle cx="53" cy="80" r="5" fill="var(--c-12232b)" stroke="var(--c-8bd8be)" />
+          <circle cx="90" cy="80" r="4" fill="var(--c-edc58c)" />
           <path
             d="M90 80 V112 M78 112 H102 M78 119 H102 M90 119 V136 M80 136 H100"
-            stroke="#adc0cb"
+            stroke="var(--c-adc0cb)"
             fill="none"
           />
           <text x="0" y="38">
@@ -108,7 +114,7 @@ function RingDiagram({ values, probe }: { values: number[]; probe: BenchSettings
       </text>
       {probe !== 'ideal' && (
         <>
-          <path d="M755 80 H815 V24 H530" stroke="#edc58c" fill="none" />
+          <path d="M755 80 H815 V24 H530" stroke="var(--c-edc58c)" fill="none" />
           <text x="320" y="28">
             {probe === 'buffer' ? '→ sixth buffer → scope' : '→ direct scope load'}
           </text>
@@ -145,9 +151,9 @@ type Data = {
   error?: string;
 };
 export default function BenchLab() {
-  const [draft, setDraft] = useState<BenchSettings>({ ...benchDefaults }),
-    [run, setRun] = useState<BenchSettings>({ ...benchDefaults }),
-    [tab, setTab] = useState(0),
+  const [run, setRun] = useLinkedState<BenchSettings>('', { ...benchDefaults }),
+    [draft, setDraft] = useState<BenchSettings>(run),
+    [tab, setTab] = useLinkedState('station', 0),
     [deep, setDeep] = useState(false),
     [cursor, setCursor] = useState(0),
     [window, setWindow] = useState<'startup' | 'steady'>('steady'),
@@ -235,14 +241,16 @@ export default function BenchLab() {
         <a className="brand" href="#bench">
           <span className="brandmark">I–V</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">ECE 308 / Virtual measurement bench</span>
+            Silicon Atlas<span className="brand-sub">ECE 308 / Virtual measurement bench</span>
           </span>
         </a>
-        <button onClick={reset}>Restore tested setup</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="pn-hero">
-          <span className="eyebrow">MEASUREMENTS MANUAL / FALL 2025</span>
+          <span className="eyebrow">Measurements manual / Fall 2025</span>
           <h1>
             Probe the device.
             <br />
@@ -270,8 +278,8 @@ export default function BenchLab() {
         </div>
         <section className="bench-rack">
           <div>
-            <span>SOURCE / ACQUISITION</span>
-            <strong>{dirty ? 'SETTINGS PENDING' : 'ACQUISITION READY'}</strong>
+            <span>Source / Acquisition</span>
+            <strong>{dirty ? 'Settings pending' : 'Acquisition ready'}</strong>
             <small>
               {tab === 0
                 ? run.metal
@@ -285,10 +293,10 @@ export default function BenchLab() {
             </small>
           </div>
           <div>
-            <span>CURRENT METER / DIGITIZER</span>
+            <span>Current meter / Digitizer</span>
             <strong>
-              {run.noise ? 'SYNTHETIC NOISE ON' : 'NOISE OFF'} ·{' '}
-              {run.resolution ? 'QUANTIZED' : 'IDEAL RESOLUTION'}
+              {run.noise ? 'Synthetic noise on' : 'Noise off'} ·{' '}
+              {run.resolution ? 'Quantized' : 'Ideal resolution'}
             </strong>
             <small>Seed {run.seed} · reference preserved</small>
           </div>
@@ -721,9 +729,7 @@ export default function BenchLab() {
             ) : (
               <>
                 <section className="pn-card">
-                  <span className="eyebrow">
-                    VIRTUAL PROBE STATION / {labels[tab].toUpperCase()}
-                  </span>
+                  <span className="eyebrow">Virtual probe station / {labels[tab]}</span>
                   <h2>
                     {
                       [
@@ -754,7 +760,7 @@ export default function BenchLab() {
                         role="img"
                         aria-label="SMU voltage source drives two contacts and a serpentine resistor with a current meter"
                       >
-                        <rect x="40" y="35" width="140" height="80" fill="#354e63" />
+                        <rect x="40" y="35" width="140" height="80" fill="var(--c-354e63)" />
                         <text x="62" y="70">
                           SMU: V source
                         </text>
@@ -763,11 +769,15 @@ export default function BenchLab() {
                         </text>
                         <path
                           d="M180 60 H280 V40 H650 V80 H300 V120 H650"
-                          stroke="#dbb577"
+                          stroke="var(--c-dbb577)"
                           strokeWidth="6"
                           fill="none"
                         />
-                        <path d="M650 120 H750 V140 H180 V95" stroke="#9ab6c7" fill="none" />
+                        <path
+                          d="M650 120 H750 V140 H180 V95"
+                          stroke="var(--c-9ab6c7)"
+                          fill="none"
+                        />
                         <text x="320" y="25">
                           Width 50 µm · selected length {fmt(run.length * 1e3)} mm
                         </text>
@@ -827,23 +837,30 @@ export default function BenchLab() {
                       >
                         <path
                           d="M500 35 V70 M500 110 V170 M500 210 V250 M500 140 H730 M210 195 H450"
-                          stroke="#aac6d7"
+                          stroke="var(--c-aac6d7)"
                           strokeWidth="3"
                           fill="none"
                         />
-                        <rect x="455" y="70" width="90" height="40" rx="4" fill="#766448" />
-                        <rect x="455" y="170" width="90" height="40" rx="4" fill="#3f6d67" />
+                        <rect x="455" y="70" width="90" height="40" rx="4" fill="var(--c-766448)" />
+                        <rect
+                          x="455"
+                          y="170"
+                          width="90"
+                          height="40"
+                          rx="4"
+                          fill="var(--c-3f6d67)"
+                        />
                         {run.topology === 'nmos' ? (
                           <path
                             d="M455 90 H400 V35 H500"
-                            stroke="#e5c48f"
+                            stroke="var(--c-e5c48f)"
                             fill="none"
                             strokeWidth="3"
                           />
                         ) : (
                           <path
                             d="M400 195 V90 H455"
-                            stroke="#e5c48f"
+                            stroke="var(--c-e5c48f)"
                             fill="none"
                             strokeWidth="3"
                           />
@@ -1011,9 +1028,9 @@ export default function BenchLab() {
                           measured: r.measured * 1e3,
                         }))}
                         lines={[
-                          ['reference', 'Zero-contact reference', '#bdb0e7'],
-                          ['physical', 'Noise-free with contacts', '#8bd8be'],
-                          ['measured', 'Digitized current', '#edc58c'],
+                          ['reference', 'Zero-contact reference', 'var(--c-bdb0e7)'],
+                          ['physical', 'Noise-free with contacts', 'var(--c-8bd8be)'],
+                          ['measured', 'Digitized current', 'var(--c-edc58c)'],
                         ]}
                         x="Commanded source voltage (V)"
                         y="Current (mA)"
@@ -1028,9 +1045,9 @@ export default function BenchLab() {
                       <Chart
                         data={res.geometry}
                         lines={[
-                          ['reference', 'Zero-contact reference', '#bdb0e7'],
-                          ['physical', 'True two-terminal resistance', '#8bd8be'],
-                          ['R', 'Extracted from I–V', '#edc58c'],
+                          ['reference', 'Zero-contact reference', 'var(--c-bdb0e7)'],
+                          ['physical', 'True two-terminal resistance', 'var(--c-8bd8be)'],
+                          ['R', 'Extracted from I–V', 'var(--c-edc58c)'],
                         ]}
                         x="Number of squares L/W"
                         y="Resistance (Ω)"
@@ -1054,12 +1071,12 @@ export default function BenchLab() {
                           ),
                         )}
                         lines={[
-                          ['g1', 'VGS 1 V ref', '#698fa8'],
-                          ['g2', '2 V ref', '#93a7c3'],
-                          ['g3', '3 V ref', '#b5a9dc'],
-                          ['g4', '4 V ref', '#88d2b8'],
-                          ['g5', '5 V ref', '#e4bf83'],
-                          ['measured', 'Selected VGS measured', '#f2e5cf'],
+                          ['g1', 'VGS 1 V ref', 'var(--c-698fa8)'],
+                          ['g2', '2 V ref', 'var(--c-93a7c3)'],
+                          ['g3', '3 V ref', 'var(--c-b5a9dc)'],
+                          ['g4', '4 V ref', 'var(--c-88d2b8)'],
+                          ['g5', '5 V ref', 'var(--c-e4bf83)'],
+                          ['measured', 'Selected VGS measured', 'var(--c-f2e5cf)'],
                         ]}
                         x="Drain SMU VDS (V)"
                         y="Drain current (mA)"
@@ -1072,9 +1089,9 @@ export default function BenchLab() {
                           measured: r.measured * 1e3,
                         }))}
                         lines={[
-                          ['reference', 'Zero-contact reference', '#bdb0e7'],
-                          ['physical', 'Noise-free with contacts', '#8bd8be'],
-                          ['measured', 'Measured ID', '#edc58c'],
+                          ['reference', 'Zero-contact reference', 'var(--c-bdb0e7)'],
+                          ['physical', 'Noise-free with contacts', 'var(--c-8bd8be)'],
+                          ['measured', 'Measured ID', 'var(--c-edc58c)'],
                         ]}
                         x="Gate SMU VGS (V)"
                         y="Drain current (mA)"
@@ -1085,7 +1102,7 @@ export default function BenchLab() {
                           [
                             'fitY',
                             run.method === 'sqrt' ? '√ID fit points' : 'ID fit points',
-                            '#edc58c',
+                            'var(--c-edc58c)',
                           ],
                         ]}
                         x="Commanded VGS (V); regression uses measured VGS"
@@ -1105,9 +1122,9 @@ export default function BenchLab() {
                     <Chart
                       data={inv.rows}
                       lines={[
-                        ['reference', 'Zero-contact reference', '#bdb0e7'],
-                        ['physical', 'Circuit solution', '#8bd8be'],
-                        ['measured', 'Voltmeter reading', '#edc58c'],
+                        ['reference', 'Zero-contact reference', 'var(--c-bdb0e7)'],
+                        ['physical', 'Circuit solution', 'var(--c-8bd8be)'],
+                        ['measured', 'Voltmeter reading', 'var(--c-edc58c)'],
                       ]}
                       x="Input source Vin (V)"
                       y="Output voltage (V)"
@@ -1120,8 +1137,8 @@ export default function BenchLab() {
                         referencePower: r.referencePower * 1e3,
                       }))}
                       lines={[
-                        ['power', 'Supply power with contacts', '#edc58c'],
-                        ['referencePower', 'Zero-contact reference', '#bdb0e7'],
+                        ['power', 'Supply power with contacts', 'var(--c-edc58c)'],
+                        ['referencePower', 'Zero-contact reference', 'var(--c-bdb0e7)'],
                       ]}
                       x="Input source Vin (V)"
                       y="Static VDD × Isupply (mW)"
@@ -1159,20 +1176,26 @@ export default function BenchLab() {
                       lines={
                         osc
                           ? [
-                              ['v0', 'Node 1', '#8bd8be'],
-                              ['v1', 'Node 2', '#b5a9dc'],
-                              ['v2', 'Node 3', '#83bddb'],
-                              ['v3', 'Node 4', '#dda0b0'],
-                              ['v4', 'Node 5', '#edc58c'],
+                              ['v0', 'Node 1', 'var(--c-8bd8be)'],
+                              ['v1', 'Node 2', 'var(--c-b5a9dc)'],
+                              ['v2', 'Node 3', 'var(--c-83bddb)'],
+                              ['v3', 'Node 4', 'var(--c-dda0b0)'],
+                              ['v4', 'Node 5', 'var(--c-edc58c)'],
                               ...(run.probe === 'buffer'
-                                ? [['v5', 'Buffer output', '#bdcf85'] as [string, string, string]]
+                                ? [
+                                    ['v5', 'Buffer output', 'var(--c-bdcf85)'] as [
+                                      string,
+                                      string,
+                                      string,
+                                    ],
+                                  ]
                                 : []),
-                              ['measured', 'Scope sample', '#f5eee0'],
+                              ['measured', 'Scope sample', 'var(--c-f5eee0)'],
                             ]
                           : [
-                              ['v1', 'Generator input', '#b5a9dc'],
-                              ['v0', 'Noise-free output', '#8bd8be'],
-                              ['measured', 'Scope sample', '#edc58c'],
+                              ['v1', 'Generator input', 'var(--c-b5a9dc)'],
+                              ['v0', 'Noise-free output', 'var(--c-8bd8be)'],
+                              ['measured', 'Scope sample', 'var(--c-edc58c)'],
                             ]
                       }
                       x="Time (µs)"
@@ -1214,9 +1237,9 @@ export default function BenchLab() {
                           dark: r.dark * 1e3,
                         }))}
                         lines={[
-                          ['dark', 'Dark, with compliance', '#b5a9dc'],
-                          ['physical', 'Illuminated noise-free', '#8bd8be'],
-                          ['measured', 'Illuminated measured', '#edc58c'],
+                          ['dark', 'Dark, with compliance', 'var(--c-b5a9dc)'],
+                          ['physical', 'Illuminated noise-free', 'var(--c-8bd8be)'],
+                          ['measured', 'Illuminated measured', 'var(--c-edc58c)'],
                         ]}
                         x="Commanded diode voltage (V)"
                         y="Terminal current (mA)"
@@ -1225,7 +1248,7 @@ export default function BenchLab() {
                         data={opt.rows
                           .filter((r) => r.v >= 0 && r.measured <= 0)
                           .map((r) => ({ x: r.v, power: -r.v * r.measured * 1e3 }))}
-                        lines={[['power', 'Measured delivered power', '#edc58c']]}
+                        lines={[['power', 'Measured delivered power', 'var(--c-edc58c)']]}
                         x="Actual terminal voltage (V)"
                         y="Power delivered (mW)"
                       />
@@ -1242,8 +1265,8 @@ export default function BenchLab() {
                           measured: r.measured === null ? null : r.measured * 100,
                         }))}
                         lines={[
-                          ['reference', 'External QE reference', '#8bd8be'],
-                          ['measured', 'Extracted QE', '#edc58c'],
+                          ['reference', 'External QE reference', 'var(--c-8bd8be)'],
+                          ['measured', 'Extracted QE', 'var(--c-edc58c)'],
                         ]}
                         x="Filter wavelength (nm)"
                         y="External quantum efficiency (%)"
@@ -1270,9 +1293,9 @@ export default function BenchLab() {
                       <Chart
                         data={scopeRows}
                         lines={[
-                          ['v1', 'Optical on/off command (0/1)', '#b5a9dc'],
-                          ['v0', 'Solved receiver voltage', '#8bd8be'],
-                          ['measured', 'Scope reading', '#edc58c'],
+                          ['v1', 'Optical on/off command (0/1)', 'var(--c-b5a9dc)'],
+                          ['v0', 'Solved receiver voltage', 'var(--c-8bd8be)'],
+                          ['measured', 'Scope reading', 'var(--c-edc58c)'],
                         ]}
                         x="Time (µs)"
                         y="Receiver output (V); command dimensionless"
@@ -1453,7 +1476,7 @@ export default function BenchLab() {
           </p>
         </details>
         <footer>
-          ECE 308 / VIRTUAL MEASUREMENT BENCH{' '}
+          ECE 308 / Virtual measurement bench{' '}
           <span>Reproducible observations · Solved circuits · Explicit instrument loading</span>
         </footer>
       </main>

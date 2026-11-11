@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -92,27 +93,37 @@ function Plot({
             syncMethod="value"
             margin={{ top: 10, right: 22, left: 10, bottom: 28 }}
           >
-            <CartesianGrid stroke="#344854" strokeDasharray="3 6" />
+            <CartesianGrid stroke="var(--c-344854)" strokeDasharray="3 6" />
             <XAxis
               dataKey="x"
               type="number"
               domain={['dataMin', 'dataMax']}
               tickFormatter={fmt}
-              tick={{ fill: '#a9c4d1', fontSize: 10 }}
-              label={{ value: x, position: 'bottom', offset: 8, fill: '#a9c4d1', fontSize: 11 }}
+              tick={{ fill: 'var(--c-a9c4d1)', fontSize: 12 }}
+              label={{
+                value: x,
+                position: 'bottom',
+                offset: 8,
+                fill: 'var(--c-a9c4d1)',
+                fontSize: 13,
+              }}
             />
             <YAxis
               width={70}
               tickFormatter={fmt}
-              tick={{ fill: '#a9c4d1', fontSize: 10 }}
+              tick={{ fill: 'var(--c-a9c4d1)', fontSize: 12 }}
               domain={['auto', 'auto']}
             />
             <Tooltip
-              contentStyle={{ background: '#152833', border: '1px solid #4e6877', fontSize: 12 }}
+              contentStyle={{
+                background: 'var(--c-152833)',
+                border: '1px solid #4e6877',
+                fontSize: 13,
+              }}
               formatter={(v, n) => [fmt(Number(v)), n]}
             />
             {selected !== undefined && (
-              <ReferenceLine x={selected} stroke="#e5bf86" strokeDasharray="4 4" />
+              <ReferenceLine x={selected} stroke="var(--c-e5bf86)" strokeDasharray="4 4" />
             )}
             {lines.map(([key, label, color]) => (
               <Line
@@ -149,8 +160,8 @@ const download = (name: string, text: string) => {
   setTimeout(() => URL.revokeObjectURL(u), 1000);
 };
 export default function MosLab() {
-  const [c, setC] = useState({ ...mosDefault }),
-    [part, setPart] = useState<'cap' | 'fet'>('cap'),
+  const [c, setC] = useLinkedState('', { ...mosDefault }),
+    [part, setPart] = useLinkedState<'cap' | 'fet'>('part', 'cap'),
     [deep, setDeep] = useState(false),
     [playing, setPlaying] = useState(false),
     [importNote, setImportNote] = useState(''),
@@ -249,14 +260,16 @@ export default function MosLab() {
         <a className="brand" href="#mos">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Electrostatics → transistor action</span>
+            Silicon Atlas<span className="brand-sub">Electrostatics → transistor action</span>
           </span>
         </a>
-        <button onClick={reset}>Restore working defaults</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="pn-hero">
-          <span className="eyebrow">NEAMEN / CHAPTERS 10–11</span>
+          <span className="eyebrow">Neamen / Chapters 10–11</span>
           <h1>
             Control the surface.
             <br />
@@ -279,8 +292,12 @@ export default function MosLab() {
             >
               B / Long-channel MOSFET
             </button>
-            <button className={deep ? 'selected' : ''} onClick={() => setDeep(!deep)}>
-              {deep ? 'Deeper physics' : 'Beginner view'} · equations
+            <button
+              className={deep ? 'selected' : ''}
+              aria-pressed={deep}
+              onClick={() => setDeep(!deep)}
+            >
+              Deeper physics
             </button>
           </div>
         </div>
@@ -516,8 +533,8 @@ export default function MosLab() {
                   <div className="mos-section-title">
                     <span className="eyebrow">
                       {part === 'cap'
-                        ? 'PART A / EQUILIBRIUM ELECTROSTATICS'
-                        : 'PART B / GRADUAL CHANNEL'}
+                        ? 'Part A / Equilibrium electrostatics'
+                        : 'Part B / Gradual channel'}
                     </span>
                     <span className="mos-status">{part === 'cap' ? a.regime : f.region}</span>
                   </div>
@@ -561,9 +578,23 @@ export default function MosLab() {
                         role="img"
                         aria-label="MOS stack with metal gate, oxide, semiconductor and signed charge"
                       >
-                        <rect x="35" y="50" width="180" height="170" rx="8" fill="#6d8294" />
-                        <rect x="215" y="50" width="110" height="170" fill="#c28b42" />
-                        <rect x="325" y="50" width="510" height="170" rx="6" fill="#294a59" />
+                        <rect
+                          x="35"
+                          y="50"
+                          width="180"
+                          height="170"
+                          rx="8"
+                          fill="var(--c-6d8294)"
+                        />
+                        <rect x="215" y="50" width="110" height="170" fill="var(--c-c28b42)" />
+                        <rect
+                          x="325"
+                          y="50"
+                          width="510"
+                          height="170"
+                          rx="6"
+                          fill="var(--c-294a59)"
+                        />
                         <rect
                           x="325"
                           y="50"
@@ -575,7 +606,9 @@ export default function MosLab() {
                                 : 140
                           }
                           height="170"
-                          fill={a.regime.includes('inversion') ? '#59a98d' : '#685779'}
+                          fill={
+                            a.regime.includes('inversion') ? 'var(--c-59a98d)' : 'var(--c-685779)'
+                          }
                           opacity=".65"
                         />
                         <text x="70" y="30">
@@ -630,15 +663,43 @@ export default function MosLab() {
                         role="img"
                         aria-label="MOSFET cross-section with source drain body gate and tapered channel"
                       >
-                        <rect x="45" y="130" width="790" height="130" rx="10" fill="#294a59" />
-                        <rect x="65" y="130" width="145" height="70" rx="12" fill="#536e98" />
-                        <rect x="670" y="130" width="145" height="70" rx="12" fill="#536e98" />
-                        <rect x="210" y="107" width="460" height="20" fill="#d9a253" />
-                        <rect x="210" y="65" width="460" height="42" rx="5" fill="#78919e" />
+                        <rect
+                          x="45"
+                          y="130"
+                          width="790"
+                          height="130"
+                          rx="10"
+                          fill="var(--c-294a59)"
+                        />
+                        <rect
+                          x="65"
+                          y="130"
+                          width="145"
+                          height="70"
+                          rx="12"
+                          fill="var(--c-536e98)"
+                        />
+                        <rect
+                          x="670"
+                          y="130"
+                          width="145"
+                          height="70"
+                          rx="12"
+                          fill="var(--c-536e98)"
+                        />
+                        <rect x="210" y="107" width="460" height="20" fill="var(--c-d9a253)" />
+                        <rect
+                          x="210"
+                          y="65"
+                          width="460"
+                          height="42"
+                          rx="5"
+                          fill="var(--c-78919e)"
+                        />
                         {f.region !== 'cutoff' && (
                           <path
                             d={`M210 131 L670 131 L670 ${f.region === 'saturation' ? 132 : 142 + 20 * Math.max(0, 1 - f.ud / f.ov)} L210 163 Z`}
-                            fill="#77cfb0"
+                            fill="var(--c-77cfb0)"
                           />
                         )}
                         <text x="85" y="110">
@@ -698,7 +759,7 @@ export default function MosLab() {
                       <h2>Gate sweep: charge, potential and C–V</h2>
                       <Plot
                         rows={cv}
-                        lines={[['psi', 'Surface potential ψs', '#8ed8bd']]}
+                        lines={[['psi', 'Surface potential ψs', 'var(--c-8ed8bd)']]}
                         x="Gate-to-body voltage (V)"
                         y="Surface potential (V)"
                         selected={c.vg}
@@ -706,7 +767,7 @@ export default function MosLab() {
                       />
                       <Plot
                         rows={cv}
-                        lines={[['Q', 'Semiconductor sheet charge', '#d7b1ed']]}
+                        lines={[['Q', 'Semiconductor sheet charge', 'var(--c-d7b1ed)']]}
                         x="Gate-to-body voltage (V)"
                         y="Qs (C/m²)"
                         selected={c.vg}
@@ -719,8 +780,8 @@ export default function MosLab() {
                           hf: r.hf === null ? null : r.hf * 1e3,
                         }))}
                         lines={[
-                          ['qs', 'Quasi-static · equilibrium derivative', '#8ed8bd'],
-                          ['hf', 'HF · depletion approximation', '#e9be83'],
+                          ['qs', 'Quasi-static · equilibrium derivative', 'var(--c-8ed8bd)'],
+                          ['hf', 'HF · depletion approximation', 'var(--c-e9be83)'],
                         ]}
                         x="Gate-to-body voltage (V)"
                         y="Capacitance per area (fF/µm²)"
@@ -757,10 +818,10 @@ export default function MosLab() {
                       <Plot
                         rows={data.bands.map((r) => ({ ...r, x: r.x * 1e6 }))}
                         lines={[
-                          ['ec', 'Ec', '#8ed8bd'],
-                          ['ev', 'Ev', '#e9be83'],
-                          ['ei', 'Ei', '#9bb5c8'],
-                          ['ef', 'Semiconductor EF', '#d7b1ed'],
+                          ['ec', 'Ec', 'var(--c-8ed8bd)'],
+                          ['ev', 'Ev', 'var(--c-e9be83)'],
+                          ['ei', 'Ei', 'var(--c-9bb5c8)'],
+                          ['ef', 'Semiconductor EF', 'var(--c-d7b1ed)'],
                         ]}
                         x="Depth into semiconductor (µm)"
                         y="Electron energy (eV), EF = 0"
@@ -783,8 +844,8 @@ export default function MosLab() {
                         <Plot
                           rows={iv}
                           lines={[
-                            ['id', 'ID · chosen model', '#8ed8bd'],
-                            ['base', 'Ideal reference', '#d7b1ed'],
+                            ['id', 'ID · chosen model', 'var(--c-8ed8bd)'],
+                            ['base', 'Ideal reference', 'var(--c-d7b1ed)'],
                           ]}
                           x="VDS (V)"
                           y="Signed drain current (mA)"
@@ -792,7 +853,7 @@ export default function MosLab() {
                         />
                         <Plot
                           rows={transfer}
-                          lines={[['id', 'ID at selected VDS', '#8ed8bd']]}
+                          lines={[['id', 'ID at selected VDS', 'var(--c-8ed8bd)']]}
                           x="VGS (V)"
                           y="Signed drain current (mA)"
                           selected={c.vgs}
@@ -800,7 +861,7 @@ export default function MosLab() {
                       </div>
                       <Plot
                         rows={transfer}
-                        lines={[['gm', 'gm = ∂ID/∂VGS', '#e9be83']]}
+                        lines={[['gm', 'gm = ∂ID/∂VGS', 'var(--c-e9be83)']]}
                         x="VGS (V)"
                         y="Transconductance (mS)"
                         selected={c.vgs}
@@ -830,14 +891,16 @@ export default function MosLab() {
                         <>
                           <Plot
                             rows={data.ch.map((r) => ({ ...r, x: r.x * 1e6 }))}
-                            lines={[['v', 'Channel potential relative to source', '#8ed8bd']]}
+                            lines={[
+                              ['v', 'Channel potential relative to source', 'var(--c-8ed8bd)'],
+                            ]}
                             x="Source → drain coordinate (µm)"
                             y="Electric potential (V)"
                             sync="mos-channel"
                           />
                           <Plot
                             rows={data.ch.map((r) => ({ ...r, x: r.x * 1e6 }))}
-                            lines={[['charge', 'Signed inversion sheet charge', '#e9be83']]}
+                            lines={[['charge', 'Signed inversion sheet charge', 'var(--c-e9be83)']]}
                             x="Source → drain coordinate (µm)"
                             y="Qinv (C/m²)"
                             sync="mos-channel"
@@ -1074,7 +1137,7 @@ export default function MosLab() {
           </p>
         </details>
         <footer>
-          GATE CONTROL / MOS CAPACITOR TO MOSFET{' '}
+          Gate control / MOS capacitor to MOSFET{' '}
           <span>Equilibrium charge · Long-channel drift · Explicit approximations</span>
         </footer>
       </main>

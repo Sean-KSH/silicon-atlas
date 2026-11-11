@@ -13,3 +13,6 @@ tmp/
 .env
 .env.*
 *.log
+
+# Python caches
+__pycache__/

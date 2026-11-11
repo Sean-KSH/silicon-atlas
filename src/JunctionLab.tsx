@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -71,9 +72,9 @@ function Slider({
   );
 }
 export default function JunctionLab() {
-  const [c, setC] = useState<JunctionInput>({ ...junctionDefault }),
-    [mode, setMode] = useState('depletion'),
-    [cells, setCells] = useState(160),
+  const [c, setC] = useLinkedState<JunctionInput>('', { ...junctionDefault }),
+    [mode, setMode] = useLinkedState('mode', 'depletion'),
+    [cells, setCells] = useLinkedState('cells', 160),
     [deep, setDeep] = useState(false),
     [compare, setCompare] = useState(true),
     [exp, setExp] = useState(0),
@@ -171,32 +172,36 @@ export default function JunctionLab() {
             syncMethod="value"
             margin={{ top: 10, right: 25, bottom: 16, left: 10 }}
           >
-            <CartesianGrid stroke="#30434d" strokeDasharray="3 5" />
+            <CartesianGrid stroke="var(--c-30434d)" strokeDasharray="3 5" />
             <XAxis
               dataKey="x"
               type="number"
               domain={[lo, hi]}
               ticks={ticks}
               tickFormatter={(v) => Number(v).toFixed(2)}
-              tick={{ fill: '#adc1cf', fontSize: 10 }}
+              tick={{ fill: 'var(--c-adc1cf)', fontSize: 12 }}
             />
             <YAxis
               width={82}
               scale={log ? 'log' : 'linear'}
               domain={['auto', 'auto']}
               tickFormatter={f}
-              tick={{ fill: '#adc1cf', fontSize: 10 }}
+              tick={{ fill: 'var(--c-adc1cf)', fontSize: 12 }}
             />
             <Tooltip
-              contentStyle={{ background: '#152531', border: '1px solid #526c7b', fontSize: 11 }}
+              contentStyle={{
+                background: 'var(--c-152531)',
+                border: '1px solid #526c7b',
+                fontSize: 13,
+              }}
               formatter={(v, name) => [f(Number(v)), name]}
               labelFormatter={(v) => `x = ${Number(v).toFixed(4)} µm`}
             />
-            <ReferenceLine x={0} stroke="#a5b7c3" />
+            <ReferenceLine x={0} stroke="var(--c-a5b7c3)" />
             {s && (
               <>
-                <ReferenceLine x={-s.xp * 1e6} stroke="#526c7b" strokeDasharray="3 3" />
-                <ReferenceLine x={s.xn * 1e6} stroke="#526c7b" strokeDasharray="3 3" />
+                <ReferenceLine x={-s.xp * 1e6} stroke="var(--c-526c7b)" strokeDasharray="3 3" />
+                <ReferenceLine x={s.xn * 1e6} stroke="var(--c-526c7b)" strokeDasharray="3 3" />
               </>
             )}
             {keys.map(([key, label, color]) => (
@@ -248,14 +253,16 @@ export default function JunctionLab() {
         <a className="brand" href="#junction">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">PN junction electrostatics</span>
+            Silicon Atlas<span className="brand-sub">PN junction electrostatics</span>
           </span>
         </a>
-        <button onClick={reset}>Reset to equilibrium</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="pn-hero">
-          <span className="eyebrow">NEAMEN / CHAPTER 7</span>
+          <span className="eyebrow">Neamen / Chapter 7</span>
           <h1>
             One junction.
             <br />
@@ -421,14 +428,14 @@ export default function JunctionLab() {
                     </h2>
                     <span>
                       {c.voltage === 0
-                        ? 'EQUILIBRIUM'
+                        ? 'Equilibrium'
                         : c.voltage < 0
-                          ? 'REVERSE BIAS'
-                          : 'FORWARD BIAS'}
+                          ? 'Reverse bias'
+                          : 'Forward bias'}
                     </span>
                   </div>
                   <svg
-                    viewBox="0 0 900 180"
+                    viewBox="0 0 900 186"
                     role="img"
                     aria-label="p-type on left, n-type on right; negative acceptor ions on p side, positive donor ions on n side, field points left"
                   >
@@ -437,22 +444,22 @@ export default function JunctionLab() {
                       y="40"
                       width={(820 * -lo) / (hi - lo)}
                       height="80"
-                      fill="#5b393b"
+                      fill="var(--c-5b393b)"
                     />
                     <rect
                       x={40 + (820 * -lo) / (hi - lo)}
                       y="40"
                       width={(820 * hi) / (hi - lo)}
                       height="80"
-                      fill="#234e4e"
+                      fill="var(--c-234e4e)"
                     />
                     <rect
                       x={40 + (820 * (-s.xp * 1e6 - lo)) / (hi - lo)}
                       y="40"
                       width={(820 * s.w * 1e6) / (hi - lo)}
                       height="80"
-                      fill="#24384c"
-                      stroke="#95b5c9"
+                      fill="var(--c-24384c)"
+                      stroke="var(--c-95b5c9)"
                       strokeDasharray="4 4"
                     />
                     <text x="45" y="25">
@@ -461,10 +468,18 @@ export default function JunctionLab() {
                     <text x="665" y="25">
                       n-type · donors
                     </text>
-                    <text x="450" y="83" textAnchor="middle">
-                      exposed ions: acceptors − (p side) · donors + (n side)
+                    <line
+                      x1={40 + (820 * -lo) / (hi - lo)}
+                      x2={40 + (820 * -lo) / (hi - lo)}
+                      y1="34"
+                      y2="126"
+                      stroke="var(--c-95b5c9)"
+                      strokeWidth="1.5"
+                    />
+                    <text x="450" y="146" textAnchor="middle">
+                      Depletion region: exposed acceptors − on the p side, donors + on the n side
                     </text>
-                    <text x="450" y="148" textAnchor="middle">
+                    <text x="450" y="170" textAnchor="middle">
                       ← E · potential φ rises → · electron energies fall →
                     </text>
                   </svg>
@@ -551,7 +566,7 @@ export default function JunctionLab() {
                   <div className="pn-heading">
                     <h2>Aligned spatial profiles</h2>
                     <span>
-                      {mode === 'pb' ? 'SOLID: PB · DASHED: DEPLETION' : 'ANALYTICAL DEPLETION'}
+                      {mode === 'pb' ? 'Solid: PB · dashed: depletion' : 'Analytical depletion'}
                     </span>
                   </div>
                   <p className="pn-note">
@@ -563,8 +578,8 @@ export default function JunctionLab() {
                     '01 · Net dopants on each side',
                     'cm⁻³',
                     [
-                      ['na', 'NA · acceptors', '#ecb197'],
-                      ['nd', 'ND · donors', '#86d6c0'],
+                      ['na', 'NA · acceptors', 'var(--c-ecb197)'],
+                      ['nd', 'ND · donors', 'var(--c-86d6c0)'],
                     ],
                     true,
                   )}
@@ -572,20 +587,24 @@ export default function JunctionLab() {
                     '02 · Mobile carriers',
                     'cm⁻³',
                     [
-                      ['n', 'Electrons n', '#86d6c0'],
-                      ['p', 'Holes p', '#ecb197'],
+                      ['n', 'Electrons n', 'var(--c-86d6c0)'],
+                      ['p', 'Holes p', 'var(--c-ecb197)'],
                     ],
                     true,
                   )}
-                  {plot('03 · Charge density ρ', 'C/m³', [['rho', 'Space charge', '#c6b2f3']])}
-                  {plot('04 · Electric field E', 'kV/cm', [['field', 'Field', '#86d6c0']])}
-                  {plot('05 · Electric potential φ', 'V', [['phi', 'Potential', '#efc583']])}
+                  {plot('03 · Charge density ρ', 'C/m³', [
+                    ['rho', 'Space charge', 'var(--c-c6b2f3)'],
+                  ])}
+                  {plot('04 · Electric field E', 'kV/cm', [['field', 'Field', 'var(--c-86d6c0)']])}
+                  {plot('05 · Electric potential φ', 'V', [
+                    ['phi', 'Potential', 'var(--c-efc583)'],
+                  ])}
                   {plot('06 · Electron energy levels', 'eV; EF = 0 reference at equilibrium', [
-                    ['ec', 'Ec', '#86d6c0'],
-                    ['ev', 'Ev', '#ecb197'],
-                    ['ei', 'Ei', '#b6c9d9'],
+                    ['ec', 'Ec', 'var(--c-86d6c0)'],
+                    ['ev', 'Ev', 'var(--c-ecb197)'],
+                    ['ei', 'Ei', 'var(--c-b6c9d9)'],
                     ...(c.voltage === 0
-                      ? ([['ef', 'EF', '#efc583']] as [string, string, string][])
+                      ? ([['ef', 'EF', 'var(--c-efc583)']] as [string, string, string][])
                       : []),
                   ])}
                   <p className="pn-note">
@@ -750,7 +769,7 @@ export default function JunctionLab() {
           </p>
         </details>
         <footer>
-          PN JUNCTION ELECTROSTATICS <span>Aligned position axes · Explicit model boundaries</span>
+          P–n junction electrostatics <span>Aligned position axes · Explicit model boundaries</span>
         </footer>
       </main>
     </div>

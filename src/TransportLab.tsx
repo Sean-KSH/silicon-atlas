@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -102,17 +103,17 @@ const experiments = [
   },
 ];
 export default function TransportLab() {
-  const [mode, setMode] = useState('combined'),
-    [species, setSpecies] = useState<'electron' | 'hole'>('electron'),
-    [mobility, setMobility] = useState(500),
-    [D, setD] = useState(12.9),
-    [einstein, setEinstein] = useState(true),
-    [field, setField] = useState(5),
-    [tau, setTau] = useState(0.5),
-    [logG, setLogG] = useState(19),
-    [boundary, setBoundary] = useState<TransportConfig['boundary']>('absorbing'),
-    [center, setCenter] = useState(200),
-    [cells, setCells] = useState(200),
+  const [mode, setMode] = useLinkedState('mode', 'combined'),
+    [species, setSpecies] = useLinkedState<'electron' | 'hole'>('species', 'electron'),
+    [mobility, setMobility] = useLinkedState('mobility', 500),
+    [D, setD] = useLinkedState('D', 12.9),
+    [einstein, setEinstein] = useLinkedState('einstein', true),
+    [field, setField] = useLinkedState('field', 5),
+    [tau, setTau] = useLinkedState('tau', 0.5),
+    [logG, setLogG] = useLinkedState('logG', 19),
+    [boundary, setBoundary] = useLinkedState<TransportConfig['boundary']>('boundary', 'absorbing'),
+    [center, setCenter] = useLinkedState('center', 200),
+    [cells, setCells] = useLinkedState('cells', 200),
     [position, setPosition] = useState(0),
     [running, setRunning] = useState(false),
     [rate, setRate] = useState(0.25),
@@ -232,24 +233,24 @@ export default function TransportLab() {
     const density = kind === 'density',
       keys = density
         ? densityTab === 'excess'
-          ? [['u', 'Excess minority u', '#8edac6']]
+          ? [['u', 'Excess minority u', 'var(--c-8edac6)']]
           : [
-              ['n', 'n · electrons', '#8edac6'],
-              ['p', 'p · holes', '#efbb87'],
+              ['n', 'n · electrons', 'var(--c-8edac6)'],
+              ['p', 'p · holes', 'var(--c-efbb87)'],
             ]
         : flowTab === 'flux'
           ? [
-              ['gn', 'Γn · electron flux', '#8edac6'],
-              ['gp', 'Γp · hole flux', '#efbb87'],
+              ['gn', 'Γn · electron flux', 'var(--c-8edac6)'],
+              ['gp', 'Γp · hole flux', 'var(--c-efbb87)'],
             ]
           : flowTab === 'field'
-            ? [['field', 'Prescribed E', '#b8a2dd']]
+            ? [['field', 'Prescribed E', 'var(--c-b8a2dd)']]
             : flowTab === 'excess'
-              ? [['jexcess', 'Excess minority current', '#8edac6']]
+              ? [['jexcess', 'Excess minority current', 'var(--c-8edac6)']]
               : [
-                  ['jn', 'Jn', '#8edac6'],
-                  ['jp', 'Jp', '#efbb87'],
-                  ['jtotal', 'Jn + Jp', '#b8a2dd'],
+                  ['jn', 'Jn', 'var(--c-8edac6)'],
+                  ['jp', 'Jp', 'var(--c-efbb87)'],
+                  ['jtotal', 'Jn + Jp', 'var(--c-b8a2dd)'],
                 ],
       unit = density
         ? 'cm⁻³'
@@ -273,13 +274,18 @@ export default function TransportLab() {
         <div className="tr-chart">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={rows} margin={{ top: 15, right: 25, bottom: 25, left: 15 }}>
-              <CartesianGrid stroke="#2c424e" strokeDasharray="3 5" />
+              <CartesianGrid stroke="var(--c-2c424e)" strokeDasharray="3 5" />
               <XAxis
                 dataKey="x"
                 type="number"
                 domain={[0, 400]}
-                tick={{ fill: '#a5bdc8', fontSize: 11 }}
-                label={{ value: 'Position x (µm)', position: 'bottom', offset: 5, fill: '#a5bdc8' }}
+                tick={{ fill: 'var(--c-a5bdc8)', fontSize: 12 }}
+                label={{
+                  value: 'Position x (µm)',
+                  position: 'bottom',
+                  offset: 5,
+                  fill: 'var(--c-a5bdc8)',
+                }}
               />
               <YAxis
                 width={78}
@@ -292,10 +298,14 @@ export default function TransportLab() {
                     : ['auto', 'auto']
                 }
                 tickFormatter={fmt}
-                tick={{ fill: '#a5bdc8', fontSize: 10 }}
+                tick={{ fill: 'var(--c-a5bdc8)', fontSize: 12 }}
               />
               <Tooltip
-                contentStyle={{ background: '#152631', border: '1px solid #4c6876', fontSize: 12 }}
+                contentStyle={{
+                  background: 'var(--c-152631)',
+                  border: '1px solid #4c6876',
+                  fontSize: 13,
+                }}
                 formatter={(v, name) => [`${fmt(Number(v))} ${unit}`, name]}
                 labelFormatter={(v) => `${Number(v).toFixed(1)} µm`}
               />
@@ -329,14 +339,16 @@ export default function TransportLab() {
         <a className="brand" href="#transport">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Transport & lifetime</span>
+            Silicon Atlas<span className="brand-sub">Transport & lifetime</span>
           </span>
         </a>
-        <button onClick={reset}>Reset transport lab</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="tr-hero">
-          <span className="eyebrow">NEAMEN / CHAPTERS 5—6</span>
+          <span className="eyebrow">Neamen / Chapters 5—6</span>
           <h1>
             Carrier transport
             <br />
@@ -381,7 +393,7 @@ export default function TransportLab() {
           ))}
         </nav>
         <div className="tr-scope">
-          <b>LOW-INJECTION MINORITY-CARRIER MODEL</b>
+          <b>Low-injection minority-carrier model</b>
           <p>
             One mobile excess population u(x,t), a prescribed uniform field, and a fixed majority
             background. The majority perturbation and internal electric field are not solved. This
@@ -522,13 +534,13 @@ export default function TransportLab() {
                 <section className="tr-card">
                   <div className="tr-heading">
                     <div>
-                      <span className="eyebrow">CALCULATED DENSITY / 1D BAR</span>
+                      <span className="eyebrow">Calculated density / 1D bar</span>
                       <h2>
                         {modes.find((m) => m.id === mode)?.name} at {(f.time * 1e6).toFixed(3)} µs
                       </h2>
                     </div>
                     <span className="tr-badge">
-                      {running ? 'PLAYING' : position >= 120 ? 'RUN COMPLETE' : 'PAUSED'}
+                      {running ? 'Playing' : position >= 120 ? 'Run complete' : 'Paused'}
                     </span>
                   </div>
                   <svg
@@ -544,7 +556,14 @@ export default function TransportLab() {
                     <text x="760" y="24" textAnchor="end">
                       {boundary} excess boundaries
                     </text>
-                    <rect x="54" y="63" width="712" height="72" fill="#0c1923" stroke="#658497" />
+                    <rect
+                      x="54"
+                      y="63"
+                      width="712"
+                      height="72"
+                      fill="var(--c-0c1923)"
+                      stroke="var(--c-658497)"
+                    />
                     {Array.from(f.u, (u, i) => (
                       <rect
                         key={i}
@@ -552,11 +571,14 @@ export default function TransportLab() {
                         y="64"
                         width={710 / cells + 0.15}
                         height="70"
-                        fill="#8ee0c6"
+                        fill="var(--c-8ee0c6)"
                         opacity={u / refDensity}
                       />
                     ))}
-                    <path d="M55 148H765M55 143V153M410 143V153M765 143V153" stroke="#8aa5b4" />
+                    <path
+                      d="M55 148H765M55 143V153M410 143V153M765 143V153"
+                      stroke="var(--c-8aa5b4)"
+                    />
                     <text x="55" y="172">
                       0
                     </text>
@@ -728,10 +750,10 @@ export default function TransportLab() {
                 <section className="tr-card">
                   <div className="tr-heading">
                     <div>
-                      <span className="eyebrow">CONSERVATIVE NUMERICAL ACCOUNTING</span>
+                      <span className="eyebrow">Conservative numerical accounting</span>
                       <h2>Where did the carriers go?</h2>
                     </div>
-                    <span className="tr-badge">PER UNIT CROSS-SECTIONAL AREA</span>
+                    <span className="tr-badge">Per unit cross-sectional area</span>
                   </div>
                   <div className="tr-ledger">
                     {[
@@ -797,7 +819,7 @@ export default function TransportLab() {
           </div>
         </div>
         <section className="tr-card tr-experiments">
-          <span className="eyebrow">GUIDED EXPERIMENTS</span>
+          <span className="eyebrow">Guided experiments</span>
           <h2>Predict → simulate → account.</h2>
           <div className="tr-actions">
             {experiments.map((e, i) => (
@@ -945,7 +967,7 @@ export default function TransportLab() {
           </p>
         </details>
         <footer>
-          CARRIER TRANSPORT & LIFETIME{' '}
+          Carrier transport & lifetime{' '}
           <span>Finite volumes · Prescribed field · Explicit carrier balance</span>
         </footer>
       </main>

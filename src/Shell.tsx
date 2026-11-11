@@ -190,6 +190,141 @@ function SectionBar({
   );
 }
 
+type Theme = 'dark' | 'light';
+const PREF_THEME = 'atlas.theme';
+const PREF_PRESENT = 'atlas.present';
+
+function readTheme(): Theme {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+/** Theme and Presenting-mode switches. Both are per-browser conveniences kept in localStorage. */
+function ViewToggles() {
+  const [theme, setTheme] = useState<Theme>(readTheme);
+  const [present, setPresent] = useState(() => readPref(PREF_PRESENT));
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') root.dataset.theme = 'light';
+    else delete root.dataset.theme;
+    try {
+      localStorage.setItem(PREF_THEME, theme);
+    } catch {
+      /* storage unavailable */
+    }
+  }, [theme]);
+  useEffect(() => {
+    const root = document.documentElement;
+    if (present) root.dataset.present = 'on';
+    else delete root.dataset.present;
+    writePref(PREF_PRESENT, present);
+    window.dispatchEvent(new Event('resize'));
+  }, [present]);
+  return (
+    <div className="shell-view" role="group" aria-label="Display">
+      <button
+        type="button"
+        className="shell-icon-button"
+        aria-pressed={present}
+        onClick={() => setPresent((p) => !p)}
+        title={present ? 'Leave presenting mode' : 'Presenting mode: larger text for projectors'}
+      >
+        <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+          <rect
+            x="2.5"
+            y="3.5"
+            width="15"
+            height="10"
+            rx="1.5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M10 13.5v3M6.5 16.5h7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+          />
+        </svg>
+        <span className="shell-view-label">Present</span>
+      </button>
+      <button
+        type="button"
+        className="shell-icon-button"
+        aria-label={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+        onClick={() => setTheme((t) => (t === 'light' ? 'dark' : 'light'))}
+        title={theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme'}
+      >
+        {theme === 'light' ? (
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+            <path
+              d="M15.5 12.5A6.5 6.5 0 0 1 7.5 4.5a6.5 6.5 0 1 0 8 8Z"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+            <circle cx="10" cy="10" r="3.5" fill="none" stroke="currentColor" strokeWidth="1.5" />
+            <path
+              d="M10 2v2M10 16v2M2 10h2M16 10h2M4.3 4.3l1.4 1.4M14.3 14.3l1.4 1.4M4.3 15.7l1.4-1.4M14.3 5.7l1.4-1.4"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+        )}
+        <span className="shell-view-label">{theme === 'light' ? 'Dark' : 'Light'}</span>
+      </button>
+    </div>
+  );
+}
+
+/** Copies a link that reopens the current module with its current settings. */
+function ShareButton() {
+  const [state, setState] = useState<'idle' | 'copied' | 'failed'>('idle');
+  useEffect(() => {
+    if (state === 'idle') return;
+    const t = window.setTimeout(() => setState('idle'), 2200);
+    return () => window.clearTimeout(t);
+  }, [state]);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      setState('copied');
+    } catch {
+      setState('failed');
+    }
+  };
+  return (
+    <button
+      type="button"
+      className="shell-icon-button"
+      onClick={copy}
+      title="Copy a link that opens this module with the current settings"
+    >
+      <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
+        <path
+          d="M8.5 11.5a3 3 0 0 0 4.2 0l3-3a3 3 0 0 0-4.2-4.2l-1 1M11.5 8.5a3 3 0 0 0-4.2 0l-3 3a3 3 0 0 0 4.2 4.2l1-1"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+      <span className="shell-view-label" aria-live="polite">
+        {state === 'copied'
+          ? 'Link copied'
+          : state === 'failed'
+            ? 'Copy the address bar'
+            : 'Copy link'}
+      </span>
+    </button>
+  );
+}
+
 /** Top bar shared by the course guide and every module. */
 export function AppBar({
   current,
@@ -235,33 +370,37 @@ export function AppBar({
         ) : (
           <p className="shell-current shell-current-home">Course guide</p>
         )}
-        {mod && (
-          <nav className="shell-step" aria-label="Previous and next module">
-            {prev ? (
-              <a href={`#${prev.id}`} rel="prev" title={`Previous: ${prev.number} ${prev.label}`}>
-                <span aria-hidden="true">‹</span>
-                <span className="shell-step-label">
-                  {prev.number} {prev.label}
-                </span>
-                <span className="visually-hidden">Previous module: {prev.label}</span>
-              </a>
-            ) : (
-              <a href="#home" title="Course guide">
-                <span aria-hidden="true">‹</span>
-                <span className="shell-step-label">Course guide</span>
-              </a>
-            )}
-            {next && (
-              <a href={`#${next.id}`} rel="next" title={`Next: ${next.number} ${next.label}`}>
-                <span className="shell-step-label">
-                  {next.number} {next.label}
-                </span>
-                <span aria-hidden="true">›</span>
-                <span className="visually-hidden">Next module: {next.label}</span>
-              </a>
-            )}
-          </nav>
-        )}
+        <div className="shell-tools">
+          {mod && (
+            <nav className="shell-step" aria-label="Previous and next module">
+              {prev ? (
+                <a href={`#${prev.id}`} rel="prev" title={`Previous: ${prev.number} ${prev.label}`}>
+                  <span aria-hidden="true">‹</span>
+                  <span className="shell-step-label">
+                    {prev.number} {prev.label}
+                  </span>
+                  <span className="visually-hidden">Previous module: {prev.label}</span>
+                </a>
+              ) : (
+                <a href="#home" title="Course guide">
+                  <span aria-hidden="true">‹</span>
+                  <span className="shell-step-label">Course guide</span>
+                </a>
+              )}
+              {next && (
+                <a href={`#${next.id}`} rel="next" title={`Next: ${next.number} ${next.label}`}>
+                  <span className="shell-step-label">
+                    {next.number} {next.label}
+                  </span>
+                  <span aria-hidden="true">›</span>
+                  <span className="visually-hidden">Next module: {next.label}</span>
+                </a>
+              )}
+            </nav>
+          )}
+          {mod && <ShareButton />}
+          <ViewToggles />
+        </div>
       </div>
       {lesson && <SectionBar key={lesson.id} lesson={lesson} frame={frame} />}
       {open && <ModulesMenu current={current} onClose={close} />}

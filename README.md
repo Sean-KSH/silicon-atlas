@@ -14,6 +14,13 @@ refuses or flags inputs outside that range instead of drawing a confident wrong 
 
 ![The Silicon Atlas course guide: a course map of the ten modules drawn as a p–n junction band diagram](output/screenshots/00-home.png)
 
+<details>
+<summary>Light theme</summary>
+
+![The P–n junction module in the light theme](output/screenshots/light-06-junction.png)
+
+</details>
+
 ## Modules
 
 | # | Module | What a student explores | Main model(s) |
@@ -46,6 +53,18 @@ example `http://127.0.0.1:5173/#junction`, and is framed by the same app bar (mo
 previous/next, and "On this page" shortcuts), a lesson intro (goals, reading, prerequisites) and
 self-check questions with hidden answers.
 
+The app bar also has:
+
+- **Copy link**: copies a link that reopens the current module with its current settings, so a
+  slide or assignment can point students at an exact setup. Settings appear after the module hash
+  in the module's own internal (SI) units, for example `#junction?na=1e23&voltage=-0.1`.
+- **Present**: enlarges everything by 25 % for projectors.
+- **Light / Dark**: switches theme; the choice is remembered in the browser. Printing always uses
+  the light theme.
+
+On a Mac you can also double-click `scripts/start-mac.command` to install dependencies, start the
+dev server and open the app.
+
 | Command | What it does |
 | --- | --- |
 | `pnpm test` | Runs every physics and integration test group |
@@ -53,6 +72,7 @@ self-check questions with hidden answers.
 | `pnpm typecheck` | TypeScript, strict mode |
 | `pnpm build` | Typecheck and production build into `dist/` (static files, no server needed) |
 | `pnpm format` | Prettier formatting for `src/` |
+| `python3 scripts/theme-tokens.py` | Regenerates the light-theme colours from the dark ones |
 
 The build output in `dist/` is a static site with relative paths, so it can be served from any
 static host or sub-path, including GitHub Pages. No deployment is configured yet. To try the
@@ -69,6 +89,8 @@ src/
   Shell.tsx           app bar, modules menu, section shortcuts, lesson intro and outro
   Home.tsx            course guide and course map
   shell.css           shared design tokens and the frame around every module
+  theme-colors.css    every colour as a variable, with dark and light values (generated)
+  urlState.ts         keeps module settings in the link for shareable setups
   <model>.ts          physics kernels, independent of React (SI units internally)
   <model>.test.ts     validation tests for each kernel
   <Module>Lab.tsx     module interfaces (Wafer.tsx for module 01)

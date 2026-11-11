@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -13,8 +14,8 @@ import { growthConstants as g, growthModel, growthAt, growthSeries, growthCsv } 
 import './growth.css';
 import { useSvgDrag } from './useSvgDrag';
 export default function GrowthLab() {
-  const [superheat, setSuperheat] = useState(20),
-    [pull, setPull] = useState(0.8),
+  const [superheat, setSuperheat] = useLinkedState('superheat', 20),
+    [pull, setPull] = useLinkedState('pull', 0.8),
     [time, setTime] = useState(0),
     [running, setRunning] = useState(false),
     [rate, setRate] = useState(600),
@@ -94,10 +95,10 @@ export default function GrowthLab() {
     <section className="growth-lab" id="growth-lab">
       <div className="analysis-title">
         <div>
-          <span className="eyebrow">ANIMATED THERMAL EXPERIMENT</span>
+          <span className="eyebrow">Animated thermal experiment</span>
           <h2>Temperature. Pull speed. Ingot growth.</h2>
         </div>
-        <span className="pill">CALCULATED BODY GROWTH</span>
+        <span className="pill">Calculated body growth</span>
       </div>
       <p className="growth-intro">
         Explore the steady cylindrical body compatible with a fixed heat-removal budget. This is a
@@ -105,7 +106,7 @@ export default function GrowthLab() {
       </p>
       <div className="growth-grid">
         <aside className="panel controls">
-          <div className="eyebrow">CONSTANT-CONDITION RUN</div>
+          <div className="eyebrow">Constant-condition run</div>
           <h2>Operating conditions</h2>
           <label>
             Melt temperature
@@ -180,7 +181,7 @@ export default function GrowthLab() {
         <div className="panel growth-stage">
           <div className="sectiontop">
             <div>
-              <div className="eyebrow">FIGURE 07 / TIME-RESOLVED VIEW</div>
+              <div className="eyebrow">Figure 07 / Time-resolved view</div>
               <h2>Growing body at {Math.floor(time / 60)} min</h2>
             </div>
             <span className="growth-status">
@@ -195,28 +196,28 @@ export default function GrowthLab() {
             >
               <defs>
                 <linearGradient id="grown-metal">
-                  <stop stopColor="#24364b" />
-                  <stop offset=".3" stopColor="#7f98ac" />
-                  <stop offset=".48" stopColor="#cedce4" />
-                  <stop offset=".68" stopColor="#6d859a" />
-                  <stop offset="1" stopColor="#23364c" />
+                  <stop stopColor="var(--c-24364b)" />
+                  <stop offset=".3" stopColor="var(--c-7f98ac)" />
+                  <stop offset=".48" stopColor="var(--c-cedce4)" />
+                  <stop offset=".68" stopColor="var(--c-6d859a)" />
+                  <stop offset="1" stopColor="var(--c-23364c)" />
                 </linearGradient>
                 <linearGradient id="growth-melt" x2="0" y2="1">
-                  <stop stopColor="#e2b979" />
-                  <stop offset="1" stopColor="#956237" />
+                  <stop stopColor="var(--c-e2b979)" />
+                  <stop offset="1" stopColor="var(--c-956237)" />
                 </linearGradient>
               </defs>
               <path
                 d="M220 291V341Q220 362 244 362H416Q440 362 440 341V291"
-                fill="#293b49"
-                stroke="#8ea7b9"
+                fill="var(--c-293b49)"
+                stroke="var(--c-8ea7b9)"
                 strokeWidth="3"
               />
               <path
                 d="M228 310H432V339Q432 353 416 353H244Q228 353 228 339Z"
                 fill="url(#growth-melt)"
               />
-              <path d="M228 310H432" stroke="#f6dbab" strokeWidth="2" />
+              <path d="M228 310H432" stroke="var(--c-f6dbab)" strokeWidth="2" />
               <g
                 className={`crystal-drag ${crystalDrag.dragging ? 'is-dragging' : ''}`}
                 role="slider"
@@ -270,50 +271,50 @@ export default function GrowthLab() {
                       width={diameter}
                       height={height}
                       fill="url(#grown-metal)"
-                      stroke="#aecbdc"
+                      stroke="var(--c-aecbdc)"
                     />
                     <line
                       x1={left + diameter * 0.35}
                       x2={left + diameter * 0.35}
                       y1={top}
                       y2="310"
-                      stroke="#e3f4ff"
+                      stroke="var(--c-e3f4ff)"
                       opacity=".2"
                     />
                   </>
                 )}
                 <path
                   d={`M${left} ${top}H${left + diameter}`}
-                  stroke="#aecbdc"
+                  stroke="var(--c-aecbdc)"
                   strokeDasharray={time === 0 ? '4 3' : undefined}
                 />
-                <rect x="325" y={top - 18} width="10" height="18" fill="#c4d4df" />
+                <rect x="325" y={top - 18} width="10" height="18" fill="var(--c-c4d4df)" />
               </g>
-              <path d={`M330 18V${top - 18}`} stroke="#9ab2c5" strokeWidth="4" />
+              <path d={`M330 18V${top - 18}`} stroke="var(--c-9ab2c5)" strokeWidth="4" />
               <text x="342" y={top - 5} className="figure-sub">
                 Seed / pre-grown support
               </text>
               <path
                 d={`M${left} 378H${left + diameter}M${left} 373V383M${left + diameter} 373V383`}
-                stroke="#aecbdc"
+                stroke="var(--c-aecbdc)"
               />
               <text x="330" y="401" textAnchor="middle" className="figure-label">
                 D = {(m.diameter * 1000).toFixed(1)} mm
               </text>
               <path
                 d={`M${left - 25} ${top}V310M${left - 30} ${top}H${left - 20}M${left - 30} 310H${left - 20}`}
-                stroke="#a6c1d3"
+                stroke="var(--c-a6c1d3)"
               />
               <text x={left - 35} y={(top + 310) / 2} textAnchor="end" className="figure-label">
                 {(r.length * 1000).toFixed(1)} mm
               </text>
               <text x="40" y="35" className="figure-sub">
-                BODY SCALE · 100 mm
+                Body scale · 100 mm
               </text>
-              <path d="M40 48H110M40 43V53M110 43V53" stroke="#9eb8cb" />
+              <path d="M40 48H110M40 43V53M110 43V53" stroke="var(--c-9eb8cb)" />
               <path
                 d="M490 135V80M484 88L490 80L496 88"
-                stroke="#9fcac0"
+                stroke="var(--c-9fcac0)"
                 strokeWidth="2"
                 fill="none"
               />
@@ -325,7 +326,7 @@ export default function GrowthLab() {
               </text>
               <path
                 d="M490 275V220M484 228L490 220L496 228"
-                stroke="#e8bf81"
+                stroke="var(--c-e8bf81)"
                 strokeWidth="2"
                 fill="none"
               />
@@ -477,21 +478,21 @@ export default function GrowthLab() {
           <div className="chart">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={series} margin={{ top: 12, right: 20, bottom: 25, left: 10 }}>
-                <CartesianGrid stroke="#28384c" strokeDasharray="3 3" />
+                <CartesianGrid stroke="var(--c-28384c)" strokeDasharray="3 3" />
                 <XAxis
                   dataKey="minutes"
                   type="number"
                   domain={[0, 180]}
-                  tick={{ fill: '#a7b9ce', fontSize: 11 }}
+                  tick={{ fill: 'var(--c-a7b9ce)', fontSize: 12 }}
                   label={{ value: 'Simulation time (min)', position: 'bottom', offset: 5 }}
                 />
                 <YAxis
                   domain={[0, 'auto']}
-                  tick={{ fill: '#a7b9ce', fontSize: 11 }}
+                  tick={{ fill: 'var(--c-a7b9ce)', fontSize: 12 }}
                   tickFormatter={(v) => Number(v).toPrecision(3)}
                 />
                 <Tooltip
-                  contentStyle={{ background: '#162437', border: '1px solid #496077' }}
+                  contentStyle={{ background: 'var(--c-162437)', border: '1px solid #496077' }}
                   labelFormatter={(v) => `${Number(v).toFixed(1)} min`}
                   formatter={(v) => [
                     `${Number(v).toPrecision(4)} ${unit}`,
@@ -500,12 +501,12 @@ export default function GrowthLab() {
                 />
                 <Line
                   dataKey={quantity}
-                  stroke="#82cfbe"
+                  stroke="var(--c-82cfbe)"
                   strokeWidth={2}
                   dot={false}
                   isAnimationActive={false}
                 />
-                <ReferenceLine x={time / 60} stroke="#e8bf81" strokeDasharray="4 3" />
+                <ReferenceLine x={time / 60} stroke="var(--c-e8bf81)" strokeDasharray="4 3" />
               </LineChart>
             </ResponsiveContainer>
           </div>

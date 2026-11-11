@@ -1,5 +1,6 @@
 import { fabricationGuide } from './fabricationGuide';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -181,8 +182,8 @@ function TopView({
               y={(c + r.alignment[mask][1] * 1e6) * 20}
               width={(b - a) * 20}
               height={(d - c) * 20}
-              fill="#10161a22"
-              stroke="#fff"
+              fill="var(--c-10161a22)"
+              stroke="var(--c-ffffff)"
               strokeWidth="2"
               strokeDasharray="7 5"
             />
@@ -193,7 +194,7 @@ function TopView({
               key={i}
               x={(x + r.alignment.metal[0] * 1e6) * 20}
               y={(10 + r.alignment.metal[1] * 1e6) * 20 + 30}
-              fill="#18232a"
+              fill="var(--c-18232a)"
               textAnchor="middle"
               fontSize="20"
               fontWeight="bold"
@@ -203,7 +204,7 @@ function TopView({
           ))}
         <path
           d={`M0 ${(slice / height) * 400}H800`}
-          stroke="#fff"
+          stroke="var(--c-ffffff)"
           strokeWidth="2"
           strokeDasharray="10 7"
         />
@@ -243,7 +244,7 @@ function Section({
     >
       <defs>
         <pattern id="fab-si" width="10" height="10" patternUnits="userSpaceOnUse">
-          <path d="M0 10L10 0" stroke="#607181" opacity=".16" />
+          <path d="M0 10L10 0" stroke="var(--c-607181)" opacity=".16" />
         </pattern>
       </defs>
       <rect x="50" y={base} width="700" height="170" fill={colors.silicon} />
@@ -256,7 +257,13 @@ function Section({
           top = surface - s.oxide[i] * sy;
         return (
           <g key={x} shapeRendering="crispEdges">
-            <rect x={xx} y={base - 110} width={w} height={110 + s.recess[i] * sy} fill="#101b24" />
+            <rect
+              x={xx}
+              y={base - 110}
+              width={w}
+              height={110 + s.recess[i] * sy}
+              fill="var(--c-101b24)"
+            />
             {s.doped[i] && junction !== null && (
               <rect x={xx} y={surface} width={w} height={junction * sy} fill={colors.doped} />
             )}
@@ -282,10 +289,10 @@ function Section({
           </g>
         );
       })}
-      <text x="66" y="292" fill="#d7e0e5">
+      <text x="66" y="292" fill="var(--c-d7e0e5)">
         p-type Si · substrate thickness truncated
       </text>
-      <path d="M50 326l8 -5 8 10 8 -10 8 5H750" fill="none" stroke="#a5b5be" />
+      <path d="M50 326l8 -5 8 10 8 -10 8 5H750" fill="none" stroke="var(--c-a5b5be)" />
       {s.backOxide > 0 && (
         <rect x="50" y="340" width="700" height={s.backOxide * sy} fill={colors.oxide} />
       )}{' '}
@@ -307,20 +314,20 @@ function Section({
           fill={colors.metal}
         />
       )}
-      <text x="50" y={viewHeight - 16} fill="#aebec8" fontSize="12">
+      <text x="50" y={viewHeight - 16} fill="var(--c-aebec8)" fontSize="12">
         Backside drawn separately · oxide {fmt(s.backOxide * 1e9)} nm{' '}
         {s.backMetal ? '· substrate metal' : ''}
       </text>
-      <path d="M50 28H750" stroke="#8097a5" />
+      <path d="M50 28H750" stroke="var(--c-8097a5)" />
       {[0, 10, 20, 30, 40].map((x) => (
         <g key={x}>
-          <path d={`M${50 + x * 17.5} 24v8`} stroke="#8097a5" />
-          <text x={50 + x * 17.5} y="18" fill="#aebec8" textAnchor="middle" fontSize="12">
+          <path d={`M${50 + x * 17.5} 24v8`} stroke="var(--c-8097a5)" />
+          <text x={50 + x * 17.5} y="18" fill="var(--c-aebec8)" textAnchor="middle" fontSize="12">
             {x} µm
           </text>
         </g>
       ))}
-      <text x="750" y="313" textAnchor="end" fill="#aebec8" fontSize="11">
+      <text x="750" y="313" textAnchor="end" fill="var(--c-aebec8)" fontSize="12">
         Vertical scale ×{scale} · no minimum layer thickness
       </text>
     </svg>
@@ -328,10 +335,10 @@ function Section({
 }
 export default function FabricationLab() {
   const [r, setR] = useState<Recipe>(() => structuredClone(defaults)),
-    [step, setStep] = useState(0),
+    [step, setStep] = useLinkedState('step', 0),
     [mask, setMask] = useState<Mask>('diffusion'),
-    [slice, setSlice] = useState(10e-6),
-    [scale, setScale] = useState(3),
+    [slice, setSlice] = useLinkedState('section', 10e-6),
+    [scale, setScale] = useLinkedState('vscale', 3),
     [deep, setDeep] = useState(false),
     [dragMask, setDragMask] = useState(false),
     [overlay, setOverlay] = useState(true),
@@ -498,15 +505,17 @@ export default function FabricationLab() {
         <a href="#fabrication" className="brand">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Process integration / 05</span>
+            Silicon Atlas<span className="brand-sub">Process integration / 05</span>
           </span>
         </a>
-        <button onClick={reset}>Restore tested defaults</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="fab-hero">
           <div>
-            <span className="eyebrow">THE FOUR-MASK TEACHING PROCESS</span>
+            <span className="eyebrow">The four-mask teaching process</span>
             <h1>Fabricate a MOSFET.</h1>
             <p>
               Pattern. Diffuse. Connect.
@@ -517,11 +526,11 @@ export default function FabricationLab() {
           <div className="fab-hero-badge">
             <span>nMOS</span>
             <small>
-              METAL GATE
+              Metal gate
               <br />
-              P-TYPE SILICON
+              P-type silicon
               <br />
-              COURSE LAB FLOW
+              Course lab flow
             </small>
           </div>
         </div>
@@ -531,7 +540,7 @@ export default function FabricationLab() {
               Beginner
             </button>
             <button className={deep ? 'selected' : ''} onClick={() => setDeep(true)}>
-              Model details
+              Deeper physics
             </button>
           </div>
           <div>
@@ -627,11 +636,11 @@ export default function FabricationLab() {
         </div>
         <div className="fab-instruction" aria-live="polite">
           <div>
-            <span>DO THIS</span>
+            <span>Do this</span>
             <p>{fabricationGuide[step][0]}</p>
           </div>
           <div>
-            <span>LOOK FOR</span>
+            <span>Look for</span>
             <p>{fabricationGuide[step][1]}</p>
           </div>
           <small>
@@ -903,7 +912,7 @@ export default function FabricationLab() {
                     <section className="fab-card">
                       <div className="fab-panel-heading">
                         <div>
-                          <span className="eyebrow">SYNCHRONIZED MATERIAL GEOMETRY</span>
+                          <span className="eyebrow">Synchronized material geometry</span>
                           <h2>Wafer top view</h2>
                         </div>
                         <span className="fab-chip">40 × 20 µm</span>
@@ -966,7 +975,7 @@ export default function FabricationLab() {
                     <section className="fab-card">
                       <div className="fab-panel-heading">
                         <div>
-                          <span className="eyebrow">SECTION A–A′ / COMPUTED LAYERS</span>
+                          <span className="eyebrow">Section A–A′ / Computed layers</span>
                           <h2>Cross-section</h2>
                         </div>
                         <label>
@@ -1012,7 +1021,7 @@ export default function FabricationLab() {
                     </section>
                   </div>
                   <section className="fab-card">
-                    <span className="eyebrow">PROCESS CONSEQUENCES</span>
+                    <span className="eyebrow">Process consequences</span>
                     <h2>{issues.length ? 'Inspect before proceeding' : 'Geometry checks'}</h2>
                     {issues.map((v, i) => (
                       <p className="fab-warning" key={i}>
@@ -1082,7 +1091,7 @@ export default function FabricationLab() {
             <section className="fab-card">
               <div className="fab-panel-heading">
                 <div>
-                  <span className="eyebrow">ANALYTICAL RECIPE SUBMODELS</span>
+                  <span className="eyebrow">Analytical recipe submodels</span>
                   <h2>Predict the process window</h2>
                 </div>
               </div>
@@ -1111,11 +1120,11 @@ export default function FabricationLab() {
               <div className="fab-chart">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={data} margin={{ top: 10, right: 25, bottom: 30, left: 15 }}>
-                    <CartesianGrid stroke="#30434d" strokeDasharray="3 5" />
+                    <CartesianGrid stroke="var(--c-30434d)" strokeDasharray="3 5" />
                     <XAxis
                       dataKey="x"
                       type="number"
-                      tick={{ fill: '#a5bdc8', fontSize: 11 }}
+                      tick={{ fill: 'var(--c-a5bdc8)', fontSize: 12 }}
                       label={{
                         value:
                           plot === 'diffusion'
@@ -1124,7 +1133,7 @@ export default function FabricationLab() {
                               ? 'Wet oxidation time (min)'
                               : 'Position x (µm)',
                         position: 'bottom',
-                        fill: '#a5bdc8',
+                        fill: 'var(--c-a5bdc8)',
                         offset: 8,
                       }}
                     />
@@ -1134,10 +1143,10 @@ export default function FabricationLab() {
                       domain={plot === 'diffusion' ? [1e10, 'auto'] : [0, 'auto']}
                       allowDataOverflow
                       tickFormatter={fmt}
-                      tick={{ fill: '#a5bdc8', fontSize: 10 }}
+                      tick={{ fill: 'var(--c-a5bdc8)', fontSize: 12 }}
                     />
                     <Tooltip
-                      contentStyle={{ background: '#152631', border: '1px solid #4c6876' }}
+                      contentStyle={{ background: 'var(--c-152631)', border: '1px solid #4c6876' }}
                       formatter={(v) => fmt(Number(v))}
                     />
                     {plot === 'diffusion' ? (
@@ -1145,14 +1154,14 @@ export default function FabricationLab() {
                         <Line
                           dataKey="donor"
                           name="Donors (cm⁻³)"
-                          stroke="#83c7a5"
+                          stroke="var(--c-83c7a5)"
                           dot={false}
                           isAnimationActive={false}
                         />
                         <Line
                           dataKey="acceptor"
                           name="Acceptors (cm⁻³)"
-                          stroke="#e1bc79"
+                          stroke="var(--c-e1bc79)"
                           dot={false}
                         />
                       </>
@@ -1169,17 +1178,17 @@ export default function FabricationLab() {
                         <Line
                           dataKey="image"
                           name="Normalized dose"
-                          stroke="#bf86c8"
+                          stroke="var(--c-bf86c8)"
                           dot={false}
                           isAnimationActive={false}
                         />
                         <ReferenceLine
                           y={0.5}
-                          stroke="#e1bc79"
+                          stroke="var(--c-e1bc79)"
                           strokeDasharray="5 5"
                           label={{
                             value: 'Clear threshold 0.5',
-                            fill: '#e1bc79',
+                            fill: 'var(--c-e1bc79)',
                             position: 'insideTopRight',
                           }}
                         />
@@ -1199,7 +1208,7 @@ export default function FabricationLab() {
           </div>
         </div>
         <section className="fab-card fab-experiments">
-          <span className="eyebrow">THREE GUIDED EXPERIMENTS</span>
+          <span className="eyebrow">Three guided experiments</span>
           <h2>Predict → fabricate → inspect.</h2>
           <div className="fab-toolbar">
             {['1. Oxidation time', '2. Conserved dose', '3. Contact failure'].map((name, i) => (

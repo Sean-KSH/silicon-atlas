@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLinkedState } from './urlState';
 import ProcessFigure from './ProcessFigure';
 import GrowthLab from './GrowthLab';
 import { downloadFigure, segregationFigure } from './exportFigure';
@@ -73,13 +74,13 @@ const steps = [
 ];
 export default function Wafer() {
   const [growthReset, setGrowthReset] = useState(0),
-    [stage, setStage] = useState(4),
-    [c, setC] = useState(100),
-    [k, setK] = useState(0.1),
-    [a, setA] = useState(0),
-    [b, setB] = useState(0.8),
-    [compare, setCompare] = useState(true),
-    [log, setLog] = useState(true);
+    [stage, setStage] = useLinkedState('stage', 4),
+    [c, setC] = useLinkedState('conc', 100),
+    [k, setK] = useLinkedState('k', 0.1),
+    [a, setA] = useLinkedState('from', 0),
+    [b, setB] = useLinkedState('to', 0.8),
+    [compare, setCompare] = useLinkedState('compare', true),
+    [log, setLog] = useLinkedState('log', true);
   const c0 = c * 1e-9,
     avg = average(c0, k, a, b) * 1e9,
     m = balance(c0, k, b),
@@ -104,21 +105,23 @@ export default function Wafer() {
         <a className="brand" href="#wafer">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Materials & device physics</span>
+            Silicon Atlas<span className="brand-sub">Materials & device physics</span>
           </span>
         </a>
-        <span className="course">SILICON PROCESSING / 01</span>
-        <button onClick={reset}>Reset module</button>
+        <span className="course">Silicon processing / 01</span>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="intro">
           <div>
-            <div className="eyebrow">MATERIALS LABORATORY / 01</div>
+            <div className="eyebrow">Materials laboratory / 01</div>
             <h1>From silica to silicon wafer</h1>
             <p>Trace the manufacturing pathway. Examine the material. Quantify what remains.</p>
           </div>
           <a className="pill growth-jump" href="#growth-lab">
-            OPEN GROWTH SIMULATION ↓
+            Open growth simulation ↓
           </a>
         </div>
         <nav className="process-nav" aria-label="Manufacturing stages">
@@ -160,7 +163,7 @@ export default function Wafer() {
         <GrowthLab key={growthReset} />
         <div className="analysis-title">
           <div>
-            <span className="eyebrow">QUANTITATIVE INVESTIGATION</span>
+            <span className="eyebrow">Quantitative investigation</span>
             <h2>Impurity segregation</h2>
           </div>
           <p>A selected portion of the crystal. An exact mass balance.</p>
@@ -181,7 +184,7 @@ export default function Wafer() {
         </div>
         <div className="workspace">
           <aside className="panel controls">
-            <div className="eyebrow">CRYSTAL-GROWTH MODEL</div>
+            <div className="eyebrow">Crystal-growth model</div>
             <h2>Segregation parameters</h2>
             <p className="note">
               Independent of the illustrative process above. Generic dilute impurity; no
@@ -258,7 +261,7 @@ export default function Wafer() {
           <section className="panel stage">
             <div className="sectiontop">
               <div>
-                <div className="eyebrow">FIGURE 08 / SCHEIL APPROXIMATION</div>
+                <div className="eyebrow">Figure 08 / Scheil approximation</div>
                 <h2>Solid composition profile</h2>
               </div>
               <div className="figure-actions">
@@ -307,7 +310,7 @@ export default function Wafer() {
             </div>
             <div className="retained-strip" aria-label={`Retained interval ${a} to ${b}`}>
               <div className="strip-label">
-                <span>RETAINED INGOT SEGMENT</span>
+                <span>Retained ingot segment</span>
                 <span>
                   {(a * 100).toFixed(1)}–{(b * 100).toFixed(1)}% of initial melt mass
                 </span>
@@ -335,12 +338,12 @@ export default function Wafer() {
             <div className="chart wafer-chart">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 12, right: 20, bottom: 26, left: 20 }}>
-                  <CartesianGrid stroke="#28384c" strokeDasharray="3 3" />
+                  <CartesianGrid stroke="var(--c-28384c)" strokeDasharray="3 3" />
                   <XAxis
                     dataKey="f"
                     type="number"
                     domain={[0, 0.999]}
-                    tick={{ fill: '#a7b9ce', fontSize: 11 }}
+                    tick={{ fill: 'var(--c-a7b9ce)', fontSize: 12 }}
                     ticks={[0, 0.25, 0.5, 0.75, 0.999]}
                     tickFormatter={(x) => (Number(x) === 0.999 ? '0.999' : Number(x).toFixed(2))}
                     label={{
@@ -353,20 +356,20 @@ export default function Wafer() {
                     scale={log ? 'log' : 'linear'}
                     domain={log ? [yMin * 0.8, yMax * 1.25] : [0, yMax * 1.1]}
                     allowDataOverflow={false}
-                    tick={{ fill: '#a7b9ce', fontSize: 11 }}
+                    tick={{ fill: 'var(--c-a7b9ce)', fontSize: 12 }}
                     tickFormatter={(x) => Number(x).toPrecision(2)}
                     width={65}
                   />
                   <Tooltip
-                    contentStyle={{ background: '#162437', border: '1px solid #496077' }}
+                    contentStyle={{ background: 'var(--c-162437)', border: '1px solid #496077' }}
                     labelFormatter={(x) => `f = ${Number(x).toFixed(4)}`}
                     formatter={(x, name) => [`${Number(x).toPrecision(4)} ppb`, name]}
                   />
-                  <ReferenceArea x1={a} x2={b} fill="#96bfe6" fillOpacity={0.1} />
+                  <ReferenceArea x1={a} x2={b} fill="var(--c-96bfe6)" fillOpacity={0.1} />
                   <Line
                     dataKey="cs"
                     name={`Selected k = ${k.toFixed(2)}`}
-                    stroke="#74c8bd"
+                    stroke="var(--c-74c8bd)"
                     strokeWidth={3}
                     dot={false}
                     isAnimationActive={false}
@@ -376,7 +379,7 @@ export default function Wafer() {
                       <Line
                         dataKey="low"
                         name="k = 0.1"
-                        stroke="#edb785"
+                        stroke="var(--c-edb785)"
                         strokeDasharray="5 3"
                         dot={false}
                         isAnimationActive={false}
@@ -384,7 +387,7 @@ export default function Wafer() {
                       <Line
                         dataKey="unity"
                         name="k = 1"
-                        stroke="#b5c8e2"
+                        stroke="var(--c-b5c8e2)"
                         strokeDasharray="5 3"
                         dot={false}
                         isAnimationActive={false}
@@ -392,7 +395,7 @@ export default function Wafer() {
                       <Line
                         dataKey="high"
                         name="k = 2"
-                        stroke="#b4a2ef"
+                        stroke="var(--c-b4a2ef)"
                         strokeDasharray="5 3"
                         dot={false}
                         isAnimationActive={false}
@@ -424,7 +427,7 @@ export default function Wafer() {
           </section>
         </div>
         <section className="panel experiments">
-          <div className="eyebrow">PURITY & ELECTRICAL PROPERTIES</div>
+          <div className="eyebrow">Purity & electrical properties</div>
           <h2>Pure silicon can still be intentionally doped</h2>
           <p>
             High purity removes uncontrolled contaminants; controlled doping adds a known species
@@ -521,7 +524,7 @@ export default function Wafer() {
           </details>
         </div>
         <footer>
-          DEVICE LAB / MATERIALS
+          Device lab / Materials
           <span>Process illustrations · Analytical segregation · Explicit assumptions</span>
         </footer>
       </main>

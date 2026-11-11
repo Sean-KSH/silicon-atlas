@@ -9,7 +9,7 @@
 }
 .mos-axis {
   font-size: 12px !important;
-  color: #b4c9d5;
+  color: var(--c-b4c9d5);
 }
 .mos-device {
   display: block;
@@ -17,7 +17,7 @@
   margin: 28px 0 0;
 }
 .mos-device text {
-  fill: #e6edf1;
+  fill: var(--c-e6edf1);
   font-size: 14px;
   font-family: inherit;
 }
@@ -28,13 +28,13 @@
   align-items: center;
 }
 .mos-status {
-  border: 1px solid #517f70;
-  color: #a5e1c9;
+  border: 1px solid var(--c-517f70);
+  color: var(--c-a5e1c9);
   padding: 6px 12px;
   font-size: 12px;
   border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  text-transform: none;
+  letter-spacing: 0.01em;
 }
 .mos-lab .pn-metrics b {
   font-size: 19px;
@@ -49,7 +49,7 @@
   flex-direction: column;
   gap: 10px;
   padding: 12px;
-  border: 1px solid #4a6574;
+  border: 1px solid var(--c-4a6574);
   border-radius: 5px;
   font-size: 13px;
 }
@@ -60,7 +60,7 @@
   padding-left: 80px;
 }
 .mos-lab .pn-actions a {
-  color: #b3d9ef;
+  color: var(--c-b3d9ef);
   align-self: center;
 }
 .mos-lab .pn-equations {

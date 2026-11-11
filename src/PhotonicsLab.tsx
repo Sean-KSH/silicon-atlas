@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -99,28 +100,38 @@ export function Chart({
             syncMethod="value"
             margin={{ top: 10, right: 24, left: 10, bottom: 28 }}
           >
-            <CartesianGrid stroke="#324856" strokeDasharray="3 6" />
+            <CartesianGrid stroke="var(--c-324856)" strokeDasharray="3 6" />
             <XAxis
               type="number"
               dataKey="x"
               domain={['dataMin', 'dataMax']}
               tickFormatter={fmt}
-              tick={{ fill: '#acc4d0', fontSize: 10 }}
-              label={{ value: x, position: 'bottom', offset: 8, fill: '#acc4d0', fontSize: 11 }}
+              tick={{ fill: 'var(--c-acc4d0)', fontSize: 12 }}
+              label={{
+                value: x,
+                position: 'bottom',
+                offset: 8,
+                fill: 'var(--c-acc4d0)',
+                fontSize: 13,
+              }}
             />
             <YAxis
               width={76}
               scale={log ? 'log' : 'linear'}
               domain={['auto', 'auto']}
               tickFormatter={fmt}
-              tick={{ fill: '#acc4d0', fontSize: 10 }}
+              tick={{ fill: 'var(--c-acc4d0)', fontSize: 12 }}
             />
             <Tooltip
-              contentStyle={{ background: '#122733', border: '1px solid #496575', fontSize: 11 }}
+              contentStyle={{
+                background: 'var(--c-122733)',
+                border: '1px solid #496575',
+                fontSize: 13,
+              }}
               formatter={(v, n) => [fmt(Number(v)), n]}
             />
             {selected !== undefined && (
-              <ReferenceLine x={selected} stroke="#edc58c" strokeDasharray="4 4" />
+              <ReferenceLine x={selected} stroke="var(--c-edc58c)" strokeDasharray="4 4" />
             )}
             {lines.map(([key, label, color]) => (
               <Line
@@ -158,9 +169,9 @@ function save(name: string, text: string) {
 }
 const names = ['Absorption & generation', 'Photodiode', 'Solar cell', 'LED & laser'];
 export default function PhotonicsLab() {
-  const [c, setC] = useState<OpticalInput>({ ...opticalDefault }),
-    [e, setE] = useState<EmitterInput>({ ...emitterDefault }),
-    [part, setPart] = useState(0),
+  const [c, setC] = useLinkedState<OpticalInput>('', { ...opticalDefault }),
+    [e, setE] = useLinkedState<EmitterInput>('led.', { ...emitterDefault }),
+    [part, setPart] = useLinkedState('part', 0),
     [deep, setDeep] = useState(false),
     [animate, setAnimate] = useState(false),
     [time, setTime] = useState(0),
@@ -275,14 +286,16 @@ export default function PhotonicsLab() {
         <a className="brand" href="#photonics">
           <span className="brandmark">hν</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Electronic → photonic devices</span>
+            Silicon Atlas<span className="brand-sub">Electronic → photonic devices</span>
           </span>
         </a>
-        <button onClick={reset}>Restore working defaults</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="pn-hero">
-          <span className="eyebrow">NEAMEN / CHAPTER 14 + OPTOELECTRONICS LECTURES</span>
+          <span className="eyebrow">Neamen / Chapter 14 + optoelectronics lectures</span>
           <h1>
             From photons to current.
             <br />
@@ -306,8 +319,12 @@ export default function PhotonicsLab() {
                 {i + 1} / {v}
               </button>
             ))}
-            <button onClick={() => setDeep(!deep)}>
-              {deep ? 'Deeper physics' : 'Beginner'} · equations
+            <button
+              className={deep ? 'selected' : ''}
+              aria-pressed={deep}
+              onClick={() => setDeep(!deep)}
+            >
+              Deeper physics
             </button>
           </div>
         </div>
@@ -596,7 +613,7 @@ export default function PhotonicsLab() {
                 <section className="pn-card">
                   <div className="op-kicker">
                     <span className="eyebrow">
-                      EXPERIMENT {part + 1} / {names[part].toUpperCase()}
+                      Experiment {part + 1} / {names[part]}
                     </span>
                     <span className="op-badge">
                       {part === 3
@@ -683,8 +700,8 @@ export default function PhotonicsLab() {
                     >
                       <defs>
                         <linearGradient id="op-depth">
-                          <stop stopColor="#3b857c" />
-                          <stop offset="1" stopColor="#243b50" />
+                          <stop stopColor="var(--c-3b857c)" />
+                          <stop offset="1" stopColor="var(--c-243b50)" />
                         </linearGradient>
                         <marker
                           id="op-arrow"
@@ -694,18 +711,18 @@ export default function PhotonicsLab() {
                           refY="3.5"
                           orient="auto"
                         >
-                          <path d="M0 0 L7 3.5 L0 7 Z" fill="#edc58c" />
+                          <path d="M0 0 L7 3.5 L0 7 Z" fill="var(--c-edc58c)" />
                         </marker>
                       </defs>
                       <rect x="190" y="65" width="550" height="100" rx="7" fill="url(#op-depth)" />
-                      <rect x="190" y="65" width="20" height="100" fill="#ad6984" />
-                      <rect x="720" y="65" width="20" height="100" fill="#7890b0" />
+                      <rect x="190" y="65" width="20" height="100" fill="var(--c-ad6984)" />
+                      <rect x="720" y="65" width="20" height="100" fill="var(--c-7890b0)" />
                       <text x="30" y="45">
                         {fmt(c.wavelength * 1e9)} nm
                       </text>
                       <path
                         d="M30 105 L170 105"
-                        stroke="#edc58c"
+                        stroke="var(--c-edc58c)"
                         strokeWidth="4"
                         markerEnd="url(#op-arrow)"
                       />
@@ -729,7 +746,7 @@ export default function PhotonicsLab() {
                       </text>
                       <path
                         d="M750 105 L845 105"
-                        stroke="#edc58c"
+                        stroke="var(--c-edc58c)"
                         strokeWidth="2"
                         markerEnd="url(#op-arrow)"
                       />
@@ -749,9 +766,9 @@ export default function PhotonicsLab() {
                       role="img"
                       aria-label="LED energy-conversion diagram with radiative and nonradiative recombination"
                     >
-                      <rect x="55" y="70" width="210" height="100" fill="#37516c" rx="8" />
-                      <rect x="330" y="70" width="210" height="100" fill="#286455" rx="8" />
-                      <rect x="620" y="70" width="210" height="100" fill="#755743" rx="8" />
+                      <rect x="55" y="70" width="210" height="100" fill="var(--c-37516c)" rx="8" />
+                      <rect x="330" y="70" width="210" height="100" fill="var(--c-286455)" rx="8" />
+                      <rect x="620" y="70" width="210" height="100" fill="var(--c-755743)" rx="8" />
                       <text x="80" y="110">
                         Injected pairs
                       </text>
@@ -772,7 +789,7 @@ export default function PhotonicsLab() {
                       </text>
                       <path
                         d="M265 120 L330 120 M540 120 L620 120"
-                        stroke="#b6c9d4"
+                        stroke="var(--c-b6c9d4)"
                         strokeWidth="2"
                       />
                       <text x="55" y="210">
@@ -800,14 +817,14 @@ export default function PhotonicsLab() {
                       <h2>Photon energy and absorption edge</h2>
                       <Chart
                         data={spectral}
-                        lines={[['energy', 'Photon energy', '#edc58c']]}
+                        lines={[['energy', 'Photon energy', 'var(--c-edc58c)']]}
                         x="Wavelength (nm)"
                         y="Photon energy (eV)"
                         selected={c.wavelength * 1e9}
                       />
                       <Chart
                         data={spectral}
-                        lines={[['alpha', 'Illustrative α, not measured data', '#8bd8be']]}
+                        lines={[['alpha', 'Illustrative α, not measured data', 'var(--c-8bd8be)']]}
                         x="Wavelength (nm)"
                         y="Absorption coefficient (cm⁻¹)"
                         log
@@ -829,13 +846,13 @@ export default function PhotonicsLab() {
                         <path
                           d="M60 30 Q180 90 300 30 M60 150 Q180 90 300 150 M480 30 Q600 90 720 30 M380 150 Q500 90 620 150"
                           fill="none"
-                          stroke="#92cbb9"
+                          stroke="var(--c-92cbb9)"
                           strokeWidth="3"
                         />
                         <path
                           d="M180 120 L180 60 M500 120 L500 60 L600 60"
                           fill="none"
-                          stroke="#efc381"
+                          stroke="var(--c-efc381)"
                           strokeWidth="2"
                         />
                         <text x="70" y="165">
@@ -860,7 +877,7 @@ export default function PhotonicsLab() {
                       <h2>Beer–Lambert generation through the absorber</h2>
                       <Chart
                         data={profile}
-                        lines={[['intensity', 'Optical intensity', '#edc58c']]}
+                        lines={[['intensity', 'Optical intensity', 'var(--c-edc58c)']]}
                         x="Depth (µm)"
                         y="Intensity (W/m²)"
                         sync="op-depth"
@@ -868,7 +885,7 @@ export default function PhotonicsLab() {
                       {a.alpha > 0 && c.irradiance > 0 ? (
                         <Chart
                           data={profile}
-                          lines={[['positiveGeneration', 'Pair generation G', '#8bd8be']]}
+                          lines={[['positiveGeneration', 'Pair generation G', 'var(--c-8bd8be)']]}
                           x="Depth (µm)"
                           y="Generation (m⁻³s⁻¹)"
                           log
@@ -905,8 +922,8 @@ export default function PhotonicsLab() {
                       <Chart
                         data={pdRows}
                         lines={[
-                          ['dark', 'Dark current', '#c3b1e8'],
-                          ['light', 'Illuminated current', '#8bd8be'],
+                          ['dark', 'Dark current', 'var(--c-c3b1e8)'],
+                          ['light', 'Illuminated current', 'var(--c-8bd8be)'],
                         ]}
                         x="Diode voltage, forward positive (V)"
                         y="Conventional terminal current (mA)"
@@ -969,8 +986,8 @@ export default function PhotonicsLab() {
                           load: r.load <= pv.isc * 1e3 * 1.2 ? r.load : null,
                         }))}
                         lines={[
-                          ['i', 'Delivered current', '#8bd8be'],
-                          ['load', 'Load I = V/R', '#d5b2ed'],
+                          ['i', 'Delivered current', 'var(--c-8bd8be)'],
+                          ['load', 'Load I = V/R', 'var(--c-d5b2ed)'],
                         ]}
                         x="Terminal voltage (V)"
                         y="Current delivered to load (mA)"
@@ -978,7 +995,7 @@ export default function PhotonicsLab() {
                       />
                       <Chart
                         data={pvRows}
-                        lines={[['p', 'Electrical output power', '#edc58c']]}
+                        lines={[['p', 'Electrical output power', 'var(--c-edc58c)']]}
                         x="Terminal voltage (V)"
                         y="Power (mW)"
                         selected={pv.mpp.v}
@@ -1056,8 +1073,8 @@ export default function PhotonicsLab() {
                       <Chart
                         data={ledRows}
                         lines={[
-                          ['optical', 'External optical power', '#8bd8be'],
-                          ['electrical', 'Electrical input', '#edc58c'],
+                          ['optical', 'External optical power', 'var(--c-8bd8be)'],
+                          ['electrical', 'Electrical input', 'var(--c-edc58c)'],
                         ]}
                         x="Injection current (mA)"
                         y="Power (mW)"
@@ -1118,12 +1135,19 @@ export default function PhotonicsLab() {
                         role="img"
                         aria-label="Conceptual laser cavity with two mirrors, active region and output"
                       >
-                        <rect x="100" y="40" width="600" height="65" rx="7" fill="#2b5e59" />
-                        <rect x="90" y="25" width="10" height="95" fill="#adc9db" />
-                        <rect x="700" y="25" width="10" height="95" fill="#adc9db" />
+                        <rect
+                          x="100"
+                          y="40"
+                          width="600"
+                          height="65"
+                          rx="7"
+                          fill="var(--c-2b5e59)"
+                        />
+                        <rect x="90" y="25" width="10" height="95" fill="var(--c-adc9db)" />
+                        <rect x="700" y="25" width="10" height="95" fill="var(--c-adc9db)" />
                         <path
                           d="M140 72 L660 72 M710 72 L820 72"
-                          stroke="#edc58c"
+                          stroke="var(--c-edc58c)"
                           strokeWidth="3"
                         />
                         <text x="130" y="60">

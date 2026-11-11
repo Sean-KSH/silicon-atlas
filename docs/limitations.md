@@ -22,3 +22,10 @@ animated carriers are not particle simulations.
 | 08 | Gate control | Long channel (L ≥ 2 µm), tox 10–150 nm, 280–400 K | Subthreshold conduction, short-channel effects, velocity saturation, poly depletion, quantum confinement; HF C–V near flat band is omitted, not approximated |
 | 09 | Photonic devices | Monochromatic illumination, 300–1600 nm, ≤ 2000 W/m² | Measured absorption spectra (curves are illustrative), AM1.5 spectrum, drift–diffusion collection, avalanche gain, thermal feedback, LED droop, full laser dynamics |
 | 10 | Measurement bench | Teaching transistor and instrument parameters, not fitted wafer data | Subthreshold current, breakdown, velocity saturation, self-heating, distributed interconnect, rectifying contacts |
+
+**Interface.** On phones, plots and controls are usable, but a few wide schematic diagrams (for
+example the junction geometry strip and the MOS gate stack) scale down to fit and their labels
+become small; landscape orientation or a laptop is better for those. The light theme's colours
+are generated from the dark ones and were checked visually module by module, not individually
+hand-tuned.
+

@@ -31,7 +31,7 @@
   max-width: 62ch;
   font-size: clamp(16px, 1.5vw, 19px);
   line-height: 1.6;
-  color: #c1cdd7;
+  color: var(--c-c1cdd7);
 }
 .home-actions {
   display: flex;
@@ -51,10 +51,10 @@
 }
 a.home-primary {
   background: var(--electron);
-  color: #062027;
+  color: var(--c-062027);
 }
 a.home-primary:hover {
-  background: #8ad8e6;
+  background: var(--c-8ad8e6);
 }
 a.home-secondary {
   color: var(--text);
@@ -89,7 +89,7 @@ a.home-secondary:hover {
   stroke: var(--hole);
 }
 .map-ef {
-  stroke: #8195a7;
+  stroke: var(--c-8195a7);
   stroke-width: 1.2;
   stroke-dasharray: 5 6;
 }
@@ -126,7 +126,7 @@ a.home-secondary:hover {
     r 0.15s;
 }
 .map-num {
-  font: 500 10.5px var(--font-mono);
+  font: 500 12px var(--font-mono);
   fill: var(--text);
   pointer-events: none;
 }
@@ -141,7 +141,7 @@ a.home-secondary:hover {
 }
 .map-station.is-focus .map-num,
 .map-station:focus-visible .map-num {
-  fill: #071116;
+  fill: var(--c-071116);
 }
 .map-station:focus-visible .map-hit {
   stroke: var(--electron);
@@ -384,7 +384,7 @@ a.home-secondary:hover {
 .home .home-inst-notes p {
   font-size: 15.5px;
   line-height: 1.65;
-  color: #c6d1da;
+  color: var(--c-c6d1da);
   max-width: 60ch;
 }
 .home .home-inst-notes p + p {

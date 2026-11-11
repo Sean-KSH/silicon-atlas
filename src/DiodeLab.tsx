@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLinkedState } from './urlState';
 import {
   ResponsiveContainer,
   LineChart,
@@ -57,9 +58,9 @@ function Input({
   );
 }
 export default function DiodeLab() {
-  const [c, setC] = useState<DiodeInput>({ ...diodeDefault }),
+  const [c, setC] = useLinkedState<DiodeInput>('', { ...diodeDefault }),
     [deep, setDeep] = useState(false),
-    [ratio, setRatio] = useState(1),
+    [ratio, setRatio] = useLinkedState('ratio', 1),
     [frame, setFrame] = useState(0),
     [playing, setPlaying] = useState(false),
     [experiment, setExperiment] = useState(0),
@@ -168,19 +169,19 @@ export default function DiodeLab() {
             syncMethod="value"
             margin={{ top: 14, right: 20, bottom: 30, left: 12 }}
           >
-            <CartesianGrid stroke="#314755" strokeDasharray="3 5" />
+            <CartesianGrid stroke="var(--c-314755)" strokeDasharray="3 5" />
             <XAxis
               type="number"
               dataKey="x"
               domain={['dataMin', 'dataMax']}
               tickFormatter={fmt}
-              tick={{ fill: '#a8c1cd', fontSize: 10 }}
+              tick={{ fill: 'var(--c-a8c1cd)', fontSize: 12 }}
               label={{
                 value: xLabel,
                 position: 'bottom',
                 offset: 8,
-                fill: '#a8c1cd',
-                fontSize: 11,
+                fill: 'var(--c-a8c1cd)',
+                fontSize: 13,
               }}
             />
             <YAxis
@@ -188,14 +189,18 @@ export default function DiodeLab() {
               scale={log ? 'log' : 'linear'}
               domain={['auto', 'auto']}
               tickFormatter={fmt}
-              tick={{ fill: '#a8c1cd', fontSize: 10 }}
+              tick={{ fill: 'var(--c-a8c1cd)', fontSize: 12 }}
             />
             <Tooltip
-              contentStyle={{ background: '#142732', border: '1px solid #597180', fontSize: 11 }}
+              contentStyle={{
+                background: 'var(--c-142732)',
+                border: '1px solid #597180',
+                fontSize: 13,
+              }}
               formatter={(v, name) => [fmt(Number(v)), name]}
             />
             {selected !== undefined && (
-              <ReferenceLine x={selected} stroke="#edcb8b" strokeDasharray="4 4" />
+              <ReferenceLine x={selected} stroke="var(--c-edcb8b)" strokeDasharray="4 4" />
             )}
             {keys.map(([key, name, color]) => (
               <Line
@@ -234,14 +239,16 @@ export default function DiodeLab() {
         <a className="brand" href="#diode">
           <span className="brandmark">Si</span>
           <span>
-            SILICON ATLAS<span className="brand-sub">Injection → circuit behavior</span>
+            Silicon Atlas<span className="brand-sub">Injection → circuit behavior</span>
           </span>
         </a>
-        <button onClick={reset}>Restore ideal defaults</button>
+        <button onClick={reset} title="Restore this module's tested default settings">
+          Reset module
+        </button>
       </header>
       <main>
         <div className="pn-hero">
-          <span className="eyebrow">NEAMEN / CHAPTER 8</span>
+          <span className="eyebrow">Neamen / Chapter 8</span>
           <h1>
             A diode has no
             <br />
@@ -481,9 +488,9 @@ export default function DiodeLab() {
                 {chart(
                   iv,
                   [
-                    ['I', 'Terminal I', '#8bd7c0'],
-                    ['diff', 'Diffusion part', '#b7b0ef'],
-                    ['rec', 'Recombination part', '#edbb8d'],
+                    ['I', 'Terminal I', 'var(--c-8bd7c0)'],
+                    ['diff', 'Diffusion part', 'var(--c-b7b0ef)'],
+                    ['rec', 'Recombination part', 'var(--c-edbb8d)'],
                   ],
                   'Terminal voltage (V)',
                   'Current (µA)',
@@ -493,7 +500,7 @@ export default function DiodeLab() {
                 )}
                 {chart(
                   iv,
-                  [['forward', 'Forward terminal I', '#8bd7c0']],
+                  [['forward', 'Forward terminal I', 'var(--c-8bd7c0)']],
                   'Terminal voltage (V)',
                   'Forward current (A)',
                   true,
@@ -518,9 +525,9 @@ export default function DiodeLab() {
                     role="img"
                     aria-label="Schematic diode with p neutral region, depletion layer, n neutral region and absorbing contacts"
                   >
-                    <rect x="30" y="25" width="330" height="55" fill="#5d3a40" />
-                    <rect x="360" y="25" width="130" height="55" fill="#31475d" />
-                    <rect x="490" y="25" width="330" height="55" fill="#24554f" />
+                    <rect x="30" y="25" width="330" height="55" fill="var(--c-5d3a40)" />
+                    <rect x="360" y="25" width="130" height="55" fill="var(--c-31475d)" />
+                    <rect x="490" y="25" width="330" height="55" fill="var(--c-24554f)" />
                     <text x="80" y="58">
                       p region · injected electrons ←
                     </text>
@@ -545,8 +552,8 @@ export default function DiodeLab() {
                   {chart(
                     profiles,
                     [
-                      ['n', 'Minority electrons in p', '#8bd7c0'],
-                      ['p', 'Minority holes in n', '#edbb8d'],
+                      ['n', 'Minority electrons in p', 'var(--c-8bd7c0)'],
+                      ['p', 'Minority holes in n', 'var(--c-edbb8d)'],
                     ],
                     'Position (µm)',
                     'Minority density (cm⁻³)',
@@ -557,9 +564,9 @@ export default function DiodeLab() {
                   {chart(
                     profiles,
                     [
-                      ['in', 'Electron current In', '#8bd7c0'],
-                      ['ip', 'Hole current Ip', '#edbb8d'],
-                      ['total', 'In + Ip', '#b7b0ef'],
+                      ['in', 'Electron current In', 'var(--c-8bd7c0)'],
+                      ['ip', 'Hole current Ip', 'var(--c-edbb8d)'],
+                      ['total', 'In + Ip', 'var(--c-b7b0ef)'],
                     ],
                     'Position (µm)',
                     'Ideal diffusion currents (µA)',
@@ -582,11 +589,11 @@ export default function DiodeLab() {
                   {chart(
                     profiles,
                     [
-                      ['ec', 'Ec', '#8bd7c0'],
-                      ['ev', 'Ev', '#edbb8d'],
-                      ['ei', 'Ei', '#a9c0ce'],
-                      ['fn', 'Fn · electrons', '#c9a7f2'],
-                      ['fp', 'Fp · holes', '#f1ce7d'],
+                      ['ec', 'Ec', 'var(--c-8bd7c0)'],
+                      ['ev', 'Ev', 'var(--c-edbb8d)'],
+                      ['ei', 'Ei', 'var(--c-a9c0ce)'],
+                      ['fn', 'Fn · electrons', 'var(--c-c9a7f2)'],
+                      ['fp', 'Fp · holes', 'var(--c-f1ce7d)'],
                     ],
                     'Position (µm)',
                     'Electron energy (eV)',
@@ -671,7 +678,7 @@ export default function DiodeLab() {
                   <div className="dd-two">
                     {chart(
                       swRows,
-                      [['Q', 'Stored charge', '#8bd7c0']],
+                      [['Q', 'Stored charge', 'var(--c-8bd7c0)']],
                       'Time (µs)',
                       'Charge (pC)',
                       false,
@@ -681,8 +688,8 @@ export default function DiodeLab() {
                     {chart(
                       swRows,
                       [
-                        ['I', 'Drive current', '#edbb8d'],
-                        ['loss', 'Lumped loss Q/τQ', '#b7b0ef'],
+                        ['I', 'Drive current', 'var(--c-edbb8d)'],
+                        ['loss', 'Lumped loss Q/τQ', 'var(--c-b7b0ef)'],
                       ],
                       'Time (µs)',
                       'Current (µA)',

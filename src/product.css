@@ -1,24 +1,24 @@
 /* Silicon Atlas: scoped presentation system for the materials module. */
 .wafer-product {
-  --surface: #13191f;
-  --line: #2a343e;
-  --muted: #98a7b5;
-  --ink: #e8edf1;
-  --accent: #b5c9a4;
-  background: #0d1217;
+  --surface: var(--c-13191f);
+  --line: var(--c-2a343e);
+  --muted: var(--c-98a7b5);
+  --ink: var(--c-e8edf1);
+  --accent: var(--c-b5c9a4);
+  background: var(--c-0d1217);
   color: var(--ink);
   font-family: var(--font-sans);
 }
 .wafer-product header {
   padding: 0 42px;
   height: 76px;
-  background: #0f151b;
+  background: var(--c-0f151b);
   border-bottom: 1px solid var(--line);
 }
 .wafer-product .brandmark {
-  border: 1px solid #788979;
-  background: #1e2c27;
-  color: #c4d8bd;
+  border: 1px solid var(--c-788979);
+  background: var(--c-1e2c27);
+  color: var(--c-c4d8bd);
   border-radius: 3px;
   width: 36px;
   height: 36px;
@@ -26,19 +26,19 @@
   font-size: 22px;
 }
 .wafer-product .brand > span {
-  letter-spacing: 2px;
+  letter-spacing: 0.01em;
   font-size: 12px;
 }
 .wafer-product .brand .brand-sub {
   letter-spacing: 0.3px;
-  font-size: 10px;
-  color: #92a094;
+  font-size: 12px;
+  color: var(--c-92a094);
   margin-top: 5px;
 }
 .wafer-product .course {
-  color: #7b8d9a;
-  font-size: 9px;
-  letter-spacing: 1.8px;
+  color: var(--c-7b8d9a);
+  font-size: 12px;
+  letter-spacing: 0.01em;
 }
 .wafer-product main {
   max-width: 1600px;
@@ -48,9 +48,9 @@
   margin-bottom: 30px;
 }
 .wafer-product .eyebrow {
-  color: #a3b29c;
-  font-size: 9px;
-  letter-spacing: 1.8px;
+  color: var(--c-a3b29c);
+  font-size: 12px;
+  letter-spacing: 0.01em;
 }
 .wafer-product h1 {
   font-size: 36px;
@@ -59,27 +59,27 @@
   font-weight: 500;
 }
 .wafer-product .intro p {
-  color: #99a8b4;
+  color: var(--c-99a8b4);
   font-size: 13px;
 }
 .wafer-product .pill {
-  background: #1c2826;
-  border: 1px solid #3c5148;
-  color: #afc9b3;
-  font-size: 8px;
+  background: var(--c-1c2826);
+  border: 1px solid var(--c-3c5148);
+  color: var(--c-afc9b3);
+  font-size: 12px;
   padding: 8px 10px;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.01em;
 }
 .wafer-product .process-nav {
   gap: 0;
-  border-top: 1px solid #3a454e;
-  border-bottom: 1px solid #3a454e;
+  border-top: 1px solid var(--c-3a454e);
+  border-bottom: 1px solid var(--c-3a454e);
   margin-bottom: 24px;
-  background: #11181e;
+  background: var(--c-11181e);
 }
 .wafer-product .process-nav button {
   border: 0;
-  border-right: 1px solid #2a353e;
+  border-right: 1px solid var(--c-2a353e);
   border-radius: 0;
   background: transparent;
   padding: 19px 16px 18px;
@@ -90,26 +90,26 @@
   border-right: 0;
 }
 .wafer-product .process-nav button:hover {
-  background: #1a252d;
+  background: var(--c-1a252d);
 }
 .wafer-product .process-nav button.selected {
-  background: #23302e;
-  box-shadow: inset 0 2px #b3c6a7;
+  background: var(--c-23302e);
+  box-shadow: inset 0 2px var(--c-b3c6a7);
 }
 .wafer-product .process-nav .process-number {
   position: static;
   display: block;
   font-family: var(--font-mono);
   font-size: 12px;
-  color: #8f9eab;
+  color: var(--c-8f9eab);
   margin-bottom: 13px;
 }
 .wafer-product .process-nav .selected .process-number {
-  color: #bed0af;
+  color: var(--c-bed0af);
 }
 .wafer-product .process-nav small {
-  font-size: 9px;
-  color: #92a4b0;
+  font-size: 12px;
+  color: var(--c-92a4b0);
 }
 .wafer-product .process-nav strong {
   font-size: 12px;
@@ -121,7 +121,7 @@
 .wafer-product .process-arrow {
   right: 12px;
   bottom: 18px;
-  color: #7e929e !important;
+  color: var(--c-7e929e) !important;
 }
 .wafer-product .panel {
   background: var(--surface);
@@ -147,30 +147,30 @@
 .wafer-product .stage-description > p {
   font-size: 13px;
   line-height: 1.9;
-  color: #aebbc5;
+  color: var(--c-aebbc5);
 }
 .wafer-product .change-tag {
   margin: 24px 0;
-  background: #1d2a26;
-  color: #b5c7af;
+  background: var(--c-1d2a26);
+  color: var(--c-b5c7af);
   border: 0;
   border-radius: 3px;
   padding: 11px 13px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.7;
 }
 .stage-detail {
-  border-top: 1px solid #303a44;
+  border-top: 1px solid var(--c-303a44);
   padding-top: 15px;
   margin-top: 16px;
 }
 .stage-detail summary {
-  font-size: 11px;
-  color: #93a8b6;
+  font-size: 12px;
+  color: var(--c-93a8b6);
   line-height: 1.5;
 }
 .stage-detail .note {
-  font-size: 11px;
+  font-size: 12px;
 }
 .stage-description > .actions {
   margin-top: 24px;
@@ -178,14 +178,19 @@
 }
 .stage-description button {
   padding: 7px 10px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .equipment-figure {
   margin: 0;
   height: 100%;
   padding: 18px 20px 14px;
-  border-left: 1px solid #2a343e;
-  background: radial-gradient(ellipse at center, #1a2b3a 0%, #101c27 65%, #101820 100%);
+  border-left: 1px solid var(--c-2a343e);
+  background: radial-gradient(
+    ellipse at center,
+    var(--c-1a2b3a) 0%,
+    var(--c-101c27) 65%,
+    var(--c-101820) 100%
+  );
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -193,9 +198,9 @@
 .figure-topline {
   display: flex;
   justify-content: space-between;
-  color: #8ba0b0;
-  font: 9px var(--font-mono);
-  letter-spacing: 1.3px;
+  color: var(--c-8ba0b0);
+  font: 12px var(--font-mono);
+  letter-spacing: 0.01em;
   margin-bottom: 12px;
 }
 .equipment-figure svg {
@@ -205,21 +210,21 @@
   min-height: 260px;
 }
 .figure-label {
-  fill: #d2dfe8;
+  fill: var(--c-d2dfe8);
   font-size: 14px;
   font-family: var(--font-sans);
 }
 .figure-sub {
-  fill: #8ea3b4;
-  font-size: 11px;
+  fill: var(--c-8ea3b4);
+  font-size: 12px;
   font-family: var(--font-sans);
 }
 .equipment-figure figcaption {
-  font-size: 9px;
-  color: #8599aa;
+  font-size: 12px;
+  color: var(--c-8599aa);
   line-height: 1.7;
   margin-top: 8px;
-  border-top: 1px solid #2b3d4a;
+  border-top: 1px solid var(--c-2b3d4a);
   padding-top: 11px;
 }
 .analysis-title {
@@ -235,15 +240,15 @@
   margin: 9px 0 0;
 }
 .analysis-title p {
-  font-size: 11px;
-  color: #8fa0ae;
+  font-size: 12px;
+  color: var(--c-8fa0ae);
   margin: 0;
 }
 .wafer-product .modelbar {
   border-radius: 3px;
   margin-bottom: 18px;
-  background: #111920;
-  font-size: 10px;
+  background: var(--c-111920);
+  font-size: 12px;
   padding: 10px 15px;
 }
 .wafer-product .workspace {
@@ -251,7 +256,7 @@
   gap: 20px;
 }
 .wafer-product .controls {
-  background: #11181f;
+  background: var(--c-11181f);
   padding: 24px;
 }
 .wafer-product .controls h2 {
@@ -259,47 +264,47 @@
   margin: 10px 0;
 }
 .wafer-product .controls .note {
-  color: #8f9eac;
-  font-size: 11px;
+  color: var(--c-8f9eac);
+  font-size: 12px;
   line-height: 1.8;
 }
 .wafer-product label {
   padding-top: 19px;
   margin: 20px 0;
-  border-top: 1px solid #293540;
-  font-size: 11px;
+  border-top: 1px solid var(--c-293540);
+  font-size: 12px;
 }
 .wafer-product label strong {
   font-size: 22px;
   letter-spacing: -0.8px;
   margin-top: 12px;
-  color: #d9e3e9;
+  color: var(--c-d9e3e9);
 }
 .wafer-product input[type='range'] {
-  accent-color: #b8c9ab;
+  accent-color: var(--c-b8c9ab);
   height: 3px;
 }
 .wafer-product button {
-  color: #becbd5;
-  border-color: #35424d;
-  background: #18232c;
+  color: var(--c-becbd5);
+  border-color: var(--c-35424d);
+  background: var(--c-18232c);
 }
 .wafer-product button:hover {
-  background: #263641;
-  border-color: #637989;
+  background: var(--c-263641);
+  border-color: var(--c-637989);
 }
 .wafer-product button:disabled {
   background: transparent;
 }
 .wafer-product button.selected,
 .wafer-product button[aria-pressed='true'] {
-  background: #27382f;
-  color: #cbddc0;
-  border-color: #5d7563;
+  background: var(--c-27382f);
+  color: var(--c-cbddc0);
+  border-color: var(--c-5d7563);
 }
 .wafer-product .stage {
   padding: 25px 27px;
-  background: #151d25;
+  background: var(--c-151d25);
 }
 .wafer-product .stage h2 {
   font-size: 20px;
@@ -312,26 +317,26 @@
   gap: 8px;
 }
 .wafer-product .export-figure {
-  border-color: #768777;
-  background: #b7c9aa;
-  color: #1c2b24;
+  border-color: var(--c-768777);
+  background: var(--c-b7c9aa);
+  color: var(--c-1c2b24);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
 }
 .wafer-product .export-figure:hover {
-  background: #d0dfc5;
+  background: var(--c-d0dfc5);
 }
 .wafer-product .metrics {
   margin: 24px 0 21px;
   gap: 0;
-  border: 1px solid #35414c;
+  border: 1px solid var(--c-35414c);
   border-radius: 4px;
 }
 .wafer-product .metrics > div {
-  background: #111a22;
+  background: var(--c-111a22);
   padding: 18px;
   border: 0;
-  border-right: 1px solid #35414c;
+  border-right: 1px solid var(--c-35414c);
   border-radius: 0;
 }
 .wafer-product .metrics > div:last-child {
@@ -339,14 +344,14 @@
 }
 .wafer-product .metrics strong {
   font-size: 26px;
-  color: #dfebf0;
+  color: var(--c-dfebf0);
 }
 .wafer-product .metrics small {
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 .wafer-product .metrics span {
-  font-size: 10px;
+  font-size: 12px;
 }
 .retained-strip {
   padding: 0 1px 23px;
@@ -354,8 +359,8 @@
 .strip-label {
   display: flex;
   justify-content: space-between;
-  font-size: 9px;
-  color: #8da2b1;
+  font-size: 12px;
+  color: var(--c-8da2b1);
   letter-spacing: 0.3px;
   gap: 15px;
 }
@@ -365,71 +370,77 @@
 .strip-label:last-child {
   margin-top: 8px;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 .strip-track {
   height: 15px;
   position: relative;
-  background: repeating-linear-gradient(135deg, #27343f, #27343f 2px, #17232d 2px, #17232d 6px);
-  border: 1px solid #415260;
+  background: repeating-linear-gradient(
+    135deg,
+    var(--c-27343f),
+    var(--c-27343f) 2px,
+    var(--c-17232d) 2px,
+    var(--c-17232d) 6px
+  );
+  border: 1px solid var(--c-415260);
   border-radius: 2px;
   overflow: hidden;
 }
 .strip-track > div {
   position: absolute;
   height: 100%;
-  background: #8aa9a0;
-  border-right: 1px solid #d7e4de;
-  border-left: 1px solid #d7e4de;
+  background: var(--c-8aa9a0);
+  border-right: 1px solid var(--c-d7e4de);
+  border-left: 1px solid var(--c-d7e4de);
 }
 .plot-options {
   padding-top: 16px;
-  border-top: 1px solid #35414c;
+  border-top: 1px solid var(--c-35414c);
   margin-top: 0;
 }
 .plot-options button {
   padding: 6px 10px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .wafer-product .plotlabel {
   margin-top: 20px;
-  font-size: 11px;
+  font-size: 12px;
 }
 .wafer-product .wafer-chart {
   height: 370px;
-  background: #101922;
+  background: var(--c-101922);
   border-radius: 3px;
   padding-top: 16px;
 }
 .wafer-product .recharts-legend-item-text {
-  font-size: 10px;
+  font-size: 12px;
 }
 .wafer-product .explanation {
   margin-top: 20px;
-  background: #1b2b30;
-  border-color: #708c83;
+  background: var(--c-1b2b30);
+  border-color: var(--c-708c83);
   padding: 17px;
 }
 .wafer-product .explanation h3 {
-  color: #b9cec6;
+  color: var(--c-b9cec6);
   font-size: 12px;
 }
 .wafer-product .explanation p {
   font-size: 12px;
   line-height: 1.8;
-  color: #afc0ca;
+  color: var(--c-afc0ca);
 }
 .wafer-product .stage > .note {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.9;
-  color: #91a4b3;
+  color: var(--c-91a4b3);
   margin-bottom: 0;
 }
 .wafer-product .experiments {
   margin-top: 24px;
   padding: 25px 29px;
-  background: #131d24;
+  background: var(--c-131d24);
 }
 .wafer-product .experiments h2 {
   font-size: 22px;
@@ -439,7 +450,7 @@
 .wafer-product .experiments > p {
   max-width: 1000px;
   font-size: 13px;
-  color: #acbac5;
+  color: var(--c-acbac5);
   line-height: 1.9;
 }
 .wafer-product .referencegrid {
@@ -452,11 +463,11 @@
 .wafer-product .referencegrid p {
   font-size: 12px;
   line-height: 1.9;
-  color: #aab9c7;
+  color: var(--c-aab9c7);
 }
 .wafer-product footer {
   padding: 28px 0 10px;
-  color: #8495a1;
+  color: var(--c-8495a1);
 }
 @media (min-width: 1300px) {
   .wafer-product .process-panel {
@@ -486,7 +497,7 @@
     grid-template-columns: repeat(3, 1fr);
   }
   .wafer-product .process-nav button:nth-child(-n + 3) {
-    border-bottom: 1px solid #2a353e;
+    border-bottom: 1px solid var(--c-2a353e);
   }
   .wafer-product .stage {
     padding: 20px;
@@ -514,7 +525,7 @@
   }
   .equipment-figure {
     border-left: 0;
-    border-top: 1px solid #2a343e;
+    border-top: 1px solid var(--c-2a343e);
     padding: 18px;
   }
   .equipment-figure svg {
@@ -566,7 +577,7 @@
   }
   .wafer-product .process-nav button {
     min-height: 112px;
-    border-bottom: 1px solid #2a353e;
+    border-bottom: 1px solid var(--c-2a353e);
   }
   .wafer-product .metrics {
     grid-template-columns: 1fr;
@@ -574,7 +585,7 @@
   .wafer-product .metrics > div {
     display: flex;
     border-right: 0;
-    border-bottom: 1px solid #35414c;
+    border-bottom: 1px solid var(--c-35414c);
     align-items: center;
     gap: 12px;
     padding: 13px;
@@ -598,10 +609,10 @@
     max-width: 120px;
   }
   .figure-topline {
-    font-size: 7px;
+    font-size: 12px;
   }
   .equipment-figure figcaption {
-    font-size: 9px;
+    font-size: 12px;
   }
   .wafer-product .wafer-chart {
     height: 350px;
@@ -613,7 +624,7 @@
     line-height: 1.7;
   }
   .strip-label {
-    font-size: 8px;
+    font-size: 12px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -630,8 +641,8 @@
   }
   .equipment-figure .figure-topline:after {
     content: 'SCROLL TO INSPECT →';
-    color: #b5c9a4;
-    font-size: 8px;
+    color: var(--c-b5c9a4);
+    font-size: 12px;
     margin-left: 8px;
   }
   .equipment-figure .figure-topline > span:last-child {

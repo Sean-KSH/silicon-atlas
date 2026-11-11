@@ -8,9 +8,9 @@
   gap: 16px;
 }
 .op-badge {
-  font-size: 11px;
-  border: 1px solid #527a6b;
-  color: #a5d9c5;
+  font-size: 12px;
+  border: 1px solid var(--c-527a6b);
+  color: var(--c-a5d9c5);
   border-radius: 20px;
   padding: 7px 12px;
 }
@@ -22,7 +22,7 @@
 }
 .op-device text,
 .op-bands text {
-  fill: #dce8ec;
+  fill: var(--c-dce8ec);
   font: 13px inherit;
 }
 .op-plot {
@@ -31,7 +31,7 @@
 }
 .op-plot > p {
   font-size: 12px;
-  color: #b8ced8;
+  color: var(--c-b8ced8);
 }
 .op-chart {
   height: 260px;
@@ -58,7 +58,7 @@
 }
 .op-budget i {
   height: 15px;
-  background: #6bb69e;
+  background: var(--c-6bb69e);
   display: block;
 }
 .op-budget b {
@@ -67,20 +67,20 @@
 }
 .op-turnon {
   position: relative;
-  background: #102e26;
+  background: var(--c-102e26);
   height: 54px;
   margin: 20px 0;
 }
 .op-turnon i {
   position: absolute;
   inset: 0 auto 0 0;
-  background: #34735e;
+  background: var(--c-34735e);
 }
 .op-turnon span {
   position: relative;
   display: block;
   padding: 16px;
-  color: #e4f5ef;
+  color: var(--c-e4f5ef);
 }
 .op-lab .pn-equations {
   line-height: 2;
