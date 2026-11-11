@@ -12,6 +12,8 @@ refuses or flags inputs outside that range instead of drawing a confident wrong 
 > the literature review, per-model documentation, instructor materials, license and deployment are
 > still in progress. See [`docs/audit.md`](docs/audit.md) for the current state.
 
+![The Silicon Atlas course guide: a course map of the ten modules drawn as a p–n junction band diagram](output/screenshots/00-home.png)
+
 ## Modules
 
 | # | Module | What a student explores | Main model(s) |
@@ -52,8 +54,9 @@ self-check questions with hidden answers.
 | `pnpm build` | Typecheck and production build into `dist/` (static files, no server needed) |
 | `pnpm format` | Prettier formatting for `src/` |
 
-The build output is a static site and can be served from any static host. No deployment is
-configured yet.
+The build output in `dist/` is a static site with relative paths, so it can be served from any
+static host or sub-path, including GitHub Pages. No deployment is configured yet. To try the
+production build locally, run `pnpm build && pnpm preview`.
 
 ## Project layout
 
@@ -73,7 +76,7 @@ src/
 scripts/              validation report generator
 docs/                 audit, validation, decisions, limitations, model cards, literature review
 paper/                bibliography for the technical report (manuscript not started)
-output/               preview screenshots and an example exported figure
+output/               screenshots of each module and an example exported figure
 ```
 
 Physics kernels never import React, so every model can be called and tested on its own.
