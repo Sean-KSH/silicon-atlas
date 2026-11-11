@@ -1,2 +1,7 @@
+# esbuild (used by Vite and tsx) runs an install script. pnpm 10 reads
+# onlyBuiltDependencies; pnpm 11 replaced it with allowBuilds. Both are kept so
+# either version installs cleanly.
 onlyBuiltDependencies:
   - esbuild
+allowBuilds:
+  esbuild: true
