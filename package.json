@@ -1,7 +1,17 @@
 {
   "name": "silicon-atlas",
   "version": "0.9.0",
-  "description": "Interactive, model-backed simulations for introductory semiconductor materials and devices courses",
+  "description": "Interactive, model-backed labs for introductory solid-state and electronic/photonic devices courses",
+  "license": "MIT",
+  "author": "Sean Kim",
+  "homepage": "https://sean-ksh.github.io/silicon-atlas/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Sean-KSH/silicon-atlas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Sean-KSH/silicon-atlas/issues"
+  },
   "private": true,
   "type": "module",
   "engines": {

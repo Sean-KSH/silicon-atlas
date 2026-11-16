@@ -1,5 +1,8 @@
 # Integration audit
 
+> This is the audit taken on 2026-11-08, kept as a record. See "Since this audit" at the end for
+> what has changed.
+
 Date: 2026-11-08. Scope: all ten modules and the shared infrastructure, after the initial build
 phase. Method: read `context.md`, ran the full test suite, typecheck and production build on a clean
 install, rendered every module at 1440 px and 390 px widths in Chromium, and read the physics kernels
@@ -105,3 +108,21 @@ Open, needing a decision or research (recorded in `docs/decisions.md` as pending
 4. Extract shared UI components and restructure `src/`; then do visual consistency work.
 5. Add guided activities to the bench; write the instructor guide and a 10–15 minute demo script.
 6. CI, deployment, tagged release, then the manuscript.
+
+## Since this audit (updated 2026-11-15)
+
+Done:
+
+- Version control, publishing hygiene and history cleanup; public repository with MIT license,
+  `CITATION.cff`, contributing guide and issue forms.
+- Shared material parameters and the two reference corrections (D-002, D-003).
+- Shared app frame, course guide, learning goals, self-check questions and ten-minute demos
+  (D-009); bundled fonts (D-010).
+- Light theme, Presenting mode, shareable setup links, readable type and consistent naming
+  (D-011 to D-013); presenter shortcuts and printable handouts (D-014).
+- Automated checks and a live demo built by GitHub Actions on every push.
+
+Still open: literature review and per-model cards, filling tolerances in the validation matrix,
+the open physics decisions D-004 to D-006, shared UI components inside modules, wide diagrams on
+phones, instructor guide and technical report, and feedback from instructors.
+

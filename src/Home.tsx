@@ -316,7 +316,11 @@ export default function Home() {
           D. A. Neamen, <cite>Semiconductor Physics and Devices</cite>, 4th edition; explanations
           and graphics are original.
         </p>
-        <p>Version 0.9, pre-release, November 2026.</p>
+        <p>
+          Version 0.9, pre-release, November 2026. Source code, documentation and issue reports:{' '}
+          <a href="https://github.com/Sean-KSH/silicon-atlas">github.com/Sean-KSH/silicon-atlas</a>.
+          Released under the MIT license.
+        </p>
       </footer>
     </main>
   );

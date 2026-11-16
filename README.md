@@ -1,5 +1,10 @@
 # Silicon Atlas
 
+[![Checks](https://github.com/Sean-KSH/silicon-atlas/actions/workflows/ci.yml/badge.svg)](https://github.com/Sean-KSH/silicon-atlas/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**Live demo: [sean-ksh.github.io/silicon-atlas](https://sean-ksh.github.io/silicon-atlas/)**
+
 Silicon Atlas is a set of ten interactive labs for introductory solid-state devices and
 electronic/photonic devices courses. Each lab takes a model from the course and lets a student
 change it and watch what happens. Change a doping level, a bias, a wavelength or a process step,
@@ -7,7 +12,8 @@ and the physical picture, the equations and the plots all update from the same c
 lab then explains in words what changed and why.
 
 It runs in a web browser with no accounts or installation, and it is meant to support class
-demonstrations, independent exploration and guided assignments.
+demonstrations, independent exploration and guided assignments. Open the
+[live demo](https://sean-ksh.github.io/silicon-atlas/) to try it.
 
 ![The Silicon Atlas course guide: a map of the ten modules drawn as a p–n junction band diagram](output/screenshots/00-home.png)
 
@@ -30,8 +36,8 @@ Version 0.9, pre-release, November 2026.
 - No module has been compared with measured data yet. The tests show that the code solves its
   chosen equations correctly, not that those equations match a real device beyond what the
   textbook model already claims.
-- Not done yet: a public live link, a license, a full literature review and a model card for each
-  model, and feedback from instructors.
+- Not done yet: a full literature review, a model card for each model, and feedback from
+  instructors.
 
 This is an independent student project. It is not an official product of, or endorsed by,
 Princeton University or any course.
@@ -131,8 +137,10 @@ pnpm dev          # opens at http://127.0.0.1:5173
 | `pnpm preview` | Serves the built site locally |
 | `pnpm format` | Formats the source code |
 
-The built site is plain static files with relative paths, so it can be hosted anywhere, including
-GitHub Pages. Each module has its own address, such as `#junction`, and a copied link adds the
+The built site is plain static files with relative paths, so it can be hosted anywhere. The live
+demo is built and published by GitHub Actions on every push to `main`
+([`.github/workflows/pages.yml`](.github/workflows/pages.yml)); the same tests and build also run as
+checks on every push and pull request. Each module has its own address, such as `#junction`, and a copied link adds the
 settings after it, for example `#junction?na=1e23&voltage=-0.1` (values in SI units).
 
 ## Project layout
@@ -149,6 +157,7 @@ src/
   urlState.ts         keeps module settings in the link
   theme-colors.css    every colour as a variable, with dark and light values
 scripts/              Mac launcher, validation report, light-theme colour generator
+.github/              checks and live-demo workflows, issue forms
 docs/                 audit, validation, limitations, decisions, model cards, literature review
 paper/                bibliography for a future technical report
 output/screenshots/   current screenshots of every module
@@ -171,11 +180,14 @@ output/screenshots/   current screenshots of every module
 ## Next steps
 
 1. Get feedback from instructors on accuracy, course fit and usability.
-2. Choose a license and publish a live link.
-3. Finish the literature review and write a model card for each model.
-4. Decide the open physics questions in `docs/decisions.md` (which intrinsic concentration to
+2. Finish the literature review and write a model card for each model.
+3. Decide the open physics questions in `docs/decisions.md` (which intrinsic concentration to
    teach with; temperature-dependent band gap and doping-dependent mobility).
-5. Add instructor materials and a technical report.
+4. Add instructor materials and a technical report.
+
+Found something wrong? Please [open an issue](https://github.com/Sean-KSH/silicon-atlas/issues/new/choose).
+The "Physics or content issue" form asks for the module, what looks wrong and a reference. See
+[`CONTRIBUTING.md`](CONTRIBUTING.md) for how the code is organized and what a model change needs.
 
 ## Sources
 
@@ -187,7 +199,9 @@ graphics are original.
 
 ## License
 
-Not chosen yet. Until a license is added, all rights are reserved by the author.
+[MIT](LICENSE). You may use, adapt and share Silicon Atlas, including in courses, with credit.
+Bundled fonts (IBM Plex) are under the SIL Open Font License; other third-party licenses are listed
+in [`docs/third-party-licenses.md`](docs/third-party-licenses.md).
 
 ## Citing
 

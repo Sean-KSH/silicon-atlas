@@ -422,6 +422,9 @@ a.home-secondary:hover {
   line-height: 1.55;
   color: var(--muted);
 }
+.home-footer a {
+  color: var(--muted);
+}
 .home .home-footer p + p {
   margin-top: 6px;
 }
