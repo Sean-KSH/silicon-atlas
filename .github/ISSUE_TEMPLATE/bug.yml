@@ -1,0 +1,21 @@
+name: Interface problem
+description: Something that does not work, display or respond as expected.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you saw, and what you expected.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Setup link
+      description: Use "Copy link" in the top bar, if the problem is in a module.
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device
+      placeholder: "Chrome 131 on macOS, iPad Safari, ..."

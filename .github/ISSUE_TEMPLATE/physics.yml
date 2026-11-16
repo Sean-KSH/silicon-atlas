@@ -1,0 +1,29 @@
+name: Physics or content issue
+description: A result, equation, explanation or label that looks wrong or misleading.
+labels: [physics]
+body:
+  - type: input
+    id: module
+    attributes:
+      label: Module
+      description: Which module, and which panel or plot?
+      placeholder: "06 P–n junction, aligned profiles, electric field plot"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What looks wrong
+      description: What the module shows, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: source
+    attributes:
+      label: Reference
+      description: A textbook section, paper or calculation that supports the expected result, if you have one.
+  - type: input
+    id: link
+    attributes:
+      label: Setup link
+      description: Use "Copy link" in the top bar so the exact settings can be reopened.
