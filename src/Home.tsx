@@ -140,7 +140,7 @@ const HOW = [
   },
   {
     title: 'Read “What changed and why”',
-    text: 'The green panels explain the response in words and say which quantities were held fixed.',
+    text: 'The “What changed and why?” panel beside the plots explains the response in words and says which quantities were held fixed.',
   },
   {
     title: 'Predict, then check',
@@ -184,6 +184,10 @@ export default function Home() {
           {COURSE_PATHS.map((p) => (
             <article key={p.title} className="home-path">
               <h3>{p.title}</h3>
+              <p className="home-path-total">
+                {p.modules.length} modules · about{' '}
+                {Math.round(p.modules.reduce((t, id) => t + LESSONS[id].minutes, 0) / 30) / 2} hours
+              </p>
               <p>{p.audience}</p>
               <ol>
                 {p.modules.map((id) => {
@@ -262,6 +266,32 @@ export default function Home() {
               limits, conservation laws and textbook worked examples. None has yet been compared
               with measured data.
             </p>
+            <h3>Classroom tools</h3>
+            <dl className="home-tools">
+              <div>
+                <dt>Present</dt>
+                <dd>Enlarges the page by a quarter so labels read from the back of a room.</dd>
+              </div>
+              <div>
+                <dt>Light theme</dt>
+                <dd>Better on projectors in a lit room. Printing always uses it.</dd>
+              </div>
+              <div>
+                <dt>Copy link</dt>
+                <dd>
+                  Copies a link that reopens a module with its exact settings, for slides and
+                  assignments.
+                </dd>
+              </div>
+              <div>
+                <dt>[ and ]</dt>
+                <dd>Keyboard keys for the previous and next module while presenting.</dd>
+              </div>
+              <div>
+                <dt>Print</dt>
+                <dd>Prints a module with its goals and self-check questions as a handout.</dd>
+              </div>
+            </dl>
           </div>
           <div className="home-demos">
             <h3>Ten-minute demonstrations</h3>
@@ -286,6 +316,7 @@ export default function Home() {
           D. A. Neamen, <cite>Semiconductor Physics and Devices</cite>, 4th edition; explanations
           and graphics are original.
         </p>
+        <p>Version 0.9, pre-release, November 2026.</p>
       </footer>
     </main>
   );

@@ -267,6 +267,11 @@ a.home-secondary:hover {
 .home-path a:hover {
   background: var(--raised);
 }
+.home p.home-path-total {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--faint);
+}
 .home-path-time {
   font-size: 13px;
   color: var(--faint);
@@ -389,6 +394,36 @@ a.home-secondary:hover {
 }
 .home .home-inst-notes p + p {
   margin-top: 14px;
+}
+.home .home-inst-notes h3 {
+  margin: 28px 0 6px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+}
+.home-tools {
+  margin: 0;
+}
+.home-tools div {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+}
+.home-tools dt {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+.home-tools dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.home .home-footer p + p {
+  margin-top: 6px;
 }
 .home .home-demos h3 {
   font-size: 15px;

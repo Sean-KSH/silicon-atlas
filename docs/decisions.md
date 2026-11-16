@@ -102,3 +102,10 @@ fabrication recipe (it has its own JSON export) and the bench's unacquired draft
 module that fails on an impossible linked value shows a message with a link back to defaults
 instead of a blank page.
 
+### D-014 Presenter and handout tools (accepted, 2026-11-15)
+The course guide lists classroom tools for instructors, each course path shows its total time, and
+`[` / `]` step to the previous or next module (ignored while typing or using a control). Printing a
+module keeps its goals and self-check questions but leaves out the answers and spaces the
+questions, so a printout works as a student handout. Copy on the course guide no longer refers to
+"green panels", which only describes the dark theme.
+

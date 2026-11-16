@@ -341,6 +341,28 @@ export function AppBar({
   const next = idx >= 0 && idx < MODULES.length - 1 ? MODULES[idx + 1] : undefined;
   const lesson = mod ? LESSONS[mod.id] : undefined;
   useEffect(() => setOpen(false), [current]);
+  // Presenter shortcuts: [ and ] step through modules (ignored while typing or using a control).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key !== '[' && e.key !== ']') return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+      const to =
+        e.key === '['
+          ? idx > 0
+            ? `#${MODULES[idx - 1].id}`
+            : idx === 0
+              ? '#home'
+              : null
+          : idx < MODULES.length - 1
+            ? `#${MODULES[idx + 1].id}`
+            : null;
+      if (to) location.hash = to;
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [idx]);
   return (
     <header className="shell-bar">
       <div className="shell-row">

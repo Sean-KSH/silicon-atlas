@@ -258,8 +258,12 @@ button.shell-icon-button[aria-pressed='true'] {
   #main .module-body > div > header {
     display: none !important;
   }
+  /* Handouts: questions only, with room left to answer. */
   .guide-check details {
-    display: block;
+    display: none;
+  }
+  .guide-check li {
+    padding-bottom: 48px;
   }
 }
 .shell-step a {
