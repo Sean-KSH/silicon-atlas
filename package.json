@@ -25,7 +25,10 @@
     "typecheck": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
-    "validate": "node scripts/validation-report.mjs"
+    "validate": "node scripts/validation-report.mjs",
+    "paper:data": "node --import tsx paper/scripts/export-data.ts",
+    "paper:figures": "python3 paper/scripts/make_figures.py",
+    "paper:pdf": "cd paper && latexmk -pdf main.tex && cp main.pdf silicon-atlas.pdf"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "5.1.1",

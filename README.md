@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Live demo: [sean-ksh.github.io/silicon-atlas](https://sean-ksh.github.io/silicon-atlas/)**
+&nbsp;·&nbsp; **Paper: [silicon-atlas.pdf](paper/silicon-atlas.pdf)**
 
 Silicon Atlas is a set of ten interactive labs for introductory solid-state devices and
 electronic/photonic devices courses. Each lab takes a model from the course and lets a student
@@ -159,7 +160,7 @@ src/
 scripts/              Mac launcher, validation report, light-theme colour generator
 .github/              checks and live-demo workflows, issue forms
 docs/                 audit, validation, limitations, decisions, model cards, literature review
-paper/                bibliography for a future technical report
+paper/                the technical paper, its LaTeX source, and the scripts that regenerate its data and figures
 output/screenshots/   current screenshots of every module
 ```
 
@@ -175,6 +176,7 @@ output/screenshots/   current screenshots of every module
 | [`docs/literature-review.md`](docs/literature-review.md) | Primary sources and how far each has been checked |
 | [`docs/models/`](docs/models/) | Model cards (shared materials so far) |
 | [`docs/implementation-notes.md`](docs/implementation-notes.md) | Detailed notes from building each module |
+| [`paper/silicon-atlas.pdf`](paper/silicon-atlas.pdf) | Technical paper: design, models, numerical methods and verification results ([how to rebuild it](paper/README.md)) |
 | [`context.md`](context.md) | The project's goals and quality expectations |
 
 ## Next steps
@@ -183,7 +185,7 @@ output/screenshots/   current screenshots of every module
 2. Finish the literature review and write a model card for each model.
 3. Decide the open physics questions in `docs/decisions.md` (which intrinsic concentration to
    teach with; temperature-dependent band gap and doping-dependent mobility).
-4. Add instructor materials and a technical report.
+4. Add instructor materials, and compare selected results with laboratory measurements.
 
 Found something wrong? Please [open an issue](https://github.com/Sean-KSH/silicon-atlas/issues/new/choose).
 The "Physics or content issue" form asks for the module, what looks wrong and a reference. See
@@ -205,4 +207,15 @@ in [`docs/third-party-licenses.md`](docs/third-party-licenses.md).
 
 ## Citing
 
-See [`CITATION.cff`](CITATION.cff).
+See [`CITATION.cff`](CITATION.cff). To cite the paper:
+
+```bibtex
+@techreport{kim2026siliconatlas,
+  author      = {Sean Kim},
+  title       = {Silicon Atlas: An Interactive, Verified Platform for Teaching
+                 Semiconductor Materials and Devices},
+  institution = {Princeton University},
+  year        = {2026},
+  url         = {https://github.com/Sean-KSH/silicon-atlas/blob/main/paper/silicon-atlas.pdf}
+}
+```

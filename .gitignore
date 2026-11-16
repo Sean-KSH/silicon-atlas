@@ -7,6 +7,8 @@ dist/
 Context/
 tmp/
 *.pdf
+!paper/silicon-atlas.pdf
+!paper/figures/*.pdf
 
 # Local/OS files
 .DS_Store
@@ -16,3 +18,13 @@ tmp/
 
 # Python caches
 __pycache__/
+
+# LaTeX build files
+paper/main.pdf
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.out
+paper/*.synctex.gz
